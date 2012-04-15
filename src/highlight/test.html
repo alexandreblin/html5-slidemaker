@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+    <head>
+        <title>highlight.js test</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" title="Visual Studio" href="../lib/highlight/styles/vs.css">
+        <script src="../lib/highlight/highlight.pack.js"></script>
+        <script>
+            hljs.initHighlightingOnLoad();
+        </script>
+    </head>
+    <body>
+        <h1>Mon code Java</h1>
+        <pre>
+            <code>
+package ter;
+
+import java.util.ArrayList;
+
+/**
+* Test code java
+*/
+public abstract class GrosLapin extends Lapin
+{
+    private List&lt;Carotte&gt; mesCarottes;
+
+    public void GrosLapin(String nom) {
+        super(nom);
+        mesCarottes = new ArrayList&lt;Carotte&gt;();
+    }
+
+    //Ca rend aimable !
+    public void mangeDesCarottes(int numCarottes) {
+        //TODO mangeDesCarottes
+    }
+}
+            </code>
+        </pre>
+    </body>
+</html>
