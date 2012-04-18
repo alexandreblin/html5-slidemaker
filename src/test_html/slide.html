@@ -21,6 +21,7 @@
    <!-- <script src='http://html5slides.googlecode.com/svn/trunk/slides.js'></script> -->
     <script src='slides.js'></script>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
     <script>
         
     $(document).ready(function() {
@@ -33,10 +34,7 @@
   </head>
   
   <style>
-    /* Your individual styles here, or just use inline styles if that’s
-       what you want. */
-    
-    
+      .slides article   { background-image:none !important; background-color:white;}
   </style>
 
   <body style='display: none'>
@@ -46,30 +44,282 @@
       <!-- Your slides (<article>s) go here. Delete or comment out the
            slides below. -->
 
-        <article>
+      <article>
+          <h1>
+              Title
+          </h1>
+          <p>
+              Subtitle
+          </p>
+      </article>
 
-            <h3>Test slide 1</h3>
-            <textarea id="code"  rows="10" cols="90"></textarea>
-            <p><input type="button" id="test" value="boop" /></p>
+      <article>
+          <h3>
+              Header
+          </h3>
+          <p>
+              Text area
+          </p>
+      </article>
 
-            <iframe style="height: 200px"></iframe>
+      <article>
+          <h3>
+              Slide with static list
+          </h3>
+          <ul>
+              <li>
+                  list item
+              </li>
+              <li>
+                  list item
+              </li>
+              <li>
+                  list item
+              </li>
+          </ul>
+      </article>
+
+      <article>
+          <h3>
+              Slide with building list
+          </h3>
+          <ul class="build">
+              <li>
+                 List item
+              </li>
+              <li>
+                 List item
+              </li>
+              <li>
+                 List item
+              </li>
+          </ul>
+      </article>
+
+      <article>
+          <h3>
+              Slide with table
+          </h3>
+          <table>
+              <tr>
+                  <th>
+                      Column1
+                  <th>
+                      Column2
+                      <tr>
+                          <td>
+                            text
+                          <td>
+                            text
+              <tr>
+                  <td>
+                      text
+                  <td>
+                      text
+          </table>
+      </article>
+
+      <article>
+          <h2>
+              Segue slide
+          </h2>
+      </article>
 
 
-        </article>
+      <article>
+          <h3>
+              Slide with an image (centered)
+          </h3>
+          <p>
+              <img class='centered' style='height: 500px' src='images/flower.jpg'>
+          </p>
+          <div class='source'>
+              Source: Author
+          </div>
+      </article>
+
+      <article>
+          <h3>
+              Slide with an image and text
+          </h3>
+            <p>
+                <img class='floatLeft'  style='height: 500px' src='images/flower.jpg'>
+            </p>
+          <p>
+              text area
+          </p>
+      </article>
+
+      <article>
+          <h3>
+              Slide with an image and text
+          </h3>
+          <p>
+              <img class='floatLeft'  style='height: 100px' src='images/flower.jpg'>
+          </p>
+          <p>
+              text area text area text area text area text area text area text area text area text area text area text
+              area text area text area text area text area text area text area text area text area
+              text area text area text area text area text area text area text area text area text area text area
+              text area text area text area text area text area text area text area
+              text area text area text area
+              text area text area text area
+              text area text area text area
+              text area text area text area
+              text area text area text area
+          </p>
+      </article>
+
+      <article class='fill'>
+          <h3>
+              Image filling the slide (with optional header)
+          </h3>
+          <p>
+              <img src='images/flower.jpg'>
+          </p>
+          <div class='source white'>
+              Source: Author
+          </div>
+      </article>
 
 
-        <article>
+      <article class='smaller'>
+          <h3>
+              Slide with some code (small font)
+          </h3>
+          <section>
+    <pre>
+&lt;script type='text/javascript'&gt;
+  // Say hello world until the user starts questioning
+  // the meaningfulness of their existence.
+  function helloWorld(world) {
+    for (var i = 42; --i &gt;= 0;) {
+      alert('Hello ' + String(world));
+    }
+  }
+&lt;/script&gt;
+&lt;style&gt;
+  p { color: pink }
+  b { color: blue }
+  u { color: 'umber' }
+&lt;/style&gt;
+    </pre>
+          </section>
+      </article>
 
-            <h3>Test slide 2</h3>
 
-        </article>
+      <article class='smaller'>
+          <h3>
+              Slide with a lot of code
+          </h3>
 
+          <section class='scroll'>
+
+            <pre  class='noMargin'>
+
+                &lt;script type='text/javascript'&gt;
+                  // Say hello world until the user starts questioning
+                  // the meaningfulness of their existence.
+                  function helloWorld(world) {
+                    for (var i = 42; --i &gt;= 0;) {
+                      alert('Hello ' + String(world));
+                    }
+                  }
+                &lt;/script&gt;
+                &lt;style&gt;
+                  p { color: pink }
+                  b { color: blue }
+                  u { color: 'umber' }
+                &lt;/style&gt;
+
+                        &lt;script type='text/javascript'&gt;
+                  // Say hello world until the user starts questioning
+                  // the meaningfulness of their existence.
+                  function helloWorld(world) {
+                    for (var i = 42; --i &gt;= 0;) {
+                      alert('Hello ' + String(world));
+                    }
+                  }
+                &lt;/script&gt;
+                &lt;style&gt;
+                  p { color: pink }
+                  b { color: blue }
+                  u { color: 'umber' }
+                &lt;/style&gt;
+
+                        &lt;script type='text/javascript'&gt;
+                  // Say hello world until the user starts questioning
+                  // the meaningfulness of their existence.
+                  function helloWorld(world) {
+                    for (var i = 42; --i &gt;= 0;) {
+                      alert('Hello ' + String(world));
+                    }
+                  }
+                &lt;/script&gt;
+                &lt;style&gt;
+                  p { color: pink }
+                  b { color: blue }
+                  u { color: 'umber' }
+                &lt;/style&gt;
+
+            </pre>
+          </section>
+
+      </article>
+
+      <article>
+          <q>
+             Some citation.
+          </q>
+          <div class='author'>
+              Author.
+          </div>
+      </article>
+
+
+      <article class='nobackground'>
+          <h3>
+              A slide with an embed + title
+          </h3>
+
+          <iframe src='http://www.google.com/doodle4google/history.html'></iframe>
+      </article>
+
+      <article class='fill'>
+          <h3>
+              Full-slide embed with (optional) slide title on top
+          </h3>
+          <iframe src='http://www.google.com/doodle4google/history.html'></iframe>
+      </article>
+
+      <article>
+
+          <h3>Slide with html interpreter</h3>
+          <textarea id="code"  style="height: 40%; width: 100%">Type some html code</textarea>
+          <p>
+              <input type="button" id="test" value="boop" />
+          </p>
+
+          <iframe style="height: 40%; width: 100%" id="body"></iframe>
+      </article>
+
+
+
+      <article>
+          <h3>
+              Link list
+          </h3>
+
+          <ul>
+              <li>
+                  <a href='http://www.google.com'>google.com</a>
+              <li>
+                  <a href='http://www.youtube.com'>youtube.com</a>
+          </ul>
+      </article>
 
     </section>
 
   </body>
 </html>
 
-<!--
-    <h1>text</h1>
->
