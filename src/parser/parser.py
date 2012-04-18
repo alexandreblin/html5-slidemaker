@@ -2,7 +2,7 @@
 
 import lxml.html as html
 import argparse
-import os
+import os,inspect
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -16,8 +16,8 @@ if __name__ == '__main__':
     
     templateName = 'html5slides'
     
-    mainTemplate = open(os.path.join('templates', templateName, 'main.html')).read()
-    slideTemplate = open(os.path.join('templates', templateName, 'slide.html')).read()
+    mainTemplate = open(os.path.join(os.path.dirname(inspect.getfile(inspect.currentframe())), 'templates', templateName, 'main.html')).read()
+    slideTemplate = open(os.path.join(os.path.dirname(inspect.getfile(inspect.currentframe())), 'templates', templateName, 'slide.html')).read()
     
     mainTemplate = mainTemplate.replace('<!-- {{TITLE}} -->', args.title)
     
