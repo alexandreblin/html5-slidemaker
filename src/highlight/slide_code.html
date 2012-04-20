@@ -68,7 +68,7 @@
                     var canvas = document.getElementById('pane');
                     var context = canvas.getContext('2d');
 
-                    context.fillStyle = 'rgb(250,0,0)';
+                    context.fillStyle = 'rgb(#truc#,0,0)';
                     context.fillRect(10, 10, 55, 50);
 
                     context.fillStyle = 'rgba(0, 0, 250, 0.5)';
@@ -78,11 +78,20 @@
             </html>
         </textarea>
         <iframe id=preview></iframe>
+
+        <p> R:
+
+        <input min="0" max="255" value="75" id="ranger" onchange="effect('ranger')" type="range">
+        <output id="rangerValue"></output></p>
+
         <script>
+            var editorCode;
+            var editorNew;
+            var editor;
             $(document).ready(function() {
                 var delay;
                 // Initialize CodeMirror editor with a nice html5 canvas demo.
-                var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+                editor = CodeMirror.fromTextArea(document.getElementById('code'), {
                     mode: 'text/html',
                     tabMode: 'indent',
                     onChange: function() {
@@ -90,6 +99,11 @@
                         delay = setTimeout(updatePreview, 300);
                     }
                 });
+
+                editorCode = editor.getValue();
+                editorNew = editorCode.replace('#truc#', ranger.value);
+                editor.setValue(editorNew);
+
                 function updatePreview() {
                     var previewFrame = document.getElementById('preview');
                     var preview =  previewFrame.contentDocument || previewFrame.contentWindow.document;
@@ -99,8 +113,19 @@
                 }
                 setTimeout(updatePreview, 300);
             });
+
+            function effect(ranger) {
+                var currVal = document.getElementById(ranger).value;
+                document.getElementById(ranger+ "Value").innerHTML = currVal;
+                editorNew = editorCode.replace('#truc#', currVal);
+                editor.setValue(editorNew);
+                editor.refresh();
+            }
+
         </script>
     </article>
+
+
 </section>
 </body>
 </html>
