@@ -3,16 +3,19 @@
 import lxml.html as html
 import argparse
 import os
+import sys
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('input')
+    parser.add_argument('input', nargs='?', default=None)
     parser.add_argument('--title', '-t', help="the slideshow's title", default="Presentation")
 
     args = parser.parse_args()
     
-    f = open(args.input)
-    doc = html.parse(args.input)
+    if not args.input:
+        doc = html.document_fromstring(sys.stdin.read())
+    else:
+        doc = html.parse(args.input)
     
     templateName = 'html5slides'
     
