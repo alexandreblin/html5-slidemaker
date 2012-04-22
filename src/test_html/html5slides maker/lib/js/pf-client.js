@@ -12306,7 +12306,7 @@ namespace.lookup('com.pageforest.client').define(function (exports) {
                     message = json.statusText;
                 }
             } catch (e) {
-                if (message.length > 100) {
+                if (message && message.length > 100) {
                     message = xmlhttp.statusText;
                 }
             }

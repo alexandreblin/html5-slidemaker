@@ -25,6 +25,12 @@
 
 <link rel="stylesheet" type="text/css" href="./styles/main.css" />
 <link rel="stylesheet" type="text/css" href="./lib/css/client.css" />
+<!--
+ <link href="lib/water/water_styles.css" media="screen" rel="stylesheet" type="text/css" />
+ <link href="lib/water/water.css" media="screen" rel="stylesheet" type="text/css" />
+ -->
+<!-- <link href="lib/styles.css" media="screen" rel="stylesheet" type="text/css" />  -->
+<link href="lib/uulm/uulm.css" media="screen" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript" src="./lib/js/pf-client.js"></script>
 <script type="text/javascript" src="./scripts/all.js"></script>
@@ -90,41 +96,51 @@
   </div>
 
   <script type="slide-template" title="title">
-    <article>
-      <h1>
-        Title Goes Here Up<br/>
-        To Two Lines
-      </h1>
-      <p>
-        Presenter's Name<br/>
-        Date
-      </p>
-    </article>
+      <article class="slides title-slide">
+          <h1 id="sl_title">HTML5 Slide Deck</h1>
+          <h2 id="sl_author">
+              Dark Souls<br> April 2012
+          </h2>
+          <h2 id="sl_subtitle">
+              Feature Demonstration<br> HTML5 + CSS3 + some JS
+          </h2>
+          <p>
+              <img id="sl_title-header" src='assets/images/header_sample.jpg'>
+              <img id="sl_uulm-logo" src='lib/uulm/uulm_logo.svg'>
+          </p>
+      </article>
   </script>
 
   <script type="slide-template" title="text">
-    <article>
-      <h3>
-        Title Goes Here Up<br/>
-        To Two Lines
-      </h3>
-      <p>
-        This is a paragraph with just text.  This is a paragraph with just text.
-        This is a paragraph with just text.  This is a paragraph with just text.
-        This is a paragraph with just text.  This is a paragraph with just text.
-      </p>
-    </article>
+      <article class="slides">
+          <h3>The nitty-gritty, this is a slide:</h3>
+          <section>
+					<pre>
+   &lt;article&gt;
+     &lt;h3&gt;
+	Slide captions are &lt;h3&gt; headings
+     &lt;/h3&gt;
+     &lt;p&gt;
+	Each slide is represented by an HTML5 &lt;article&gt;.
+	Content is regular HTML, such as this &lt;p&gt; paragraph
+     &lt;/p&gt;
+     &lt;p&gt;
+	Lorem ipsum dolor sit amet.
+     &lt;/p&gt;
+   &lt;/article&gt;
+</pre>
+          </section>
+          <p>You can see on the next slide what it looks like.</p>
+      </article>
   </script>
 
   <script type="slide-template" title="bullets">
-    <article>
-      <h3>Title</h3>
-      <ul>
-        <li>Item 1
-        <li>Item 2
-        <li>Item 3
-      </ul>
-    </article>
+      <article class="slides">
+          <h3>Slide captions are &lt;h3&gt; headings</h3>
+          <p>Each slide is represented by an HTML5 &lt;article&gt;. Content
+              is regular HTML, such as this &lt;p&gt; paragraph</p>
+          <p>Lorem ipsum dolor sit amet.</p>
+      </article>
   </script>
 
   <script type="slide-template" title="codePretty">

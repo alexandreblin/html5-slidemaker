@@ -1,7 +1,7 @@
 /*
   Google HTML5 slides template
 
-  Authors: Luke Mahé (code)
+  Authors: Luke Mahï¿½ (code)
   Marcin Wichary (code and design)
 
   Dominic Mazzoni (browser compatibility)
@@ -623,11 +623,24 @@ function handleDomLoaded() {
     refresh(addEventListeners);
 };
 
+function enumrateSlides() {
+    for ( var i = 0, slide; slide = slideEls[i]; i++) {
+        var el = document.createElement('footer');
+        var span = document.createElement('span');
+        span.className = 'slide-nr';
+        span.innerHTML = "" + (i + 1);
+        el.appendChild(span);
+        slide.appendChild(el);
+    }
+};
+
+
 // Event Listeners bound only once
 function refresh(addListeners) {
     slideEls = document.querySelectorAll('section.slides > article');
 
     setupFrames();
+    enumrateSlides();
 
     addFontStyle();
     addGeneralStyle();
