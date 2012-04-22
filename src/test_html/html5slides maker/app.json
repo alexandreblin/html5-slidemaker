@@ -1,0 +1,19 @@
+{
+  "application": "html5slides",
+  "cloneable": true,
+  "icon": "images/icon.png",
+  "owner": "bobbys",
+  "readers": [
+    "public"
+  ],
+  "referers": [],
+  "secureData": false,
+  "tags": [
+    "sample",
+    "demo",
+    "pf:featured"
+  ],
+  "title": "Html5Slides",
+  "url": "http://html5slides.pageforest.com/",
+  "writers": ["mckoss"]
+}
