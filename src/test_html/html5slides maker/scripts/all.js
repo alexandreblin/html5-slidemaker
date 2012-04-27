@@ -645,6 +645,10 @@ function onReady() {
         stockCode[s.title] = $(s).text();
     }
     onReadyFlag = true;
+	
+	$('button.toolbar').click(function(e) {
+		replaceString("<"+this.id+">"+getSelection()+"</"+this.id+">");
+	});
 }
 
 function viewSlideshowFullscreen() {
@@ -844,5 +848,15 @@ function handleAppCache() {
 
     applicationCache.addEventListener('updateready', handleAppCache, false);
 }
+
+function replaceString(text){
+	doc.editor.value = doc.editor.value.substr(0, doc.editor.selectionStart) + text + doc.editor.value.substr(doc.editor.selectionEnd, doc.editor.value.length);
+}
+
+function getSelection(){
+	var l = doc.editor.selectionEnd - doc.editor.selectionStart;
+	return doc.editor.value.substr(doc.editor.selectionStart, l)
+}
+
 });
 
