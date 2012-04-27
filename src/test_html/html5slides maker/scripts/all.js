@@ -648,6 +648,7 @@ function onReady() {
 	
 	$('button.toolbar').click(function(e) {
 		replaceString("<"+this.id+">"+getSelection()+"</"+this.id+">");
+		onEditChange();
 	});
 }
 
