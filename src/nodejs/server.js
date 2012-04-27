@@ -1,6 +1,6 @@
 var express = require('express');
 var http = require('http');
-var util = require('util');
+var sys = require('sys');
 var exec = require('child_process').exec;
 var child;
 
@@ -12,19 +12,7 @@ app.configure(function(){
 });
 
 app.get('/', function(req, res, next){
-  //res.render('index.html'); 
-
-	child = exec("python \"" + __dirname + "/../parser/parser.py\" \"" + __dirname + "/../parser/input.html\"", function (error, stdout, stderr) {
-		util.print('stdout: ' + stdout);
-		util.print('stderr: ' + stderr);
-		if (error !== null) {
-			console.log('exec error: ' + error);
-		}
-		res.writeHead(200, {'Content-Type': 'text/plain'});  
-		res.write('stdout: ' + stdout + "\n\n"); 
-		res.write('stderr: ' + stderr + "\n\n");
-		res.end('exec error: ' + error + "\n");		
-	});
+  res.render('index.html'); 
 });
 
 app.listen(8080);
@@ -41,3 +29,15 @@ nowjs.on("connect", function(){
 nowjs.on("disconnect", function(){
   console.log("Left: " + this.user.clientId);
 });
+
+everyone.now.transform = function(str,callback) {
+	//child = exec("python \"" + __dirname + "/../parser/parser.py\" \"" + __dirname + "/../parser/input.html\"", function (error, stdout, stderr) {
+	child = exec("echo \"" + str + "\" | python \"" + __dirname + "/../parser/parser.py\"", function (error, stdout, stderr) {
+		sys.print('stdout: ' + stdout);
+		sys.print('stderr: ' + stderr);
+		if (error !== null) {
+			console.log('exec error: ' + error);
+		}
+		callback(stdout);
+	});
+}
