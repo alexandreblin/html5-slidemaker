@@ -1,2 +1,6 @@
-Section liens utiles :
-- Diverses informations se trouvent sur le wiki : https://github.com/madjawa/html5-slidemaker/wiki
+Installation
+============
+
+Run `npm install` inside src/ folder, then start the server with `node server.js`
+
+The application will be available on port 8080.
