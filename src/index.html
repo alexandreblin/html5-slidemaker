@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>HTML5 Slide Maker</title>
+
+	<link rel="stylesheet" type="text/css" href="style.css">
+    
+    <link rel=stylesheet href="lib/codemirror/lib/codemirror.css">
+
+	<script src="lib/jquery-1.7.2.min.js"></script>
+    <script src="lib/codemirror/lib/codemirror.js"></script>
+    <script src="lib/codemirror/lib/codemirror.js"></script>
+    <script src="lib/codemirror/mode/xml/xml.js"></script>
+    <script src="lib/codemirror/mode/javascript/javascript.js"></script>
+    <script src="lib/codemirror/mode/css/css.js"></script>
+    <script src="lib/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+
+	<script>
+		$(document).ready(function() {
+			/*$(document).mousemove(function(event) {
+				var splitVal = event.pageX / $(document).width();
+
+				$("#code").css({right: ((1-splitVal)*100)+"%"});
+				$("#preview").css({left: (splitVal*100)+"%"});
+			});*/
+
+			var delay;
+			var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("editor"), {
+				mode: 'text/html',
+				lineNumbers: true,
+				lineWrapping: true,
+				onChange: function() {
+					clearTimeout(delay);
+					delay = setTimeout(updatePreview, 300);
+				}
+			});
+
+			function updatePreview() {
+				var htmlStr = myCodeMirror.getValue();
+				var doc = $('#preview iframe')[0];
+				var win = doc.contentDocument || doc.contentWindow.document;
+
+				win.open();
+				win.write(htmlStr);
+				win.close();
+			}
+
+			updatePreview();
+		});
+	</script>
+</head>
+<body>
+	<header>
+		<h1>HTML5 Slide Maker</h1>
+	</header>
+
+	<section id="container">
+		<section id="code">
+<textarea id="editor"><article>
+  <h1>
+    Title Goes Here Up
+    <br>
+    To Two Lines
+  </h1>
+  <p>
+    Sergey Brin
+    <br>
+    May 10, 2011
+  </p>
+</article>
+
+<article>
+  <p>
+    This is a slide with just text. This is a slide with just text.
+    This is a slide with just text. This is a slide with just text.
+    This is a slide with just text. This is a slide with just text.
+  </p>
+  <p>
+    There is more text just underneath.
+  </p>
+</article></textarea>
+		</section>
+
+		<section id="preview">
+			<iframe>
+		</section>
+	</section>
+</body>
+</html>
