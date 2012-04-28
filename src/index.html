@@ -9,46 +9,14 @@
     <link rel=stylesheet href="lib/codemirror/lib/codemirror.css">
 
 	<script src="lib/jquery-1.7.2.min.js"></script>
+	<script src="nowjs/now.js"></script>
+	<script src="js/editor.js"></script>
     <script src="lib/codemirror/lib/codemirror.js"></script>
     <script src="lib/codemirror/lib/codemirror.js"></script>
     <script src="lib/codemirror/mode/xml/xml.js"></script>
     <script src="lib/codemirror/mode/javascript/javascript.js"></script>
     <script src="lib/codemirror/mode/css/css.js"></script>
     <script src="lib/codemirror/mode/htmlmixed/htmlmixed.js"></script>
-
-	<script>
-		$(document).ready(function() {
-			/*$(document).mousemove(function(event) {
-				var splitVal = event.pageX / $(document).width();
-
-				$("#code").css({right: ((1-splitVal)*100)+"%"});
-				$("#preview").css({left: (splitVal*100)+"%"});
-			});*/
-
-			var delay;
-			var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("editor"), {
-				mode: 'text/html',
-				lineNumbers: true,
-				lineWrapping: true,
-				onChange: function() {
-					clearTimeout(delay);
-					delay = setTimeout(updatePreview, 300);
-				}
-			});
-
-			function updatePreview() {
-				var htmlStr = myCodeMirror.getValue();
-				var doc = $('#preview iframe')[0];
-				var win = doc.contentDocument || doc.contentWindow.document;
-
-				win.open();
-				win.write(htmlStr);
-				win.close();
-			}
-
-			updatePreview();
-		});
-	</script>
 </head>
 <body>
 	<header>
