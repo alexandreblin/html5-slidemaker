@@ -107,17 +107,21 @@ body {
 }
 
 header {
-	height: 20px;
-	padding: 15px;
+    background: url(css/header.png) repeat-x;
+    height: 40px;
+    padding-bottom: 10px;
 }
 
 header > h1 {
-	font-size: 24px;
+	font-size: 26px;
+    padding: 8px;
+    color: #222;
+    text-shadow: 1px 1px 1px #f5f5f5;
 }
 
 #toolbar {
     height: 20px;
-    padding: 5px;
+    padding: 0 5px 5px 5px;
 }
 
 #container, #code, #preview {
