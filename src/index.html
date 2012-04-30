@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>HTML5 Slide Maker</title>
+
+	<link rel="stylesheet" type="text/css" href="style.css">
+    
+    <link rel=stylesheet href="lib/codemirror/lib/codemirror.css">
+
+	<script src="lib/jquery-1.7.2.min.js"></script>
+	<script src="nowjs/now.js"></script>
+	<script src="js/editor.js"></script>
+    <script src="lib/codemirror/lib/codemirror.js"></script>
+    <script src="lib/codemirror/lib/codemirror.js"></script>
+    <script src="lib/codemirror/mode/xml/xml.js"></script>
+    <script src="lib/codemirror/mode/javascript/javascript.js"></script>
+    <script src="lib/codemirror/mode/css/css.js"></script>
+    <script src="lib/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+</head>
+<body>
+	<header>
+		<h1><a href=".">HTML5 Slide Maker</a></h1>
+	</header>
+
+  <div id="toolbar">
+    <button title="b" class="toolbar">Bold</button>
+    <button title="i" class="toolbar">Italic</button>
+    <button title="u" class="toolbar">Underline</button>
+    <button title="strike" class="toolbar">Strikethrough</button>
+    <button title="img" class="toolbar">Image</button>
+    <button title="a" class="toolbar">Link</button>
+  </div>
+
+	<section id="container">
+		<section id="code">
+<textarea id="editor"><article>
+  <h1>
+    Title Goes Here Up
+    <br>
+    To Two Lines
+  </h1>
+  <p>
+    Sergey Brin
+    <br>
+    May 10, 2011
+  </p>
+</article>
+
+<article>
+  <p>
+    This is a slide with just text. This is a slide with just text.
+    This is a slide with just text. This is a slide with just text.
+    This is a slide with just text. This is a slide with just text.
+  </p>
+  <p>
+    There is more text just underneath.
+  </p>
+</article></textarea>
+		</section>
+
+		<section id="preview">
+			<iframe>
+		</section>
+	</section>
+</body>
+</html>

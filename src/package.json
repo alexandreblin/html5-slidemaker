@@ -1,0 +1,10 @@
+{
+  "name": "html5-slidemaker",
+  "version": "0.0.1",
+  "dependencies": {
+    "socket.io": "0.9.6",
+    "express": "2.5.9",
+    "node-proxy": "0.5.2",
+    "now": "0.8.1"
+  }
+}
