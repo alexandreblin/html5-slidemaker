@@ -587,6 +587,27 @@ function makeBuildLists() {
     }
 };
 
+function updateScale() {
+    var scaleX = $(window).width() / 940;
+    var scaleY = $(window).height() / 740;
+
+    // getting the scale that will fit the slides in both height and width
+    var scale = Math.min(scaleX, scaleY);
+
+    // don't scale up 
+    if (scale > 1) {
+        scale = 1;
+    }
+    
+    // apply the scale using CSS3
+    $('section.slides').css({
+        '-webkit-transform': 'scale(' + scale + ')',
+        '-moz-transform': 'scale(' + scale + ')',
+        '-o-transform': 'scale(' + scale + ')',
+        'transform': 'scale(' + scale + ')'
+    });
+}
+
 function handleDomLoaded() {
     slideEls = document.querySelectorAll('section.slides > article');
 
@@ -601,6 +622,12 @@ function handleDomLoaded() {
 
     setupInteraction();
     makeBuildLists();
+
+    // fit the slides to the screen
+    updateScale();
+
+    // update the scale on window resize
+    $(window).resize(updateScale);
 
     document.body.classList.add('loaded');
 };
