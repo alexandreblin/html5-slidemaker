@@ -162,13 +162,41 @@ header > h1 a {
 	-webkit-box-sizing:border-box;
 	-moz-box-sizing: border-box;
 	-ms-box-sizing: border-box;
+    border: 1px solid #eee;
+    border-right: none;
 }
 
-#code .CodeMirror-scroll {
+#code .CodeMirror-scroll, #preview > iframe {
 	border-top: 1px solid #eee;
 }
 
-#preview >  iframe {
+#preview > iframe {
 	width: 100%;
 	height: 100%;
+}
+
+#splitter {
+    position: absolute;
+    width: 4px;
+    height: 100%;
+    left: 50%;
+    background-color: #fff;
+    border-right: 1px solid #eee;
+    border-left: 1px solid #eee;
+}
+
+#splitter:hover, #splitter:active {
+    cursor: col-resize;
+    background-color: #eee;
+}
+
+#dragSurface {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    background: transparent;
+    cursor: col-resize;
 }

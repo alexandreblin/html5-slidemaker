@@ -1,10 +1,30 @@
 $(document).ready(function(){
-	/*$(document).mousemove(function(event) {
-		var splitVal = event.pageX / $(document).width();
+	function setSplitAt(value) {
+		var leftSize = value;
+		var rightSize = $(document).width() - value;
 
-		$("#code").css({right: ((1-splitVal)*100)+"%"});
-		$("#preview").css({left: (splitVal*100)+"%"});
-	});*/
+		$("#code").css({right: rightSize + 2});
+		$("#preview").css({left: leftSize + 2});
+		$("#splitter").css({left: leftSize - 2});
+	}
+
+	var dragHandler = function(e) {
+		setSplitAt(Math.max(50, Math.min(e.pageX, $(document).width() - 50)));
+	};
+
+	$('#splitter').mousedown(function() {
+		$(document).bind('mousemove', dragHandler);
+		$('body').append($('<div id="dragSurface"></div>'));
+
+		return false;
+	});
+
+	$(document).mouseup(function() {
+		$(document).unbind('mousemove', dragHandler);
+		$('#dragSurface').remove();
+	});
+
+	setSplitAt($(document).width() / 2);
 
 	now.ready(function() {
 		var delay;
