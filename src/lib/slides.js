@@ -588,8 +588,8 @@ function makeBuildLists() {
 };
 
 function updateScale() {
-    var scaleX = $(window).width() / 940;
-    var scaleY = $(window).height() / 740;
+    var scaleX = window.innerWidth / 940;
+    var scaleY = window.innerHeight / 740;
 
     // getting the scale that will fit the slides in both height and width
     var scale = Math.min(scaleX, scaleY);
@@ -600,12 +600,13 @@ function updateScale() {
     }
     
     // apply the scale using CSS3
-    $('section.slides').css({
-        '-webkit-transform': 'scale(' + scale + ')',
-        '-moz-transform': 'scale(' + scale + ')',
-        '-o-transform': 'scale(' + scale + ')',
-        'transform': 'scale(' + scale + ')'
-    });
+    var slides = document.querySelector('section.slides');
+
+    slides.style.transform = 'scale(' + scale + ')';
+    slides.style.WebkitTransform = 'scale(' + scale + ')';
+    slides.style.msTransform = 'scale(' + scale + ')';
+    slides.style.MozTransform = 'scale(' + scale + ')';
+    slides.style.OTransform = 'scale(' + scale + ')';
 }
 
 function handleDomLoaded() {
@@ -627,7 +628,7 @@ function handleDomLoaded() {
     updateScale();
 
     // update the scale on window resize
-    $(window).resize(updateScale);
+    window.onresize = updateScale;
 
     document.body.classList.add('loaded');
 };
