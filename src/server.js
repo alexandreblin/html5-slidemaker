@@ -52,6 +52,7 @@ everyone.now.transform = function(str, callback) {
 	parser.on('exit', function (code) {
 		if (stderr != '') {
 			logger.error('Error while parsing input\n' + stderr);
+			callback(null);
 		}
 		else {
 			callback(stdout);

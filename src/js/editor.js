@@ -57,6 +57,11 @@ $(document).ready(function(){
 
 		function updatePreview() {
 			now.transform(editor.getValue(), function(val) {
+				if (val == null) {
+					alert('Error while parsing input');
+					return;
+				}
+
 				var doc = $('#preview iframe')[0];
 				var win = doc.contentDocument || doc.contentWindow.document;
 
