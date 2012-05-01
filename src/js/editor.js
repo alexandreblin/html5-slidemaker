@@ -1,30 +1,69 @@
+(function() {
+function createCookie(name,value,days) {
+    var expires;
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime()+(days*24*60*60*1000));
+        expires = "; expires="+date.toGMTString();
+    }
+    else expires = "";
+    document.cookie = name+"="+value+expires+"; path=/";
+}
+
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
 $(document).ready(function(){
+	var splitSize = readCookie('splitsize');
+	
+	if (!splitSize) {
+		splitSize = $(document).width() / 2;
+	}
+
 	function setSplitAt(value) {
+		value = Math.max(50, Math.min(value, $(document).width() - 50));
+
 		var leftSize = value;
 		var rightSize = $(document).width() - value;
 
 		$("#code").css({right: rightSize + 2});
 		$("#preview").css({left: leftSize + 2});
 		$("#splitter").css({left: leftSize - 2});
+
+		splitSize = value;
 	}
 
 	var dragHandler = function(e) {
-		setSplitAt(Math.max(50, Math.min(e.pageX, $(document).width() - 50)));
+		setSplitAt(e.pageX);
+	};
+
+	var releaseHandler = function() {
+		$(document).unbind('mousemove', dragHandler);
+		$(document).bind('mouseup', releaseHandler);
+
+		$('#dragSurface').remove();
+
+		createCookie('splitsize', splitSize, 365);
 	};
 
 	$('#splitter').mousedown(function() {
 		$(document).bind('mousemove', dragHandler);
+		$(document).bind('mouseup', releaseHandler);
+
 		$('body').append($('<div id="dragSurface"></div>'));
 
 		return false;
 	});
 
-	$(document).mouseup(function() {
-		$(document).unbind('mousemove', dragHandler);
-		$('#dragSurface').remove();
-	});
-
-	setSplitAt($(document).width() / 2);
+	setSplitAt(splitSize);
 
 	now.ready(function() {
 		var delay;
@@ -95,3 +134,4 @@ $(document).ready(function(){
 		updatePreview();
 	});
 });
+}());
