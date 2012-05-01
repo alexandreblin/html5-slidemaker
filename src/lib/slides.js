@@ -287,6 +287,8 @@ function triggerLeaveEvent(no) {
 /* Touch events */
 
 function handleTouchStart(event) {
+    event.preventDefault();
+
     if (event.touches.length == 1) {
         touchDX = 0;
         touchDY = 0;
@@ -300,6 +302,8 @@ function handleTouchStart(event) {
 };
 
 function handleTouchMove(event) {
+    event.preventDefault();
+
     if (event.touches.length > 1) {
         cancelTouch();
     } else {
@@ -309,6 +313,8 @@ function handleTouchMove(event) {
 };
 
 function handleTouchEnd(event) {
+    event.preventDefault();
+    
     var dx = Math.abs(touchDX);
     var dy = Math.abs(touchDY);
 
