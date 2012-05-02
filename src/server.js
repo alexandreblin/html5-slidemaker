@@ -37,7 +37,7 @@ nowjs.on('disconnect', function(){
 });
 
 everyone.now.transform = function(str, callback) {
-	var parser = spawn('parser/parser.py');
+	var parser = spawn('python', ['parser/parser.py']);
 	var stdout = '';
 	var stderr = '';
 
