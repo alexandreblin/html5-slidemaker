@@ -114,6 +114,18 @@ $(document).ready(function(){
 			editor.replaceSelection(newSelection);
 		});
 
+		$("#dcolor").change(function() {		
+			var newSelection = String(editor.getSelection());
+			var tag = "<font";
+			if(newSelection.substring(0, tag.length).toLowerCase() == tag){
+				var code = newSelection.substring(newSelection.indexOf("#")+1,newSelection.indexOf("#")+7);
+				newSelection = newSelection.replace(code,this.color);
+			}else{
+				newSelection = "<font color='#"+this.color+"'>"+newSelection+"</font>";
+			}
+			editor.replaceSelection(newSelection);			
+		});
+		
 		function updatePreview() {
 			now.transform(editor.getValue(), function(val) {
 				if (val == null) {
