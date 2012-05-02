@@ -107,6 +107,9 @@ $(document).ready(function(){
 
 				newSelection = '<a href="' + href + '">' + text + '</a>';
 			}
+            else if(tool == "strikethrough" || tool == "underline"){
+                newSelection = "<em class=\""+tool+"\">"+newSelection+"</em>";
+            }
 			else if (editor.somethingSelected()) {
 				newSelection = "<"+tool+">"+newSelection+"</"+tool+">";
 			}
