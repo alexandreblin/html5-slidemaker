@@ -168,6 +168,13 @@ function updateSlideClass(slideNo, className) {
     }
 };
 
+function gotoSlide(no) {
+    if ((no >= 0) && (no < slideEls.length)) {
+        curSlide = no;
+        updateSlides();
+    }
+}
+
 function updateSlides() {
     for (var i = 0; i < slideEls.length; i++) {
         switch (i) {

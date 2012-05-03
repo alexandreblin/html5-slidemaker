@@ -12,7 +12,8 @@
 	<script src="nowjs/now.js"></script>
 	<script src="js/editor.js"></script>
     <script src="lib/codemirror/lib/codemirror.js"></script>
-    <script src="lib/codemirror/lib/codemirror.js"></script>
+    <script src="lib/codemirror/lib/util/search.js"></script>
+    <script src="lib/codemirror/lib/util/searchcursor.js"></script>
     <script src="lib/codemirror/mode/xml/xml.js"></script>
     <script src="lib/codemirror/mode/javascript/javascript.js"></script>
     <script src="lib/codemirror/mode/css/css.js"></script>
@@ -37,7 +38,7 @@
 
 	<section id="container">
 		<section id="code">
-<textarea id="editor"><article>
+<textarea id="editor" onclick="this.select();"><article>
   <h1>
     Title Goes Here Up
     <br>

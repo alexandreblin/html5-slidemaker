@@ -74,7 +74,20 @@ $(document).ready(function(){
 			onChange: function() {
 				clearTimeout(delay);
 				delay = setTimeout(updatePreview, 300);
-			}
+			},
+            onCursorActivity: function() {
+
+                var iCount = -1;
+                for(var iRow = 0; iRow < editor.getCursor().line; ++iRow) {
+                    info = editor.lineInfo(iRow);
+                    if(info.text.indexOf("<article>") != -1){
+                        iCount += 1;
+                    }
+                }
+                if(iCount != -1) {
+                    $('#preview iframe')[0].contentWindow.gotoSlide(iCount);
+                }
+            }
 		});
 
 		$(".toolbar").click(function() {
@@ -102,7 +115,7 @@ $(document).ready(function(){
 				else {
 					text = prompt("Enter the text of the link");
 				}
-					
+
 				if (!text) text = href;
 
 				newSelection = '<a href="' + href + '">' + text + '</a>';
@@ -145,8 +158,7 @@ $(document).ready(function(){
 				win.close();
 			});
 		}
-
-		updatePreview();
+        updatePreview();
 	});
 });
 }());
