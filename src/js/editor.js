@@ -69,8 +69,14 @@ $(document).ready(function(){
 		var delay;
 		var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
 			mode: 'text/html',
+			//closeTagEnabled: false, // Set this option to disable tag closing behavior without having to remove the key bindings.
 			lineNumbers: true,
 			lineWrapping: true,
+			extraKeys: {
+				"'>'": function(cm) {try{ cm.closeTag(cm, '>'); }catch(err){ if(err== CodeMirror.Pass) autoEncodePre(cm, '>');}},
+				"'/'": function(cm) { cm.closeTag(cm, '/'); },
+				"'<'": function(cm) { autoEncodePre(cm, '<');}
+			},
 			onChange: function() {
 				clearTimeout(delay);
 				delay = setTimeout(updatePreview, 300);
@@ -158,6 +164,28 @@ $(document).ready(function(){
 				win.close();
 			});
 		}
+		
+		function autoEncodePre(cm, ch){
+			var pos = cm.getCursor();
+			var tok = cm.getTokenAt(pos);
+			var state = tok.state;
+			
+			var type = state.htmlState ? state.htmlState.type : state.type;
+
+			if (state.htmlState.context.tagName == 'pre') {
+				if (ch == '<') {
+					cm.replaceSelection('&lt;');
+				}else if (ch == '>') {
+					cm.replaceSelection('&gt;');
+				}
+				pos = {line: pos.line, ch: pos.ch + 4};
+				cm.setCursor(pos);
+				return;			
+			}else{
+				throw CodeMirror.Pass;
+			}
+		}
+		
         updatePreview();
 	});
 });
