@@ -496,6 +496,7 @@ function updateHash() {
     }
 };
 
+
 /* Event listeners */
 
 function handleBodyKeyDown(event) {

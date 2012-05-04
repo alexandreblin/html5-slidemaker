@@ -82,19 +82,22 @@ $(document).ready(function(){
 				delay = setTimeout(updatePreview, 300);
 			},
             onCursorActivity: function() {
-
-                var iCount = -1;
-                for(var iRow = 0; iRow < editor.getCursor().line; ++iRow) {
-                    info = editor.lineInfo(iRow);
-                    if(info.text.indexOf("<article>") != -1){
-                        iCount += 1;
-                    }
-                }
-                if(iCount != -1) {
+                var iCount = countTagToCursor("<article>");
+                if(iCount != -1 && $('#preview iframe')[0].contentWindow.curSlide != iCount) {
                     $('#preview iframe')[0].contentWindow.gotoSlide(iCount);
                 }
             }
 		});
+        function countTagToCursor(szValue) {
+            var iCount = -1;
+            for(var iRow = 0; iRow <= editor.getCursor().line; ++iRow) {
+                info = editor.lineInfo(iRow);
+                if(info.text.indexOf(szValue) != -1){
+                    iCount += 1;
+                }
+            }
+            return iCount;
+        }
 
 		$(".toolbar").click(function() {
 			var tool = $(this).attr("title");
@@ -147,6 +150,20 @@ $(document).ready(function(){
 			}
 			editor.replaceSelection(newSelection);			
 		});
+
+        function isFirefox() {
+            var agt= navigator.userAgent.toLowerCase();
+            if (agt.indexOf("firefox") == -1) {
+                return false;
+            }
+            return true;
+        }
+        function setCurrentSlide(contentWindow, num) {
+           if(!isFirefox()) {
+                contentWindow.location.hash = num;
+           }
+        }
+
 		
 		function updatePreview() {
 			now.transform(editor.getValue(), function(val) {
@@ -158,10 +175,13 @@ $(document).ready(function(){
 				var doc = $('#preview iframe')[0];
 				var win = doc.contentDocument || doc.contentWindow.document;
 
-				// putting HTML into iframe
+                // putting HTML into iframe
+
 				win.open();
 				win.write(val);
-				win.close();
+                setCurrentSlide(doc.contentWindow, countTagToCursor("<article>")+1);
+
+                win.close();
 			});
 		}
 		
