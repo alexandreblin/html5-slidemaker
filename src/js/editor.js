@@ -132,10 +132,33 @@ $(document).ready(function(){
             else if(tool == "strikethrough" || tool == "underline"){
                 newSelection = "<em class=\""+tool+"\">"+newSelection+"</em>";
             }
+            else if(tool == "add"){
+                var iRow = editor.getCursor().line;
+
+                while(iRow < editor.lineCount()){
+                    var info = editor.lineInfo(iRow);
+                    if(info.text.indexOf("</article>") != -1){
+                        break;
+                    }
+                iRow++;
+                }
+
+              //if current slide is last one
+              if(iRow+1 == editor.lineCount())
+                {
+                    editor.replaceRange("\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
+                }
+
+              editor.replaceRange("\n<article>\n\n</article>\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
+              editor.focus();
+              editor.setCursor({line:iRow+3, ch: 0});
+            }
+            else if(tool == "delete"){
+
+            }
 			else if (editor.somethingSelected()) {
 				newSelection = "<"+tool+">"+newSelection+"</"+tool+">";
 			}
-
 			editor.replaceSelection(newSelection);
 		});
 
