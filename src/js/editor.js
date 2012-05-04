@@ -158,30 +158,33 @@ $(document).ready(function(){
             }
             return true;
         }
-        function setCurrentSlide(contentWindow, num) {
-           if(!isFirefox()) {
-                contentWindow.location.hash = num;
-           }
-        }
-
 		
 		function updatePreview() {
-			now.transform(editor.getValue(), function(val) {
-				if (val == null) {
+			now.transform(editor.getValue(), function(previewHTML) {
+				if (previewHTML == null) {
 					alert('Error while parsing input');
 					return;
 				}
 
-				var doc = $('#preview iframe')[0];
-				var win = doc.contentDocument || doc.contentWindow.document;
+				var iframe = $('#preview iframe')[0];
+				var content = iframe.contentDocument || iframe.contentWindow.document;
 
                 // putting HTML into iframe
+				content.open();
 
-				win.open();
-				win.write(val);
-                setCurrentSlide(doc.contentWindow, countTagToCursor("<article>")+1);
+				var curSlide = countTagToCursor("<article>");
+				console.log(curSlide);
+				if (!isFirefox()) {
+                	iframe.contentWindow.location.hash = curSlide+1;
+                }
+                else {
+                	// ugly hack for firefox because location.hash doesn't work in iframes with empty src
+                	previewHTML = previewHTML.replace('</head>', '<script>curSlide = '+curSlide+'; updateHash=function(){};</script></head>');
+                }
 
-                win.close();
+				content.write(previewHTML);
+
+                content.close();
 			});
 		}
 		

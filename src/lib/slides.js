@@ -490,10 +490,7 @@ function getCurSlideFromHash() {
 };
 
 function updateHash() {
-    var agt=navigator.userAgent.toLowerCase();
-    if (agt.indexOf("firefox") == -1) {
-        location.replace('#' + (curSlide + 1));
-    }
+    location.replace('#' + (curSlide + 1));
 };
 
 
