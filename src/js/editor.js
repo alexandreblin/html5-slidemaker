@@ -132,10 +132,59 @@ $(document).ready(function(){
             else if(tool == "strikethrough" || tool == "underline"){
                 newSelection = "<em class=\""+tool+"\">"+newSelection+"</em>";
             }
+            else if(tool == "add"){
+                var iRow = editor.getCursor().line;
+
+                while(iRow < editor.lineCount()){
+                    var info = editor.lineInfo(iRow);
+                    if(info.text.indexOf("</article>") != -1){
+                        break;
+                    }
+                iRow++;
+                }
+
+              //if current slide is last one
+              if(iRow+1 == editor.lineCount())
+                {
+                    editor.replaceRange("\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
+                }
+
+              editor.replaceRange("\n<article>\n\n</article>\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
+              editor.focus();
+              editor.setCursor({line:iRow+3, ch: 0});
+            }
+            else if(tool == "delete"){
+                if(confirm("Are you sure you want to delete slide?")){
+                var rowStart = editor.getCursor().line;
+                var rowEnd = editor.getCursor().line;
+
+                while(rowStart > 0){
+                    var info = editor.lineInfo(rowStart);
+                    if(info.text.indexOf("<article>") != -1){
+                        break;
+                    }
+                    rowStart--;
+                }
+
+                while(rowEnd < editor.lineCount()){
+                    var info = editor.lineInfo(rowEnd);
+                    if(info.text.indexOf("</article>") != -1){
+                        break;
+                    }
+                    rowEnd++;
+                }
+                    rowEnd++;
+
+                    if(editor.lineInfo(rowEnd)!=null && editor.lineInfo(rowEnd).text.length == 0){
+                        rowEnd++;
+                    }
+
+                editor.replaceRange("",{line: rowStart, ch:0}, {line: rowEnd, ch: 0});
+            }
+            }
 			else if (editor.somethingSelected()) {
 				newSelection = "<"+tool+">"+newSelection+"</"+tool+">";
 			}
-
 			editor.replaceSelection(newSelection);
 		});
 
