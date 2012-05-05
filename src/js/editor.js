@@ -183,7 +183,7 @@ $(document).ready(function(){
               editor.setCursor({line:iRow+3, ch: 0});
             }
             else if(tool == "delete"){
-                if(confirm("Are you sure you want to delete slide?")){
+                if(confirm("Are you sure you want to delete the current slide?")){
                 var rowStart = editor.getCursor().line;
                 var rowEnd = editor.getCursor().line;
 
