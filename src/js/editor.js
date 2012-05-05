@@ -83,17 +83,13 @@ $(document).ready(function(){
 				"'<'": function(cm) { autoEncodePre(cm, '<');}
 			},
 			onChange: function() {
-                var iCount = countTagToCursor("article");
-                if(iCount != -1) {
-                    selectedSlide = iCount;
-                }
-                clearTimeout(delay);
+				clearTimeout(delay);
 				delay = setTimeout(updatePreview, 300);
 			},
             onCursorActivity: function() {
-                var iCount = countTagToCursor("article");
-                if(iCount != -1 && previewFrame.contentWindow.curSlide != iCount) {
-                    previewFrame.contentWindow.gotoSlide(iCount);
+				selectedSlide = countTagToCursor("article");
+                if(selectedSlide != -1 && previewFrame.contentWindow.curSlide != selectedSlide) {
+                    previewFrame.contentWindow.gotoSlide(selectedSlide);
                 }
             }
 		});
