@@ -23,6 +23,9 @@ function readCookie(name) {
 
 $(document).ready(function(){
 	var splitSize = readCookie('splitsize');
+
+	var selectedSlide = parseInt(window.location.hash.replace('#', '')) - 1;
+	if (!selectedSlide || selectedSlide < 0) { selectedSlide = 0; }
 	
 	if (!splitSize) {
 		splitSize = $(document).width() / 2;
@@ -82,9 +85,9 @@ $(document).ready(function(){
 				delay = setTimeout(updatePreview, 300);
 			},
             onCursorActivity: function() {
-                var iCount = countTagToCursor("<article>");
-                if(iCount != -1 && $('#preview iframe')[0].contentWindow.curSlide != iCount) {
-                    $('#preview iframe')[0].contentWindow.gotoSlide(iCount);
+				selectedSlide = countTagToCursor("<article>");
+                if(selectedSlide != -1 && $('#preview iframe')[0].contentWindow.curSlide != selectedSlide) {
+                    $('#preview iframe')[0].contentWindow.gotoSlide(selectedSlide);
                 }
             }
 		});
@@ -200,14 +203,6 @@ $(document).ready(function(){
 			editor.replaceSelection(newSelection);			
 		});
 
-        function isFirefox() {
-            var agt= navigator.userAgent.toLowerCase();
-            if (agt.indexOf("firefox") == -1) {
-                return false;
-            }
-            return true;
-        }
-		
 		function updatePreview() {
 			now.transform(editor.getValue(), function(previewHTML) {
 				if (previewHTML == null) {
@@ -221,15 +216,20 @@ $(document).ready(function(){
                 // putting HTML into iframe
 				content.open();
 
-				var curSlide = countTagToCursor("<article>");
-				console.log(curSlide);
-				if (!isFirefox()) {
-                	iframe.contentWindow.location.hash = curSlide+1;
-                }
-                else {
-                	// ugly hack for firefox because location.hash doesn't work in iframes with empty src
-                	previewHTML = previewHTML.replace('</head>', '<script>curSlide = '+curSlide+'; updateHash=function(){};</script></head>');
-                }
+				// we need to inject some JS before putting it into the iframe to make the slideshow start at the slide we're currently editing
+				// and to make it so that when we navigate slides in the iframe, the browser's location hash changes too
+		        var js = '<script> \
+		        curSlide = ' + selectedSlide + '; \
+		        var oldUpdateHash = updateHash; \
+		        updateHash = function() { oldUpdateHash(); window.top.location.hash = curSlide + 1; } \
+		        </script>';
+
+		        if ($.browser.mozilla) {
+		        	// updateHash is broken in firefox when put in an iframe with no src
+		        	js = js.replace('oldUpdateHash();', '');
+		        }
+				
+                previewHTML = previewHTML.replace('</head>', js + '</head>');
 
 				content.write(previewHTML);
 
