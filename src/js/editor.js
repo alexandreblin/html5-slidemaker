@@ -83,28 +83,56 @@ $(document).ready(function(){
 				"'<'": function(cm) { autoEncodePre(cm, '<');}
 			},
 			onChange: function() {
-				clearTimeout(delay);
+                var iCount = countTagToCursor("article");
+                if(iCount != -1) {
+                    selectedSlide = iCount;
+                }
+                clearTimeout(delay);
 				delay = setTimeout(updatePreview, 300);
 			},
             onCursorActivity: function() {
-				selectedSlide = countTagToCursor("<article>");
-                if(selectedSlide != -1 && previewFrame.contentWindow.curSlide != selectedSlide) {
-                    previewFrame.contentWindow.gotoSlide(selectedSlide);
+                var iCount = countTagToCursor("article");
+                if(iCount != -1 && previewFrame.contentWindow.curSlide != iCount) {
+                    previewFrame.contentWindow.gotoSlide(iCount);
                 }
             }
 		});
         function countTagToCursor(szValue) {
             var iCount = -1;
+            var startTag = '<'+szValue+'>';
+            var endTag = '</'+szValue+'>';
+            var iTotalValue = 0;
             for(var iRow = 0; iRow <= editor.getCursor().line; ++iRow) {
                 info = editor.lineInfo(iRow);
-                if(info.text.indexOf(szValue) != -1){
-                    iCount += 1;
+                iNumStartTag = occurrences(info.text, startTag);
+                iNumEndTag = occurrences(info.text, endTag);
+                if(iTotalValue > 0) {
+                    iTotalValue += iNumStartTag;
+                    iTotalValue -= iNumEndTag;
+                } else {
+                    iTotalValue += iNumStartTag;
+                    iTotalValue -= iNumEndTag;
+                    if(iNumStartTag > 0) {
+                        iCount += 1;
+                    }
                 }
             }
             return iCount;
         }
+        function occurrences(string, substring){
 
-		$(".toolbar").click(function() {
+            var n=0;
+            var pos=0;
+
+            while(true){
+                pos=string.indexOf(substring,pos);
+                if(pos!=-1){ n++; pos+=substring.length;}
+                else{break;}
+            }
+            return(n);
+        }
+
+        $(".toolbar").click(function() {
 			var tool = $(this).attr("title");
 
 			var newSelection = editor.getSelection();
