@@ -22,6 +22,8 @@ function readCookie(name) {
 }
 
 $(document).ready(function(){
+	var previewFrame = $('#preview > iframe')[0];
+
 	var splitSize = readCookie('splitsize');
 
 	var selectedSlide = parseInt(window.location.hash.replace('#', '')) - 1;
@@ -86,8 +88,8 @@ $(document).ready(function(){
 			},
             onCursorActivity: function() {
 				selectedSlide = countTagToCursor("<article>");
-                if(selectedSlide != -1 && $('#preview iframe')[0].contentWindow.curSlide != selectedSlide) {
-                    $('#preview iframe')[0].contentWindow.gotoSlide(selectedSlide);
+                if(selectedSlide != -1 && previewFrame.contentWindow.curSlide != selectedSlide) {
+                    previewFrame.contentWindow.gotoSlide(selectedSlide);
                 }
             }
 		});
@@ -209,9 +211,8 @@ $(document).ready(function(){
 					alert('Error while parsing input');
 					return;
 				}
-
-				var iframe = $('#preview iframe')[0];
-				var content = iframe.contentDocument || iframe.contentWindow.document;
+				
+				var content = previewFrame.contentDocument || previewFrame.contentWindow.document;
 
                 // putting HTML into iframe
 				content.open();
