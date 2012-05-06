@@ -1,24 +1,24 @@
 (function() {
 function createCookie(name,value,days) {
-    var expires;
-    if (days) {
-        var date = new Date();
-        date.setTime(date.getTime()+(days*24*60*60*1000));
-        expires = "; expires="+date.toGMTString();
-    }
-    else expires = "";
-    document.cookie = name+"="+value+expires+"; path=/";
+	var expires;
+	if (days) {
+		var date = new Date();
+		date.setTime(date.getTime()+(days*24*60*60*1000));
+		expires = "; expires="+date.toGMTString();
+	}
+	else expires = "";
+	document.cookie = name+"="+value+expires+"; path=/";
 }
 
 function readCookie(name) {
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0;i < ca.length;i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-    }
-    return null;
+	var nameEQ = name + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0;i < ca.length;i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1,c.length);
+		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+	}
+	return null;
 }
 
 $(document).ready(function(){
@@ -48,12 +48,12 @@ $(document).ready(function(){
 				clearTimeout(delay);
 				delay = setTimeout(updatePreview, 300);
 			},
-            onCursorActivity: function() {
+			onCursorActivity: function() {
 				selectedSlide = countTagToCursor("article");
-                if(selectedSlide != -1 && previewFrame.contentWindow.curSlide != selectedSlide) {
-                    previewFrame.contentWindow.gotoSlide(selectedSlide);
-                }
-            }
+				if(selectedSlide != -1 && previewFrame.contentWindow.curSlide != selectedSlide) {
+					previewFrame.contentWindow.gotoSlide(selectedSlide);
+				}
+			}
 		});
 
 		function setSplitAt(value) {
@@ -93,42 +93,42 @@ $(document).ready(function(){
 			return false;
 		});
 
-        function countTagToCursor(szValue) {
-            var iCount = -1;
-            var startTag = '<'+szValue+'>';
-            var endTag = '</'+szValue+'>';
-            var iTotalValue = 0;
-            for(var iRow = 0; iRow <= editor.getCursor().line; ++iRow) {
-                info = editor.lineInfo(iRow);
-                iNumStartTag = occurrences(info.text, startTag);
-                iNumEndTag = occurrences(info.text, endTag);
-                if(iTotalValue > 0) {
-                    iTotalValue += iNumStartTag;
-                    iTotalValue -= iNumEndTag;
-                } else {
-                    iTotalValue += iNumStartTag;
-                    iTotalValue -= iNumEndTag;
-                    if(iNumStartTag > 0) {
-                        iCount += 1;
-                    }
-                }
-            }
-            return iCount;
-        }
-        function occurrences(string, substring){
+		function countTagToCursor(szValue) {
+			var iCount = -1;
+			var startTag = '<'+szValue+'>';
+			var endTag = '</'+szValue+'>';
+			var iTotalValue = 0;
+			for(var iRow = 0; iRow <= editor.getCursor().line; ++iRow) {
+				info = editor.lineInfo(iRow);
+				iNumStartTag = occurrences(info.text, startTag);
+				iNumEndTag = occurrences(info.text, endTag);
+				if(iTotalValue > 0) {
+					iTotalValue += iNumStartTag;
+					iTotalValue -= iNumEndTag;
+				} else {
+					iTotalValue += iNumStartTag;
+					iTotalValue -= iNumEndTag;
+					if(iNumStartTag > 0) {
+						iCount += 1;
+					}
+				}
+			}
+			return iCount;
+		}
+		function occurrences(string, substring){
 
-            var n=0;
-            var pos=0;
+			var n=0;
+			var pos=0;
 
-            while(true){
-                pos=string.indexOf(substring,pos);
-                if(pos!=-1){ n++; pos+=substring.length;}
-                else{break;}
-            }
-            return(n);
-        }
+			while(true){
+				pos=string.indexOf(substring,pos);
+				if(pos!=-1){ n++; pos+=substring.length;}
+				else{break;}
+			}
+			return(n);
+		}
 
-        $(".toolbar").click(function() {
+		$(".toolbar").click(function() {
 			var tool = $(this).attr("title");
 			var newSelection = editor.getSelection();
 			var endTagLength = null;
@@ -161,32 +161,32 @@ $(document).ready(function(){
 				endTagLength = 0;
 				
 			}else if(tool == "strikethrough" || tool == "underline"){
-                newSelection = "<em class=\""+tool+"\">"+newSelection+"</em>";
+				newSelection = "<em class=\""+tool+"\">"+newSelection+"</em>";
 				endTagLength = 5;
 				
-            }else if(tool == "add"){
-                var iRow = editor.getCursor().line;
+			}else if(tool == "add"){
+				var iRow = editor.getCursor().line;
 
-                while(iRow < editor.lineCount()){
-                    var info = editor.lineInfo(iRow);
-                    if(info.text.indexOf("</article>") != -1){
-                        break;
-                    }
-                iRow++;
-                }
+				while(iRow < editor.lineCount()){
+					var info = editor.lineInfo(iRow);
+					if(info.text.indexOf("</article>") != -1){
+						break;
+					}
+				iRow++;
+				}
 
-              //if current slide is last one
-              if(iRow+1 == editor.lineCount())
-                {
-                    editor.replaceRange("\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
-                }
+			  //if current slide is last one
+			  if(iRow+1 == editor.lineCount())
+				{
+					editor.replaceRange("\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
+				}
 
-              editor.replaceRange("\n<article>\n\n</article>\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
-              editor.focus();
-              editor.setCursor({line:iRow+3, ch: 0});
+			  editor.replaceRange("\n<article>\n\n</article>\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
+			  editor.focus();
+			  editor.setCursor({line:iRow+3, ch: 0});
 			  
-            }else if(tool == "delete"){
-                if(confirm("Are you sure you want to delete the current slide?")){
+			}else if(tool == "delete"){
+				if(confirm("Are you sure you want to delete the current slide?")){
 					var rowStart = editor.getCursor().line;
 					var rowEnd = editor.getCursor().line;
 
@@ -213,7 +213,7 @@ $(document).ready(function(){
 
 					editor.replaceRange("",{line: rowStart, ch:0}, {line: rowEnd, ch: 0});
 				}
-            }else if (tool != "") {
+			}else if (tool != "") {
 				newSelection = "<"+tool+">"+newSelection+"</"+tool+">";
 				endTagLength = tool.length+3;
 			}
@@ -249,27 +249,27 @@ $(document).ready(function(){
 				
 				var content = previewFrame.contentDocument || previewFrame.contentWindow.document;
 
-                // putting HTML into iframe
+				// putting HTML into iframe
 				content.open();
 
 				// we need to inject some JS before putting it into the iframe to make the slideshow start at the slide we're currently editing
 				// and to make it so that when we navigate slides in the iframe, the browser's location hash changes too
-		        var js = '<script> \
-		        curSlide = ' + selectedSlide + '; \
-		        var oldUpdateHash = updateHash; \
-		        updateHash = function() { oldUpdateHash(); window.top.location.hash = curSlide + 1; } \
-		        </script>';
+				var js = '<script> \
+				curSlide = ' + selectedSlide + '; \
+				var oldUpdateHash = updateHash; \
+				updateHash = function() { oldUpdateHash(); window.top.location.hash = curSlide + 1; } \
+				</script>';
 
-		        if ($.browser.mozilla) {
-		        	// updateHash is broken in firefox when put in an iframe with no src
-		        	js = js.replace('oldUpdateHash();', '');
-		        }
+				if ($.browser.mozilla) {
+					// updateHash is broken in firefox when put in an iframe with no src
+					js = js.replace('oldUpdateHash();', '');
+				}
 				
-                previewHTML = previewHTML.replace('</head>', js + '</head>');
+				previewHTML = previewHTML.replace('</head>', js + '</head>');
 
 				content.write(previewHTML);
 
-                content.close();
+				content.close();
 			});
 		}
 		
@@ -295,7 +295,7 @@ $(document).ready(function(){
 		}
 
 		setSplitAt(splitSize);
-        updatePreview();
+		updatePreview();
 	});
 });
 }());
