@@ -130,8 +130,8 @@ $(document).ready(function(){
 
         $(".toolbar").click(function() {
 			var tool = $(this).attr("title");
-
 			var newSelection = editor.getSelection();
+			var endTagLength = null;
 
 			if (tool == "img") {
 				var src = prompt("Enter the URL of the image");
@@ -139,6 +139,7 @@ $(document).ready(function(){
 				if (!src) return;
 
 				newSelection = '<img src="' + src + '" />';
+				endTagLength = 0;
 			}
 			else if (tool == "a") {
 				var href = prompt("Enter the URL of the link");
@@ -157,11 +158,13 @@ $(document).ready(function(){
 				if (!text) text = href;
 
 				newSelection = '<a href="' + href + '">' + text + '</a>';
-			}
-            else if(tool == "strikethrough" || tool == "underline"){
+				endTagLength = 0;
+				
+			}else if(tool == "strikethrough" || tool == "underline"){
                 newSelection = "<em class=\""+tool+"\">"+newSelection+"</em>";
-            }
-            else if(tool == "add"){
+				endTagLength = 5;
+				
+            }else if(tool == "add"){
                 var iRow = editor.getCursor().line;
 
                 while(iRow < editor.lineCount()){
@@ -181,40 +184,48 @@ $(document).ready(function(){
               editor.replaceRange("\n<article>\n\n</article>\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
               editor.focus();
               editor.setCursor({line:iRow+3, ch: 0});
-            }
-            else if(tool == "delete"){
+			  
+            }else if(tool == "delete"){
                 if(confirm("Are you sure you want to delete the current slide?")){
-                var rowStart = editor.getCursor().line;
-                var rowEnd = editor.getCursor().line;
+					var rowStart = editor.getCursor().line;
+					var rowEnd = editor.getCursor().line;
 
-                while(rowStart > 0){
-                    var info = editor.lineInfo(rowStart);
-                    if(info.text.indexOf("<article>") != -1){
-                        break;
-                    }
-                    rowStart--;
-                }
+					while(rowStart > 0){
+						var info = editor.lineInfo(rowStart);
+						if(info.text.indexOf("<article>") != -1){
+							break;
+						}
+						rowStart--;
+					}
 
-                while(rowEnd < editor.lineCount()){
-                    var info = editor.lineInfo(rowEnd);
-                    if(info.text.indexOf("</article>") != -1){
-                        break;
-                    }
-                    rowEnd++;
-                }
-                    rowEnd++;
+					while(rowEnd < editor.lineCount()){
+						var info = editor.lineInfo(rowEnd);
+						if(info.text.indexOf("</article>") != -1){
+							break;
+						}
+						rowEnd++;
+					}
+						rowEnd++;
 
-                    if(editor.lineInfo(rowEnd)!=null && editor.lineInfo(rowEnd).text.length == 0){
-                        rowEnd++;
-                    }
+						if(editor.lineInfo(rowEnd)!=null && editor.lineInfo(rowEnd).text.length == 0){
+							rowEnd++;
+						}
 
-                editor.replaceRange("",{line: rowStart, ch:0}, {line: rowEnd, ch: 0});
-            }
-            }
-			else if (editor.somethingSelected()) {
+					editor.replaceRange("",{line: rowStart, ch:0}, {line: rowEnd, ch: 0});
+				}
+            }else if (tool != "") {
 				newSelection = "<"+tool+">"+newSelection+"</"+tool+">";
+				endTagLength = tool.length+3;
 			}
 			editor.replaceSelection(newSelection);
+
+			if(endTagLength != null){
+				var pos = editor.getCursor();
+				pos = {line: pos.line, ch: pos.ch - endTagLength};
+				editor.setCursor(pos);
+			}
+			
+			editor.focus();
 		});
 
 		$("#dcolor").change(function() {		
