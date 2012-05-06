@@ -22,56 +22,18 @@ function readCookie(name) {
 }
 
 $(document).ready(function(){
-	var previewFrame = $('#preview > iframe')[0];
-
-	var splitSize = readCookie('splitsize');
-
-	var selectedSlide = parseInt(window.location.hash.replace('#', '')) - 1;
-	if (!selectedSlide || selectedSlide < 0) { selectedSlide = 0; }
-	
-	if (!splitSize) {
-		splitSize = $(document).width() / 2;
-	}
-
-	function setSplitAt(value) {
-		value = Math.max(50, Math.min(value, $(document).width() - 50));
-
-		var leftSize = value;
-		var rightSize = $(document).width() - value;
-
-		$("#code").css({right: rightSize + 2});
-		$("#preview").css({left: leftSize + 2});
-		$("#splitter").css({left: leftSize - 2});
-
-		splitSize = value;
-	}
-
-	var dragHandler = function(e) {
-		setSplitAt(e.pageX);
-	};
-
-	var releaseHandler = function() {
-		$(document).unbind('mousemove', dragHandler);
-		$(document).bind('mouseup', releaseHandler);
-
-		$('#dragSurface').remove();
-
-		createCookie('splitsize', splitSize, 365);
-	};
-
-	$('#splitter').mousedown(function() {
-		$(document).bind('mousemove', dragHandler);
-		$(document).bind('mouseup', releaseHandler);
-
-		$('body').append($('<div id="dragSurface"></div>'));
-
-		return false;
-	});
-
-	setSplitAt(splitSize);
-
 	now.ready(function() {
 		var delay;
+		var previewFrame = $('#preview > iframe')[0];
+		var splitSize = readCookie('splitsize');
+
+		var selectedSlide = parseInt(window.location.hash.replace('#', '')) - 1;
+		if (!selectedSlide || selectedSlide < 0) { selectedSlide = 0; }
+		
+		if (!splitSize) {
+			splitSize = $(document).width() / 2;
+		}
+
 		var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
 			mode: 'text/html',
 			//closeTagEnabled: false, // Set this option to disable tag closing behavior without having to remove the key bindings.
@@ -93,6 +55,44 @@ $(document).ready(function(){
                 }
             }
 		});
+
+		function setSplitAt(value) {
+			value = Math.max(50, Math.min(value, $(document).width() - 50));
+
+			var leftSize = value;
+			var rightSize = $(document).width() - value;
+
+			$("#code").css({right: rightSize + 2});
+			$("#preview").css({left: leftSize + 2});
+			$("#splitter").css({left: leftSize - 2});
+
+			editor.refresh();
+
+			splitSize = value;
+		}
+
+		var dragHandler = function(e) {
+			setSplitAt(e.pageX);
+		};
+
+		var releaseHandler = function() {
+			$(document).unbind('mousemove', dragHandler);
+			$(document).bind('mouseup', releaseHandler);
+
+			$('#dragSurface').remove();
+
+			createCookie('splitsize', splitSize, 365);
+		};
+
+		$('#splitter').mousedown(function() {
+			$(document).bind('mousemove', dragHandler);
+			$(document).bind('mouseup', releaseHandler);
+
+			$('body').append($('<div id="dragSurface"></div>'));
+
+			return false;
+		});
+
         function countTagToCursor(szValue) {
             var iCount = -1;
             var startTag = '<'+szValue+'>';
@@ -293,7 +293,8 @@ $(document).ready(function(){
 				throw CodeMirror.Pass;
 			}
 		}
-		
+
+		setSplitAt(splitSize);
         updatePreview();
 	});
 });
