@@ -181,9 +181,9 @@ $(document).ready(function(){
 					editor.replaceRange("\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
 				}
 
-			  editor.replaceRange("\n<article>\n\n</article>\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
+			  editor.replaceRange("\n<article>\n  <p>\n    \n  </p>\n</article>\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
 			  editor.focus();
-			  editor.setCursor({line:iRow+3, ch: 0});
+			  editor.setCursor({line:iRow+4, ch: 4});
 			  
 			}else if(tool == "delete"){
 				if(confirm("Are you sure you want to delete the current slide?")){
