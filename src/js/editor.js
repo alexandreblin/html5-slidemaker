@@ -53,10 +53,12 @@ $(document).ready(function(){
 				delay = setTimeout(updatePreview, 300);
 			},
 			onCursorActivity: function() {
-				selectedSlide = countTagToCursor("article");
+				selectedSlide = getSlideInfoOnCursor();
 				if(selectedSlide != -1 && previewFrame.contentWindow.curSlide != selectedSlide) {
 					previewFrame.contentWindow.gotoSlide(selectedSlide);
 				}
+				var test = getSlideInfo(selectedSlide);
+				console.log("From "+ test.from.line +" "+ test.from.ch +" To "+ test.to.line +" "+ test.to.ch );
 			}
 		});
 
@@ -97,39 +99,85 @@ $(document).ready(function(){
 			return false;
 		});
 
-		function countTagToCursor(szValue) {
-			var iCount = -1;
-			var startTag = '<'+szValue+'>';
-			var endTag = '</'+szValue+'>';
-			var iTotalValue = 0;
-			for(var iRow = 0; iRow <= editor.getCursor().line; ++iRow) {
-				info = editor.lineInfo(iRow);
-				iNumStartTag = occurrences(info.text, startTag);
-				iNumEndTag = occurrences(info.text, endTag);
-				if(iTotalValue > 0) {
-					iTotalValue += iNumStartTag;
-					iTotalValue -= iNumEndTag;
+		function getSlideInfoOnCursor() {
+			var text = editor.getValue();
+
+			var tags = [];
+
+			var pos = text.indexOf('<article>');
+			while (pos != -1) {
+				tags[pos] = true;
+				pos = text.indexOf('<article>', pos+1);
+			}
+
+			pos = text.indexOf('</article>');
+			while (pos != -1) {
+				tags[pos] = false;
+				pos = text.indexOf('</article>', pos+1);
+			}
+			var iLevel = 0;
+			var iCurrentSlide = -1;
+			var cursorInf = editor.getCursor();
+			for (var i in tags) {
+				var infoChar = editor.posFromIndex(i);
+				if(infoChar.line < cursorInf.line || (infoChar.line == cursorInf.line && infoChar.ch <= cursorInf.ch)) {
+					if (tags[i] == true) {
+						iLevel++;
+						if (iLevel == 1) {
+							// we just got a first level <article>
+							iCurrentSlide++;
+						}
+					}
+					else {
+						iLevel--;
+					}
 				} else {
-					iTotalValue += iNumStartTag;
-					iTotalValue -= iNumEndTag;
-					if(iNumStartTag > 0) {
-						iCount += 1;
+					break;
+				}
+			}
+			return iCurrentSlide;
+		}
+		function getSlideInfo(iSlide) {
+			var text = editor.getValue();
+
+			var szTag = "article";
+			var tags = [];
+
+			var pos = text.indexOf('<'+ szTag);
+			while (pos != -1) {
+				tags[pos] = true;
+				pos = text.indexOf('<'+ szTag, pos+1);
+			}
+
+			pos = text.indexOf('</'+ szTag+'>');
+			while (pos != -1) {
+				tags[pos] = false;
+				pos = text.indexOf('</'+ szTag+'>', pos+1);
+			}
+			var iLevel = 0;
+			var iCurrentSlide = -1;
+			var result = {from: null, to:null};
+			for (var i in tags) {
+				if (tags[i] == true) {
+					iLevel++;
+					if (iLevel == 1) {
+						// we just got a first level <article>
+						iCurrentSlide++;
+						if(iCurrentSlide == iSlide) {
+							result.from = editor.posFromIndex(i);
+						}
+					}
+				}
+				else {
+					iLevel--;
+					if(iLevel == 0 && iCurrentSlide == iSlide) {
+						i += szTag.length + 3;
+						result.to = editor.posFromIndex(i);
+						break;
 					}
 				}
 			}
-			return iCount;
-		}
-		function occurrences(string, substring){
-
-			var n=0;
-			var pos=0;
-
-			while(true){
-				pos=string.indexOf(substring,pos);
-				if(pos!=-1){ n++; pos+=substring.length;}
-				else{break;}
-			}
-			return(n);
+			return result;
 		}
 
 		$("#toolbar > *[data-tool]").click(function() {
