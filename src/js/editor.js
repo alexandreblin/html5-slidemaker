@@ -132,7 +132,7 @@ $(document).ready(function(){
 			return(n);
 		}
 
-		$(".toolbar").click(function() {
+		$("#toolbar > a, #toolbar > button").click(function() {
 			var tool = $(this).attr("title");
 			var newSelection = editor.getSelection();
 			var endTagLength = null;
@@ -297,7 +297,7 @@ $(document).ready(function(){
 				throw CodeMirror.Pass;
 			}
 		}
-		
+
 		$(window).trigger('hashchange');
 		setSplitAt(splitSize);
 		updatePreview();
