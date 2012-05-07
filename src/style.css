@@ -201,13 +201,15 @@ header > h1 a {
     cursor: col-resize;
 }
 
-#toolbar a > img {
-    vertical-align: middle;
+#toolbar > * {
+    vertical-align: text-bottom;
+}
 
+.button > img {
     height: 16px;
     width: 16px;
     
-    padding: 2px;
+    padding: 3px;
 
     border: 1px solid #ccc;
     -webkit-border-radius: 4px;
@@ -222,10 +224,14 @@ header > h1 a {
     background: linear-gradient(top,  #f9f9f9 0%,#ededed 100%);
 }
 
-#toolbar a > img:hover {
+.button > img:hover {
     background: #f9f9f9;
 }
 
-#toolbar a > img:active {
+.button > img:active {
     background: #ededed;
+}
+
+#colorpicker > img {
+    background-color: #000;
 }

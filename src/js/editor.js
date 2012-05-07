@@ -132,7 +132,7 @@ $(document).ready(function(){
 			return(n);
 		}
 
-		$("#toolbar > a, #toolbar > button").click(function() {
+		$("#toolbar > *[title]").click(function() {
 			var tool = $(this).attr("title");
 			var newSelection = editor.getSelection();
 			var endTagLength = null;
@@ -217,10 +217,12 @@ $(document).ready(function(){
 
 					editor.replaceRange("",{line: rowStart, ch:0}, {line: rowEnd, ch: 0});
 				}
-			}else if (tool != "") {
+			}
+			else {
 				newSelection = "<"+tool+">"+newSelection+"</"+tool+">";
 				endTagLength = tool.length+3;
 			}
+
 			editor.replaceSelection(newSelection);
 
 			if(endTagLength != null){
@@ -232,16 +234,21 @@ $(document).ready(function(){
 			editor.focus();
 		});
 
-		$("#dcolor").change(function() {		
-			var newSelection = String(editor.getSelection());
-			var tag = "<span";
-			if(newSelection.substring(0, tag.length).toLowerCase() == tag){
-				var code = newSelection.substring(newSelection.indexOf("#")+1,newSelection.indexOf("#")+7);
-				newSelection = newSelection.replace(code,this.color);
-			}else{
-				newSelection = "<span style='color:#"+this.color+";'>"+newSelection+"</span>";
+		$('#colorpicker').ColorPicker({
+			color: '#000000',
+			onChange: function (hsb, hex, rgb) {
+				//$('#colorSelector div').css('backgroundColor', '#' + hex);
+				var newSelection = String(editor.getSelection());
+				var tag = "<span";
+				if(newSelection.substring(0, tag.length).toLowerCase() == tag){
+					var code = newSelection.substring(newSelection.indexOf("#")+1,newSelection.indexOf("#")+7);
+					newSelection = newSelection.replace(code, hex);
+				}else{
+					newSelection = "<span style='color:#"+hex+";'>"+newSelection+"</span>";
+				}
+				editor.replaceSelection(newSelection);
+				$('#colorpicker > img').css({'background-color': '#' + hex});
 			}
-			editor.replaceSelection(newSelection);			
 		});
 
 		function updatePreview() {
