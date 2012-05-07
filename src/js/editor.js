@@ -132,8 +132,8 @@ $(document).ready(function(){
 			return(n);
 		}
 
-		$("#toolbar > *[title]").click(function() {
-			var tool = $(this).attr("title");
+		$("#toolbar > *[data-tool]").click(function() {
+			var tool = $(this).data("tool");
 			var newSelection = editor.getSelection();
 			var endTagLength = null;
 
