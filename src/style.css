@@ -124,11 +124,6 @@ header > h1 a {
     text-decoration: none;
 }
 
-#toolbar {
-    height: 20px;
-    padding: 0 5px 5px 5px;
-}
-
 #container, #code, #preview {
 	position: absolute;
 	top: 0;
@@ -201,11 +196,15 @@ header > h1 a {
     cursor: col-resize;
 }
 
-#toolbar > * {
-    vertical-align: text-bottom;
+#toolbar {
+    height: 20px;
+    padding: 0 5px 5px 5px;
+    font-size: 10pt;
 }
 
 .button > img {
+    vertical-align: middle;
+
     height: 16px;
     width: 16px;
     
@@ -233,5 +232,6 @@ header > h1 a {
 }
 
 #colorpicker > img {
+    vertical-align: middle;
     background-color: #000;
 }
