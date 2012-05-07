@@ -212,8 +212,8 @@ $(document).ready(function(){
 				newSelection = '<a href="' + href + '">' + text + '</a>';
 				endTagLength = 0;
 				
-			}else if(tool == "strikethrough" || tool == "underline"){
-				newSelection = "<em class=\""+tool+"\">"+newSelection+"</em>";
+			}else if(tool == "strike" || tool == "underline"){
+				newSelection = "<span class=\""+tool+"\">"+newSelection+"</span>";
 				endTagLength = 5;
 				
 			}else if(tool == "add"){
