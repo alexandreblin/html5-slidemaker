@@ -271,9 +271,11 @@ $(document).ready(function(){
 				endTagLength = tool.length+3;
 			}
 
+			var hadSomethingSelected = editor.somethingSelected();
+
 			editor.replaceSelection(newSelection);
 
-			if(endTagLength != null){
+			if(endTagLength != null && !hadSomethingSelected){
 				var pos = editor.getCursor();
 				pos = {line: pos.line, ch: pos.ch - endTagLength};
 				editor.setCursor(pos);
