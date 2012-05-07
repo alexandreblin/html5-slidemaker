@@ -202,17 +202,20 @@ header > h1 a {
     font-size: 10pt;
 }
 
-.button > img {
+#toolbar a {
     vertical-align: middle;
+    display: inline-block;
 
     height: 16px;
-    width: 16px;
     
     padding: 3px;
 
     border: 1px solid #ccc;
     -webkit-border-radius: 4px;
     border-radius: 4px;
+
+    color: black;
+    text-decoration: none;
 
     background: #f9f9f9;
     background: -moz-linear-gradient(top,  #f9f9f9 0%, #ededed 100%);
@@ -223,15 +226,63 @@ header > h1 a {
     background: linear-gradient(top,  #f9f9f9 0%,#ededed 100%);
 }
 
-.button > img:hover {
+#toolbar a:hover {
     background: #f9f9f9;
 }
 
-.button > img:active {
+#toolbar a:active {
     background: #ededed;
 }
 
-#colorpicker > img {
-    vertical-align: middle;
-    background-color: #000;
+#toolbar a > span {
+    display: inline-block;
+    height: 16px;
+    padding: 1px 3px 0px 20px;
+}
+
+#toolbar a > span.icon {
+    width: 16px;
+    padding: 0;
+}
+
+#toolbar a#colorpicker {
+    height: 24px;
+    width: 24px;
+    padding: 0;
+    border: 0;
+    -webkit-border-radius: 0;
+    border-radius: 0;
+    background: url(img/colorpicker.png) center no-repeat, black;
+}
+
+#toolbar a[data-tool='strong'] > span {
+    background: url(img/bold.png);
+}
+
+#toolbar a[data-tool='em'] > span {
+    background: url(img/italic.png);
+}
+
+#toolbar a[data-tool='underline'] > span {
+    background: url(img/underline.png);
+}
+
+#toolbar a[data-tool='strike'] > span {
+    background: url(img/strike.png);
+}
+
+#toolbar a[data-tool='img'] > span {
+    background: url(img/image-add.png);
+}
+
+#toolbar a[data-tool='a'] > span {
+    background: url(img/link-add.png);
+}
+
+#toolbar a[data-tool='add'] > span {
+    background: url(img/slide-add.png) 0px 0px no-repeat;
+}
+
+#toolbar a[data-tool='delete'] > span {
+    background: url(img/slide-delete.png) 0px 0px no-repeat;
 }

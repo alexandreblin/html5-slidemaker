@@ -297,7 +297,7 @@ $(document).ready(function(){
 					newSelection = "<span style='color:#"+hex+";'>"+newSelection+"</span>";
 				}
 				editor.replaceSelection(newSelection);
-				$('#colorpicker > img').css({'background-color': '#' + hex});
+				$('#colorpicker').css({'background-color': '#' + hex});
 			}
 		});
 
