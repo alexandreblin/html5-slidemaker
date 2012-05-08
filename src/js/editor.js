@@ -26,6 +26,9 @@ $(document).ready(function(){
 		var delay;
 		var previewFrame = $('#preview > iframe')[0];
 		var splitSize = readCookie('splitsize');
+		var saveButton = $("#save");
+		var filesComboId = "#files";
+		var delFileButton = $("#removeFile");
 
 		var selectedSlide;
 
@@ -76,6 +79,47 @@ $(document).ready(function(){
 
 			splitSize = value;
 		}
+		
+		function fillFilesCombobox(){
+			for (var cle in localStorage){
+				$(filesComboId).append("<option value='"+cle+"'>"+cle+"</option>");
+			}
+		}
+		
+		$(filesComboId).change(function() {
+			if (localStorage) {
+				editor.setValue(localStorage[$(this).val()]);
+			} else {
+				alert("'localStorage' not supported by your navigator!");
+			}
+		});
+		
+		saveButton.click(function() {
+			var name = "";
+			while(name == ""){
+				name = prompt("Enter the name of the presentation");
+			}
+			if(name==null) return;
+			
+			if (localStorage) {
+				localStorage[name] = editor.getValue();
+				$(filesComboId).append("<option value='"+name+"'>"+name+"</option>")
+			} else {
+				alert("Functionality not supported by your navigator!");
+			}
+		});
+		
+		delFileButton.click(function(){
+			if (localStorage) {
+				var cle = $(filesComboId+" option:selected");
+				if(cle.val() != ""){
+					localStorage.removeItem(cle.text());
+					$(filesComboId+" option:selected").remove()
+				}
+			} else {
+				alert("Functionality not supported by your navigator!");
+			}
+		});
 
 		var dragHandler = function(e) {
 			setSplitAt(e.pageX);
@@ -357,6 +401,7 @@ $(document).ready(function(){
 
 		$(window).trigger('hashchange');
 		setSplitAt(splitSize);
+		fillFilesCombobox();
 		updatePreview();
 	});
 });
