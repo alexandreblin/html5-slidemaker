@@ -286,3 +286,11 @@ header > h1 a {
 #toolbar a[data-tool='delete'] > span {
     background: url(img/slide-delete.png) 0px 0px no-repeat;
 }
+
+#toolbar a[data-tool='prev'] > span {
+    background: url(img/previous-slide.png) 0px 0px no-repeat;
+}
+
+#toolbar a[data-tool='next'] > span {
+    background: url(img/next-slide.png) 0px 0px no-repeat;
+}

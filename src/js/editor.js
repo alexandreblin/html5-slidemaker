@@ -330,6 +330,22 @@ $(document).ready(function(){
 
 				}
 			}
+            else if(tool == "prev"){
+                var slide = getSlideInfo(selectedSlide-1);
+                previewFrame.contentWindow.gotoSlide(selectedSlide-1);
+                var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
+                editor.scrollTo(coord.x, coord.y);
+
+                return;
+            }
+            else if(tool == "next"){
+                var slide = getSlideInfo(selectedSlide+1);
+                previewFrame.contentWindow.gotoSlide(selectedSlide+1);
+                var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
+                editor.scrollTo(coord.x, coord.y);
+
+                return;
+            }
 			else {
 				newSelection = "<"+tool+">"+newSelection+"</"+tool+">";
 				endTagLength = tool.length+3;
