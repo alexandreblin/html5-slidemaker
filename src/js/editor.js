@@ -259,6 +259,10 @@ $(document).ready(function(){
         }
 
 		$("#toolbar > *[data-tool]").click(function() {
+			if ($(this).hasClass('disabled')) {
+				return;
+			}
+
 			var tool = $(this).data("tool");
 			var newSelection = editor.getSelection();
 			var endTagLength = null;
