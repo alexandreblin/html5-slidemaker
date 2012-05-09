@@ -60,6 +60,7 @@ $(document).ready(function(){
 				if(selectedSlide != -1 && previewFrame.contentWindow.curSlide != selectedSlide) {
 					previewFrame.contentWindow.gotoSlide(selectedSlide);
 				}
+                changeCurrentColor(editor);
 			}
 		});
 
@@ -106,7 +107,7 @@ $(document).ready(function(){
 				alert("Functionality not supported by your navigator!");
 			}
 		});
-		
+
 		delFileButton.click(function(){
 			if (localStorage) {
 				var cle = $(filesComboId+" option:selected");
@@ -223,25 +224,126 @@ $(document).ready(function(){
 			return result;
 		}
 
-        function changeCurrentColor(cm, ch){
-            var pos = cm.getCursor();
-            var tok = cm.getTokenAt(pos);
-            var state = tok.state;
-            console.log(state);
-            /*var type = state.htmlState ? state.htmlState.type : state.type;
-
-            if (state.htmlState.context.tagName == 'pre') {
-                if (ch == '<') {
-                    cm.replaceSelection('&lt;');
-                }else if (ch == '>') {
-                    cm.replaceSelection('&gt;');
-                }
-                pos = {line: pos.line, ch: pos.ch + 4};
-                cm.setCursor(pos);
+        function changeCurrentColor() {
+            if(!canChangeCurrentColor()) {
                 return;
-            } else{
-                throw CodeMirror.Pass;
-            }*/
+            }
+            var szBeforeText = getTagBeforeStartCursor("span", true);
+            if(!szBeforeText) {
+                return;
+            }
+
+
+        }
+        function canChangeCurrentColor() {
+            if(!cursorIsBetweenTag("span", true)){
+                return false;
+            }
+
+            var szBeforeText = getTagBeforeStartCursor("span", true);
+            if(!szBeforeText) {
+                return false;
+            }
+
+            var styleValue = getAttributeTag(szBeforeText, "style");
+            if(!styleValue) {
+                return false;
+            }
+            //var val = styleValue.indexOf("color");
+            //if(val )
+            return true;
+        }
+        function getTagBeforeStartCursor(szTag, bWithAttr) {
+            var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
+            var startPos = editor.getCursor(true);
+            var szLineStText = editor.getLine(startPos.line);
+            var szBeforeText = szLineStText.substr(0, startPos.ch);
+            var pos = szBeforeText.lastIndexOf(startTag);
+            if(pos == -1) {
+                return null;
+            }
+            szBeforeText = szBeforeText.substr(pos);
+            pos = szBeforeText.indexOf('>');
+            if(pos != szBeforeText.length - 1) {
+                return null;
+            }
+            return szBeforeText;
+        }
+
+        function cursorIsBetweenTag(szTag, bWithAttr) {
+            var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
+            var endTag = '</' + szTag + '>';
+
+            if(!getTagBeforeStartCursor("span", true)) {
+                return false;
+            }
+
+            var endPos = editor.getCursor(false);
+            var szLineText = editor.getLine(endPos.line);
+            var szNextText = szLineText.substr(endPos.ch);
+            if(szNextText.indexOf(endTag) != 0) {
+                return false;
+            }
+
+            if(editor.somethingSelected()){
+                var selText = editor.getSelection();
+                var tags = [];
+
+                pos = selText.indexOf(startTag);
+                while (pos != -1) {
+                    tags[pos] = true;
+                    pos = selText.indexOf(startTag, pos+1);
+                }
+
+                pos = selText.indexOf(endTag);
+                while (pos != -1) {
+                    tags[pos] = false;
+                    pos = selText.indexOf(endTag, pos+1);
+                }
+                var iLevel = 0;
+                for (var i in tags) {
+                    if (tags[i] == true) {
+                        iLevel++;
+                    }
+                    else {
+                        iLevel--;
+                    }
+                    if(iLevel < 0) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function getAttributeTag(szText, attr) {
+            if(!szText) {
+                return null;
+            }
+            if(szText.length == 0) {
+                return null;
+            }
+            if(szText.lastIndexOf('<') != 0) {
+                return null;
+            }
+            if(szText.indexOf('>') != szText.length - 1) {
+                return null;
+            }
+            var pos = szText.indexOf(attr);
+            if(pos != -1) {
+                szText = szText.substr(pos);
+                szText = szText.replace(/ /g, "");
+                var pos = szText.indexOf("=");
+                if(pos != -1 && pos + 2 < szText.length) {
+                    szText = szText.substr(pos+1);
+                    var cStartQuote = szText.charAt(0);//' or "
+                    var endQuotePos = szText.indexOf(cStartQuote, 1);
+                    if(endQuotePos != -1) {
+                        return szText.substr(1, endQuotePos-1);
+                    }
+                }
+            }
+            return null;
         }
 
 		$("#toolbar > *[data-tool]").click(function() {
