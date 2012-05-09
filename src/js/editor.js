@@ -344,16 +344,17 @@ $(document).ready(function(){
             else if(tool == "prev"){
                 if(selectedSlide > 0){
                     var slide = getSlideInfo(selectedSlide-1);
-                    previewFrame.contentWindow.gotoSlide(selectedSlide-1);
+                    previewFrame.contentWindow.prevSlide();
                     var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
                     editor.scrollTo(coord.x, coord.y);
                 }
                 return;
             }
             else if(tool == "next"){
+
                 if(selectedSlide < totalSlides){
                     var slide = getSlideInfo(selectedSlide+1);
-                    previewFrame.contentWindow.gotoSlide(selectedSlide+1);
+                    previewFrame.contentWindow.nextSlide();
                     var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
                     editor.scrollTo(coord.x, coord.y);
                 }
