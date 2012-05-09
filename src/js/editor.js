@@ -29,13 +29,20 @@ $(document).ready(function(){
 		var saveButton = $("#save");
 		var filesComboId = "#files";
 		var delFileButton = $("#removeFile");
-
+        var totalSlides;
 		var selectedSlide;
 
 		$(window).bind('hashchange', function() {
 			selectedSlide = parseInt(window.location.hash.replace('#', '')) - 1;
 			if (!selectedSlide || selectedSlide < 0) { selectedSlide = 0; }
+
+            $("#selectedSlide").html(selectedSlide + 1);
 		});
+
+        $("#iframe").load(function (){
+            totalSlides = previewFrame.contentWindow.slideEls.length;
+            $("#totalSlides").html(totalSlides);
+        });
 		
 		if (!splitSize) {
 			splitSize = $(document).width() / 2;
@@ -335,19 +342,21 @@ $(document).ready(function(){
 				}
 			}
             else if(tool == "prev"){
-                var slide = getSlideInfo(selectedSlide-1);
-                previewFrame.contentWindow.gotoSlide(selectedSlide-1);
-                var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
-                editor.scrollTo(coord.x, coord.y);
-
+                if(selectedSlide > 0){
+                    var slide = getSlideInfo(selectedSlide-1);
+                    previewFrame.contentWindow.gotoSlide(selectedSlide-1);
+                    var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
+                    editor.scrollTo(coord.x, coord.y);
+                }
                 return;
             }
             else if(tool == "next"){
-                var slide = getSlideInfo(selectedSlide+1);
-                previewFrame.contentWindow.gotoSlide(selectedSlide+1);
-                var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
-                editor.scrollTo(coord.x, coord.y);
-
+                if(selectedSlide < totalSlides){
+                    var slide = getSlideInfo(selectedSlide+1);
+                    previewFrame.contentWindow.gotoSlide(selectedSlide+1);
+                    var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
+                    editor.scrollTo(coord.x, coord.y);
+                }
                 return;
             }
 			else {
