@@ -302,7 +302,7 @@ $(document).ready(function(){
                 editor.setCursor({line:slide.to.line+4, ch: 4});
 
 			}else if(tool == "delete"){
-			//	if(confirm("Are you sure you want to delete the current slide?")){
+				if(confirm("Are you sure you want to delete the current slide?")){
                     var slide = getSlideInfo(selectedSlide);
                     var lineEnd = slide.to.line;
                     var chEnd = slide.to.ch;
@@ -328,7 +328,7 @@ $(document).ready(function(){
 					editor.replaceRange("",{line: lineBegin, ch:chBegin}, {line: lineEnd, ch: chEnd});
 
 
-			//	}
+				}
 			}
 			else {
 				newSelection = "<"+tool+">"+newSelection+"</"+tool+">";
