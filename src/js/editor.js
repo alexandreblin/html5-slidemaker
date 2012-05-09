@@ -80,15 +80,20 @@ $(document).ready(function(){
 		
 		function fillFilesCombobox(){
 			for (var cle in localStorage){
-				$(filesComboId).append("<option value='"+cle+"'>"+cle+"</option>");
+				if(cle.substr(0,7) == "slides_"){
+					cle = cle.substr(7,cle.length);
+					$(filesComboId).append("<option value='"+cle+"'>"+cle+"</option>");
+				}
 			}
 		}
 		
 		$(filesComboId).change(function() {
-			if (localStorage) {
-				editor.setValue(localStorage[$(this).val()]);
-			} else {
-				alert("'localStorage' not supported by your navigator!");
+			if ($(this).val() != ""){
+				if (localStorage) {
+					editor.setValue(localStorage["slides_"+$(this).val()]);
+				} else {
+					alert("'localStorage' not supported by your navigator!");
+				}
 			}
 		});
 		
@@ -100,8 +105,14 @@ $(document).ready(function(){
 			if(name==null) return;
 			
 			if (localStorage) {
-				localStorage[name] = editor.getValue();
-				$(filesComboId).append("<option value='"+name+"'>"+name+"</option>")
+				if(localStorage["slides_"+name] != null){
+					if (!confirm("That name already exists! Do you want overwrite this file?")) {
+						return;
+					}
+				}else{
+					$(filesComboId).append("<option value='"+name+"'>"+name+"</option>");
+				}
+				localStorage["slides_"+name] = editor.getValue();
 			} else {
 				alert("Functionality not supported by your navigator!");
 			}
@@ -111,8 +122,11 @@ $(document).ready(function(){
 			if (localStorage) {
 				var cle = $(filesComboId+" option:selected");
 				if(cle.val() != ""){
-					localStorage.removeItem(cle.text());
-					$(filesComboId+" option:selected").remove()
+					if (!confirm("Are you sure you want to delete : " + cle.val() + "?")) {
+						return;
+					}
+					localStorage.removeItem("slides_"+cle.text());
+					$(filesComboId+" option:selected").remove();
 				}
 			} else {
 				alert("Functionality not supported by your navigator!");
@@ -285,53 +299,39 @@ $(document).ready(function(){
 				endTagLength = 5;
 				
 			}else if(tool == "add"){
-				var iRow = editor.getCursor().line;
+                var slide = getSlideInfo(selectedSlide);
+                editor.replaceRange("\n\n<article>\n  <p>\n    \n  </p>\n</article>",  {line: slide.to.line, ch: slide.to.ch+1}, {line: slide.to.line, ch: slide.to.ch+1});
 
-				while(iRow < editor.lineCount()){
-					var info = editor.lineInfo(iRow);
-					if(info.text.indexOf("</article>") != -1){
-						break;
-					}
-				iRow++;
-				}
+                editor.focus();
+                editor.setCursor({line:slide.to.line+4, ch: 4});
 
-			  //if current slide is last one
-			  if(iRow+1 == editor.lineCount())
-				{
-					editor.replaceRange("\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
-				}
-
-			  editor.replaceRange("\n<article>\n  <p>\n    \n  </p>\n</article>\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
-			  editor.focus();
-			  editor.setCursor({line:iRow+4, ch: 4});
-			  
 			}else if(tool == "delete"){
 				if(confirm("Are you sure you want to delete the current slide?")){
-					var rowStart = editor.getCursor().line;
-					var rowEnd = editor.getCursor().line;
+                    var slide = getSlideInfo(selectedSlide);
+                    var lineEnd = slide.to.line;
+                    var chEnd = slide.to.ch;
+                    var lineBegin = slide.from.line;
+                    var chBegin = slide.from.ch;
 
-					while(rowStart > 0){
-						var info = editor.lineInfo(rowStart);
-						if(info.text.indexOf("<article>") != -1){
-							break;
-						}
-						rowStart--;
-					}
 
-					while(rowEnd < editor.lineCount()){
-						var info = editor.lineInfo(rowEnd);
-						if(info.text.indexOf("</article>") != -1){
-							break;
-						}
-						rowEnd++;
-					}
-						rowEnd++;
 
-						if(editor.lineInfo(rowEnd)!=null && editor.lineInfo(rowEnd).text.length == 0){
-							rowEnd++;
-						}
+                    while(editor.lineInfo(lineEnd)!=null && editor.lineInfo(lineEnd).text.indexOf("<article") == -1 && lineEnd < editor.lineCount()){
+                        lineEnd++;
+                    }
 
-					editor.replaceRange("",{line: rowStart, ch:0}, {line: rowEnd, ch: 0});
+                    if(lineEnd == editor.lineCount())
+                    {
+                        while(editor.lineInfo(lineBegin)!=null && editor.lineInfo(lineBegin).text.indexOf("</article>") == -1 && lineBegin > 0){
+                            lineBegin--;
+                        }
+                        chBegin =  editor.lineInfo(lineBegin).text.indexOf("</article>") + 10;
+                    }
+                    else{
+                        chEnd =  editor.lineInfo(lineEnd).text.indexOf("<article");
+                    }
+					editor.replaceRange("",{line: lineBegin, ch:chBegin}, {line: lineEnd, ch: chEnd});
+
+
 				}
 			}
 			else {
