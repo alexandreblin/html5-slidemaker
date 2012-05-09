@@ -60,7 +60,6 @@ $(document).ready(function(){
 				if(selectedSlide != -1 && previewFrame.contentWindow.curSlide != selectedSlide) {
 					previewFrame.contentWindow.gotoSlide(selectedSlide);
 				}
-                changeCurrentColor(editor);
 			}
 		});
 
@@ -224,50 +223,42 @@ $(document).ready(function(){
 			return result;
 		}
 
-        function changeCurrentColor() {
-            if(!canChangeCurrentColor()) {
-                return;
-            }
-            var szBeforeText = getTagBeforeStartCursor("span", true);
-            if(!szBeforeText) {
-                return;
-            }
-
-
-        }
         function canChangeCurrentColor() {
             if(!cursorIsBetweenTag("span", true)){
                 return false;
             }
 
-            var szBeforeText = getTagBeforeStartCursor("span", true);
-            if(!szBeforeText) {
+            var resBeforeText = getTagBeforeStartCursor("span", true);
+            if(!resBeforeText) {
                 return false;
             }
-
-            var styleValue = getAttributeTag(szBeforeText, "style");
-            if(!styleValue) {
+            var resStyle = getAttributeTag(resBeforeText, "style");
+            if(!resStyle) {
                 return false;
             }
-            //var val = styleValue.indexOf("color");
-            //if(val )
             return true;
+        }
+        function changeCurrentColor(color) {
+            var resBeforeText = getTagBeforeStartCursor("span", true);
+            var resStyle = getAttributeTag(resBeforeText, "style");
+            setColorTag(resStyle, color);
         }
         function getTagBeforeStartCursor(szTag, bWithAttr) {
             var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
             var startPos = editor.getCursor(true);
             var szLineStText = editor.getLine(startPos.line);
             var szBeforeText = szLineStText.substr(0, startPos.ch);
-            var pos = szBeforeText.lastIndexOf(startTag);
-            if(pos == -1) {
+            var pos1 = szBeforeText.lastIndexOf(startTag);
+            if(pos1 == -1) {
                 return null;
             }
-            szBeforeText = szBeforeText.substr(pos);
-            pos = szBeforeText.indexOf('>');
-            if(pos != szBeforeText.length - 1) {
+            szBeforeText = szBeforeText.substr(pos1);
+            var pos2 = szBeforeText.indexOf('>');
+            if(pos2 != szBeforeText.length - 1) {
                 return null;
             }
-            return szBeforeText;
+            var result = {text:szBeforeText, from: {line:startPos.line, ch:pos1}};
+            return result;
         }
 
         function cursorIsBetweenTag(szTag, bWithAttr) {
@@ -289,7 +280,7 @@ $(document).ready(function(){
                 var selText = editor.getSelection();
                 var tags = [];
 
-                pos = selText.indexOf(startTag);
+                var pos = selText.indexOf(startTag);
                 while (pos != -1) {
                     tags[pos] = true;
                     pos = selText.indexOf(startTag, pos+1);
@@ -316,34 +307,26 @@ $(document).ready(function(){
             return true;
         }
 
-        function getAttributeTag(szText, attr) {
-            if(!szText) {
-                return null;
-            }
-            if(szText.length == 0) {
-                return null;
-            }
-            if(szText.lastIndexOf('<') != 0) {
-                return null;
-            }
-            if(szText.indexOf('>') != szText.length - 1) {
-                return null;
-            }
-            var pos = szText.indexOf(attr);
-            if(pos != -1) {
-                szText = szText.substr(pos);
-                szText = szText.replace(/ /g, "");
-                var pos = szText.indexOf("=");
-                if(pos != -1 && pos + 2 < szText.length) {
-                    szText = szText.substr(pos+1);
-                    var cStartQuote = szText.charAt(0);//' or "
-                    var endQuotePos = szText.indexOf(cStartQuote, 1);
-                    if(endQuotePos != -1) {
-                        return szText.substr(1, endQuotePos-1);
-                    }
+        function getAttributeTag(resText, attr) {
+            var szText = resText.text;
+            if(szText && szText.length > 0) {
+                if(szText.lastIndexOf('<') == 0 && szText.indexOf('>') == szText.length - 1) {
+                    var re = new RegExp('('+attr+'[ ]*=[ ]*)([\'\"][^\'\"]+[\'\"])');
+                    re.exec(szText);
+                    return {text: RegExp.$2, from: {line:resText.from.line, ch:resText.from.ch+RegExp.leftContext.length+RegExp.$1.length}};
                 }
             }
             return null;
+        }
+        function setColorTag(resText, newColor) {
+            var szText = resText.text;
+            if(szText && szText.length > 0) {
+                var re1 = new RegExp(/([;'"][ ]*color[ ]*:[ ]*)[^;]+[ ]*([;'"])/);
+                re1.exec(szText);
+                var replacedText = RegExp.leftContext + RegExp.$1 + newColor + RegExp.$2 + RegExp.rightContext;
+                var to = {line:resText.from.line, ch:resText.from.ch+szText.length};
+                editor.replaceRange(replacedText, resText.from, to);
+            }
         }
 
 		$("#toolbar > *[data-tool]").click(function() {
@@ -462,7 +445,11 @@ $(document).ready(function(){
 				}else{
 					newSelection = "<span style='color:#"+hex+";'>"+newSelection+"</span>";
 				}
-				editor.replaceSelection(newSelection);
+                if(canChangeCurrentColor()) {
+                    changeCurrentColor("#"+hex);
+                } else {
+				    editor.replaceSelection(newSelection);
+                }
 				$('#colorpicker').css({'background-color': '#' + hex});
 			}
 		});
