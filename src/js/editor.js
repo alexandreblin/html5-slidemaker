@@ -80,15 +80,20 @@ $(document).ready(function(){
 		
 		function fillFilesCombobox(){
 			for (var cle in localStorage){
-				$(filesComboId).append("<option value='"+cle+"'>"+cle+"</option>");
+				if(cle.substr(0,7) == "slides_"){
+					cle = cle.substr(7,cle.length);
+					$(filesComboId).append("<option value='"+cle+"'>"+cle+"</option>");
+				}
 			}
 		}
 		
 		$(filesComboId).change(function() {
-			if (localStorage) {
-				editor.setValue(localStorage[$(this).val()]);
-			} else {
-				alert("'localStorage' not supported by your navigator!");
+			if ($(this).val() != ""){
+				if (localStorage) {
+					editor.setValue(localStorage["slides_"+$(this).val()]);
+				} else {
+					alert("'localStorage' not supported by your navigator!");
+				}
 			}
 		});
 		
@@ -100,8 +105,14 @@ $(document).ready(function(){
 			if(name==null) return;
 			
 			if (localStorage) {
-				localStorage[name] = editor.getValue();
-				$(filesComboId).append("<option value='"+name+"'>"+name+"</option>")
+				if(localStorage["slides_"+name] != null){
+					if (!confirm("That name already exists! Do you want overwrite this file?")) {
+						return;
+					}
+				}else{
+					$(filesComboId).append("<option value='"+name+"'>"+name+"</option>");
+				}
+				localStorage["slides_"+name] = editor.getValue();
 			} else {
 				alert("Functionality not supported by your navigator!");
 			}
@@ -111,8 +122,11 @@ $(document).ready(function(){
 			if (localStorage) {
 				var cle = $(filesComboId+" option:selected");
 				if(cle.val() != ""){
-					localStorage.removeItem(cle.text());
-					$(filesComboId+" option:selected").remove()
+					if (!confirm("Are you sure you want to delete : " + cle.val() + "?")) {
+						return;
+					}
+					localStorage.removeItem("slides_"+cle.text());
+					$(filesComboId+" option:selected").remove();
 				}
 			} else {
 				alert("Functionality not supported by your navigator!");
