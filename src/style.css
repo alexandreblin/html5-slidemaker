@@ -234,6 +234,18 @@ header > h1 a {
     background: #ededed;
 }
 
+#toolbar a.disabled {
+    background: #f9f9f9;
+}
+
+#toolbar a.disabled:hover {
+    cursor: default;
+}
+
+#toolbar a.disabled > span {
+    opacity: 0.5;
+}
+
 #toolbar a > span {
     display: inline-block;
     height: 16px;
