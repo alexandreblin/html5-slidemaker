@@ -53,9 +53,11 @@ $(document).ready(function(){
 
 		});
 
-        $("#iframe").load(function (){
+        $('#preview > iframe').load(function (){
             totalSlides = previewFrame.contentWindow.slideEls.length;
             $("#totalSlides").html(totalSlides);
+
+            $(window).trigger('hashchange');
         });
 		
 		if (!splitSize) {
