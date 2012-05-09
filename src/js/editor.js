@@ -60,8 +60,6 @@ $(document).ready(function(){
 				if(selectedSlide != -1 && previewFrame.contentWindow.curSlide != selectedSlide) {
 					previewFrame.contentWindow.gotoSlide(selectedSlide);
 				}
-				var test = getSlideInfo(selectedSlide);
-				console.log("From "+ test.from.line +" "+ test.from.ch +" To "+ test.to.line +" "+ test.to.ch );
 			}
 		});
 
@@ -148,10 +146,10 @@ $(document).ready(function(){
 
 			var tags = [];
 
-			var pos = text.indexOf('<article>');
+			var pos = text.indexOf('<article');
 			while (pos != -1) {
 				tags[pos] = true;
-				pos = text.indexOf('<article>', pos+1);
+				pos = text.indexOf('<article', pos+1);
 			}
 
 			pos = text.indexOf('</article>');
@@ -204,7 +202,7 @@ $(document).ready(function(){
 			for (var i in tags) {
 				if (tags[i] == true) {
 					iLevel++;
-					if (iLevel == 1) {
+                    if (iLevel == 1) {
 						// we just got a first level <article>
 						iCurrentSlide++;
 						if(iCurrentSlide == iSlide) {
@@ -213,16 +211,38 @@ $(document).ready(function(){
 					}
 				}
 				else {
-					iLevel--;
+                    iLevel--;
 					if(iLevel == 0 && iCurrentSlide == iSlide) {
-						i += szTag.length + 3;
-						result.to = editor.posFromIndex(i);
+
+                        var newVal = szTag.length + 3 + parseInt(i);
+                        result.to = editor.posFromIndex(newVal);
 						break;
 					}
 				}
 			}
 			return result;
 		}
+
+        function changeCurrentColor(cm, ch){
+            var pos = cm.getCursor();
+            var tok = cm.getTokenAt(pos);
+            var state = tok.state;
+            console.log(state);
+            /*var type = state.htmlState ? state.htmlState.type : state.type;
+
+            if (state.htmlState.context.tagName == 'pre') {
+                if (ch == '<') {
+                    cm.replaceSelection('&lt;');
+                }else if (ch == '>') {
+                    cm.replaceSelection('&gt;');
+                }
+                pos = {line: pos.line, ch: pos.ch + 4};
+                cm.setCursor(pos);
+                return;
+            } else{
+                throw CodeMirror.Pass;
+            }*/
+        }
 
 		$("#toolbar > *[data-tool]").click(function() {
 			var tool = $(this).data("tool");
