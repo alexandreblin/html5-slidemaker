@@ -306,3 +306,15 @@ header > h1 a {
 #toolbar a[data-tool='next'] > span {
     background: url(img/next-slide.png) 0px 0px no-repeat;
 }
+
+#toolbar a[data-tool='save'] > span {
+    background: url(img/disk.png) 0px 0px no-repeat;
+}
+
+#toolbar a[data-tool='saveAs'] > span {
+    background: url(img/disks.png) 0px 0px no-repeat;
+}
+
+#toolbar a[data-tool='rmFile'] > span {
+    background: url(img/disk--minus.png) 0px 0px no-repeat;
+}

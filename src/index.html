@@ -29,6 +29,11 @@
 	</header>
 
   <div id="toolbar">
+	<a href="javascript:void(0)" data-tool="save"><span>Save</span></a>
+	<a href="javascript:void(0)" data-tool="saveAs"><span>Save as</span></a>
+	File<select id="files"><option value=""></option></select>  
+	<a href="javascript:void(0)" data-tool="rmFile"><span>Delete file</span></a>
+	&nbsp;
     <a href="javascript:void(0)" data-tool="add"><span>Add slide</span></a>
     <a href="javascript:void(0)" data-tool="delete"><span>Delete slide</span></a>
     &nbsp;
@@ -40,9 +45,7 @@
     &nbsp;
     <a href="javascript:void(0)" data-tool="img" title="Insert image"><span class="icon" /></a>
     <a href="javascript:void(0)" data-tool="a" title="Insert link"><span class="icon" /></a>
-	<button id="save">Save</button>
-	<select id="files"><option value=""></option></select>  
-	<button id="removeFile">Delete</button>
+	&nbsp;
     <a href="javascript:void(0)" data-tool="prev" title="Previous slide"><span class="icon" /></a>
     <span id="selectedSlide"></span> sur <span id="totalSlides"></span>
     <a href="javascript:void(0)" data-tool="next" title="Next slide"><span class="icon" /></a>
