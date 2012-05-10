@@ -349,7 +349,7 @@ $(document).ready(function(){
                         }
                         chBegin =  editor.lineInfo(lineBegin).text.indexOf("</article>") + 10;
                     }
-                    else{
+                    else if(lineEnd != slide.to.line){
                         chEnd =  editor.lineInfo(lineEnd).text.indexOf("<article");
                     }
 					editor.replaceRange("",{line: lineBegin, ch:chBegin}, {line: lineEnd, ch: chEnd});
