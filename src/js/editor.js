@@ -26,11 +26,14 @@ $(document).ready(function(){
 		var delay;
 		var previewFrame = $('#preview > iframe')[0];
 		var splitSize = readCookie('splitsize');
-		var saveButton = $("#save");
 		var filesComboId = "#files";
 		var delFileButton = $("#removeFile");
         var totalSlides;
 		var selectedSlide;
+		
+		var fileName = "";
+		var isFileModified = false;
+		var onLoadFile = false;
 
 		$(window).bind('hashchange', function() {
 			selectedSlide = parseInt(window.location.hash.replace('#', '')) - 1;
@@ -77,6 +80,12 @@ $(document).ready(function(){
 			onChange: function() {
 				clearTimeout(delay);
 				delay = setTimeout(updatePreview, 300);
+				if(!onLoadFile){
+					isFileModified = true;
+				}else{
+					onLoadFile = false;
+					isFileModified = false;
+				}
 			},
 			onCursorActivity: function() {
 				selectedSlide = getSlideInfoOnCursor();
@@ -113,14 +122,25 @@ $(document).ready(function(){
 		$(filesComboId).change(function() {
 			if ($(this).val() != ""){
 				if (localStorage) {
-					editor.setValue(localStorage["slides_"+$(this).val()]);
+					if(isFileModified){
+						if (confirm("File not saved. Do you want to save it before switch?")) {
+							if(fileName == ""){
+								saveAsFile();
+							}else{
+								saveFile(fileName);
+							}
+						}
+					}
+					fileName = $(this).val();
+					onLoadFile = true;
+					editor.setValue(localStorage["slides_"+fileName]);
 				} else {
 					alert("'localStorage' not supported by your navigator!");
 				}
 			}
 		});
 		
-		saveButton.click(function() {
+		function saveAsFile(){
 			var name = "";
 			while(name == ""){
 				name = prompt("Enter the name of the presentation");
@@ -134,27 +154,40 @@ $(document).ready(function(){
 					}
 				}else{
 					$(filesComboId).append("<option value='"+name+"'>"+name+"</option>");
+					$(filesComboId).val(name);
 				}
-				localStorage["slides_"+name] = editor.getValue();
 			} else {
 				alert("Functionality not supported by your navigator!");
 			}
-		});
+			
+			saveFile(name);
+			fileName = name;
+		}
 		
-		delFileButton.click(function(){
+		function saveFile(name){
 			if (localStorage) {
-				var cle = $(filesComboId+" option:selected");
-				if(cle.val() != ""){
-					if (!confirm("Are you sure you want to delete : " + cle.val() + "?")) {
+				localStorage["slides_"+name] = editor.getValue();
+				isFileModified = false;
+			} else {
+				alert("Functionality not supported by your navigator!");
+			}
+		}
+		
+		function removeFile(name){
+			if (localStorage) {
+				if(name != ""){
+					if (!confirm("Are you sure you want to delete : " + name + "?")) {
 						return;
 					}
-					localStorage.removeItem("slides_"+cle.text());
+					localStorage.removeItem("slides_"+name);
 					$(filesComboId+" option:selected").remove();
+					fileName = "";
+					isFileModified = true;
 				}
 			} else {
 				alert("Functionality not supported by your navigator!");
 			}
-		});
+		}
 
 		var dragHandler = function(e) {
 			setSplitAt(e.pageX);
@@ -356,6 +389,16 @@ $(document).ready(function(){
 
 
 				}
+			}else if (tool == "save") {
+				if(fileName != ""){
+					saveFile(fileName);
+				}else{
+					saveAsFile();
+				}
+			}else if (tool == "saveAs") {
+				saveAsFile();
+			}else if (tool == "rmFile") {
+				removeFile(fileName);
 			}
             else if(tool == "prev"){
                 if(selectedSlide > 0){
@@ -382,8 +425,7 @@ $(document).ready(function(){
 			}
 
 			var hadSomethingSelected = editor.somethingSelected();
-
-			editor.replaceSelection(newSelection);
+			if(hadSomethingSelected) editor.replaceSelection(newSelection);
 
 			if(endTagLength != null && !hadSomethingSelected){
 				var pos = editor.getCursor();
