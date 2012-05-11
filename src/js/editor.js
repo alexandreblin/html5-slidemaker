@@ -350,10 +350,6 @@ $(document).ready(function(){
 				newSelection = '<a href="' + href + '">' + text + '</a>';
 				endTagLength = 0;
 				
-			}else if(tool == "strike" || tool == "underline"){
-				newSelection = "<span class=\""+tool+"\">"+newSelection+"</span>";
-				endTagLength = 5;
-				
 			}else if(tool == "add"){
                 var slide = getSlideInfo(selectedSlide);
                 editor.replaceRange("\n\n<article>\n  <p>\n    \n  </p>\n</article>",  {line: slide.to.line, ch: slide.to.ch+1}, {line: slide.to.line, ch: slide.to.ch+1});

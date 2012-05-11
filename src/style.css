@@ -275,11 +275,11 @@ header > h1 a {
     background: url(img/italic.png);
 }
 
-#toolbar a[data-tool='underline'] > span {
+#toolbar a[data-tool='u'] > span {
     background: url(img/underline.png);
 }
 
-#toolbar a[data-tool='strike'] > span {
+#toolbar a[data-tool='del'] > span {
     background: url(img/strike.png);
 }
 
