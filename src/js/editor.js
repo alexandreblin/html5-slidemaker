@@ -28,12 +28,32 @@ $(document).ready(function(){
 		var splitSize = readCookie('splitsize');
 		var filesComboId = "#files";
 		var delFileButton = $("#removeFile");
+        var slideTemplates = "#templates";
+        var currentTemplate;
         var totalSlides;
 		var selectedSlide;
 		
 		var fileName = "";
 		var isFileModified = false;
 		var onLoadFile = false;
+
+        for(var t in slideTemplate){
+            var flag = true;
+            if(flag){
+                $(slideTemplates).val(t);
+                currentTemplate = slideTemplate[t].code;
+                flag = false;
+            }
+            $(slideTemplates).append("<option value='"+t+"'>"+slideTemplate[t].title+"</option>");
+        }
+
+        $(slideTemplates).change(function() {
+            var t = $(this).val();
+            if (t != ""){
+                currentTemplate = slideTemplate[t].code;
+            }
+        });
+
 
 		$(window).bind('hashchange', function() {
 			selectedSlide = parseInt(window.location.hash.replace('#', '')) - 1;
@@ -352,7 +372,8 @@ $(document).ready(function(){
 				
 			}else if(tool == "add"){
                 var slide = getSlideInfo(selectedSlide);
-                editor.replaceRange("\n\n<article>\n  <p>\n    \n  </p>\n</article>",  {line: slide.to.line, ch: slide.to.ch+1}, {line: slide.to.line, ch: slide.to.ch+1});
+                var newSlide =
+                editor.replaceRange(currentTemplate,  {line: slide.to.line, ch: slide.to.ch+1}, {line: slide.to.line, ch: slide.to.ch+1});
 
                 editor.focus();
                 editor.setCursor({line:slide.to.line+4, ch: 4});
@@ -448,6 +469,8 @@ $(document).ready(function(){
 				$('#colorpicker').css({'background-color': '#' + hex});
 			}
 		});
+
+
 
 		function updatePreview() {
 			now.transform(editor.getValue(), function(previewHTML) {
