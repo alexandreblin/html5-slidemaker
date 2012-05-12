@@ -230,33 +230,42 @@ $(document).ready(function(){
 			return false;
 		});
 
+        // Each index corresponds to an index tag, its value equals true for start tag and false for end tag.
+        // A table of those indexes is returned.
+        function getTagIndexes(szText, szTag, bWithAttr) {
+            var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
+            var endTag = '</' + szTag + '>'
+
+            var tags = [];
+
+            var pos = szText.indexOf(startTag);
+            while (pos != -1) {
+                tags[pos] = true;
+                pos = szText.indexOf(startTag, pos+1);
+            }
+
+            pos = szText.indexOf(endTag);
+            while (pos != -1) {
+                tags[pos] = false;
+                pos = szText.indexOf(endTag, pos+1);
+            }
+            return tags;
+        }
+
+        // Return the current slide compared with to the cursor position.
 		function getSlideInfoOnCursor() {
-			var text = editor.getValue();
-
-			var tags = [];
-
-			var pos = text.indexOf('<article');
-			while (pos != -1) {
-				tags[pos] = true;
-				pos = text.indexOf('<article', pos+1);
-			}
-
-			pos = text.indexOf('</article>');
-			while (pos != -1) {
-				tags[pos] = false;
-				pos = text.indexOf('</article>', pos+1);
-			}
+			var tags = getTagIndexes(editor.getValue(), "article", true);
 			var iLevel = 0;
 			var iCurrentSlide = -1;
 			var cursorInf = editor.getCursor();
+
 			for (var i in tags) {
 				var infoChar = editor.posFromIndex(i);
 				if(infoChar.line < cursorInf.line || (infoChar.line == cursorInf.line && infoChar.ch <= cursorInf.ch)) {
 					if (tags[i] == true) {
 						iLevel++;
 						if (iLevel == 1) {
-							// we just got a first level <article>
-							iCurrentSlide++;
+							iCurrentSlide++; // we just got a first level <article>
 						}
 					}
 					else {
@@ -268,32 +277,18 @@ $(document).ready(function(){
 			}
 			return iCurrentSlide;
 		}
+
+        // Find the slide with the number passed in parameter and give its position. A {from, to} object will be returned.
 		function getSlideInfo(iSlide) {
-			var text = editor.getValue();
-
-			var szTag = "article";
-			var tags = [];
-
-			var pos = text.indexOf('<'+ szTag);
-			while (pos != -1) {
-				tags[pos] = true;
-				pos = text.indexOf('<'+ szTag, pos+1);
-			}
-
-			pos = text.indexOf('</'+ szTag+'>');
-			while (pos != -1) {
-				tags[pos] = false;
-				pos = text.indexOf('</'+ szTag+'>', pos+1);
-			}
-			var iLevel = 0;
+            var tags = getTagIndexes(editor.getValue(), "article", true);
+            var iLevel = 0;
 			var iCurrentSlide = -1;
 			var result = {from: null, to:null};
 			for (var i in tags) {
 				if (tags[i] == true) {
 					iLevel++;
                     if (iLevel == 1) {
-						// we just got a first level <article>
-						iCurrentSlide++;
+						iCurrentSlide++; // we just got a first level <article>
 						if(iCurrentSlide == iSlide) {
 							result.from = editor.posFromIndex(i);
 						}
@@ -312,6 +307,7 @@ $(document).ready(function(){
 			return result;
 		}
 
+        // Check if we have a right selection, that allow us to change the color of the selection.
         function canChangeCurrentColor() {
             if(!cursorIsBetweenTag("span", true)){
                 return false;
@@ -327,13 +323,28 @@ $(document).ready(function(){
             }
             return true;
         }
+
+        // Replace the current color of span tag, must be call after the canChangeCurrentColor() method to be sure it works.
         function changeCurrentColor(color) {
             var resBeforeText = getTagBeforeStartCursor("span", true);
             var resStyle = getAttributeTag(resBeforeText, "style");
             setColorTag(resStyle, color);
         }
 
-        // if the tag in argument is found, a {line, ch} object will be returned.
+        // Replace the color in the right place in the {from, to} passed object
+        function setColorTag(object, newColor) {
+            var szText = editor.getRange(object.from, object.to);
+            if(szText && szText.length > 0) {
+                var re1 = new RegExp(/([;'"][ ]*color[ ]*:[ ]*)[^;]+[ ]*([;'"])/);
+                re1.exec(szText);
+                var replacedText = RegExp.leftContext + RegExp.$1 + newColor + RegExp.$2 + RegExp.rightContext;
+                var vFrom = object.from;
+                var vTo = {line: vFrom.line, ch: vFrom.ch + szText.length};
+                editor.replaceRange(replacedText, vFrom, vTo);
+            }
+        }
+
+        // if the tag in argument is found, a {from, to} object will be returned.
         function getTagBeforeStartCursor(szTag, bWithAttr) {
             var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
             var startPos = editor.getCursor(true);
@@ -352,7 +363,7 @@ $(document).ready(function(){
 
         }
 
-        // check if the selection is between the tag in argument
+        // check if the selection is between the passed tag in parameter
         function cursorIsBetweenTag(szTag, bWithAttr) {
             var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
             var endTag = '</' + szTag + '>';
@@ -410,6 +421,7 @@ $(document).ready(function(){
             var selText = editor.getSelection();
             var posStartCursor = editor.getCursor(true);
             var posEndCursor = editor.getCursor(false);
+            var newVal;
 
             //when it begins in a tag
             var pos1 = selText.indexOf("<");
@@ -433,30 +445,19 @@ $(document).ready(function(){
             }
         }
 
-        function getAttributeTag(resText, attr) {
-            var szText = editor.getRange(resText.from, resText.to);
+        // Try to find the passed attribute in the range of {from, to} object. A {from, to} object will be returned.
+        function getAttributeTag(object, attr) {
+            var szText = editor.getRange(object.from, object.to);
             if(szText && szText.length > 0) {
                 if(szText.lastIndexOf('<') == 0 && szText.indexOf('>') == szText.length - 1) {
                     var re = new RegExp('('+attr+'[ ]*=[ ]*)([\'\"][^\'\"]+[\'\"])');
                     re.exec(szText);
-                    var vFrom = {line: resText.from.line, ch: resText.from.ch+RegExp.leftContext.length+RegExp.$1.length};
+                    var vFrom = {line: object.from.line, ch: object.from.ch+RegExp.leftContext.length+RegExp.$1.length};
                     var vTo = {line: vFrom.line, ch: vFrom.ch + RegExp.$2.length};
                     return {from: vFrom, to: vTo};
                 }
             }
             return null;
-        }
-
-        function setColorTag(resText, newColor) {
-            var szText = editor.getRange(resText.from, resText.to);
-            if(szText && szText.length > 0) {
-                var re1 = new RegExp(/([;'"][ ]*color[ ]*:[ ]*)[^;]+[ ]*([;'"])/);
-                re1.exec(szText);
-                var replacedText = RegExp.leftContext + RegExp.$1 + newColor + RegExp.$2 + RegExp.rightContext;
-                var vFrom = resText.from;
-                var vTo = {line: vFrom.line, ch: vFrom.ch + szText.length};
-                editor.replaceRange(replacedText, vFrom, vTo);
-            }
         }
 
 		$("#toolbar > *[data-tool]").click(function() {
