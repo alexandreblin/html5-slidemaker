@@ -267,8 +267,7 @@ $(document).ready(function(){
 						if (iLevel == 1) {
 							iCurrentSlide++; // we just got a first level <article>
 						}
-					}
-					else {
+					} else {
 						iLevel--;
 					}
 				} else {
@@ -293,8 +292,7 @@ $(document).ready(function(){
 							result.from = editor.posFromIndex(i);
 						}
 					}
-				}
-				else {
+				} else {
                     iLevel--;
 					if(iLevel == 0 && iCurrentSlide == iSlide) {
 
@@ -306,6 +304,8 @@ $(document).ready(function(){
 			}
 			return result;
 		}
+
+
 
         // Check if we have a right selection, that allow us to change the color of the selection.
         function canChangeCurrentColor() {
@@ -341,6 +341,26 @@ $(document).ready(function(){
                 var vFrom = object.from;
                 var vTo = {line: vFrom.line, ch: vFrom.ch + szText.length};
                 editor.replaceRange(replacedText, vFrom, vTo);
+            }
+        }
+
+        //Allow to reduce selection inside the tag passed in parameter
+        function goIntoTag(szTag, bWithAttr) {
+            var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
+            var endTag = '</' + szTag + '>';
+            var newVal1, newVal2;
+            if(editor.somethingSelected()){
+                var selText = editor.getSelection();
+                if(selText.indexOf(startTag) == 0 && selText.lastIndexOf(endTag) == (selText.length - endTag.length)) {
+                    var pos1 = selText.indexOf(">");
+                    var pos2 = selText.lastIndexOf("<");
+                    if (pos1 != -1 && pos2 != -1) {
+                        var posCur = editor.getCursor(true);
+                        newVal1 = 1 + parseInt(pos1) + editor.indexFromPos(posCur);
+                        newVal2 = parseInt(pos2) + editor.indexFromPos(posCur);
+                        editor.setSelection(editor.posFromIndex(newVal1), editor.posFromIndex(newVal2));
+                    }
+                }
             }
         }
 
@@ -401,8 +421,7 @@ $(document).ready(function(){
                 for (var i in tags) {
                     if (tags[i] == true) {
                         iLevel++;
-                    }
-                    else {
+                    } else {
                         iLevel--;
                     }
                     if(iLevel < 0) {
@@ -441,6 +460,34 @@ $(document).ready(function(){
                 if(pos4 == -1 || pos4 < pos3) {
                     newVal = parseInt(pos3) + editor.indexFromPos(posStartCursor);
                     editor.setSelection(posStartCursor, editor.posFromIndex(newVal));
+                    posEndCursor = editor.getCursor(false);
+                    selText = editor.getSelection();
+                }
+            }
+            //I
+            var re = new RegExp(/<([a-z0-9]+)[ \/>]/);
+
+            if(re.test(selText)) {
+                var myMatch = re.exec(selText);
+                var szTag = RegExp.$1;
+                var tags = getTagIndexes(selText, szTag, true);
+                var iLevel = 0;
+
+                for (var i in tags) {
+                    if (tags[i] == true) {
+                        iLevel++;
+                    } else {
+                        iLevel--;
+                    }
+                }
+                if(iLevel > 0) {
+                    var pos5 = selText.indexOf(">");
+                    if (pos5 != -1) {
+                        if(pos5 > myMatch.index) {
+                            newVal = 1 + parseInt(pos5) + editor.indexFromPos(posStartCursor);
+                            editor.setSelection(editor.posFromIndex(newVal), posEndCursor);
+                        }
+                    }
                 }
             }
         }
@@ -585,19 +632,21 @@ $(document).ready(function(){
 			color: '#000000',
 			onChange: function (hsb, hex, rgb) {
 				//$('#colorSelector div').css('backgroundColor', '#' + hex);
-				var newSelection = String(editor.getSelection());
+                /*var newSelection = String(editor.getSelection());
 				var tag = "<span";
 				if(newSelection.substring(0, tag.length).toLowerCase() == tag){
 					var code = newSelection.substring(newSelection.indexOf("#")+1,newSelection.indexOf("#")+7);
 					newSelection = newSelection.replace(code, hex);
 				}else{
 					newSelection = "<span style='color:#"+hex+";'>"+newSelection+"</span>";
-				}
+				}*/
                 cleanSelection();
+                goIntoTag("span", true);//only if possible
                 if(canChangeCurrentColor()) {
                     changeCurrentColor("#"+hex);
                 } else {
-				    editor.replaceSelection(newSelection);
+                    var newSelection = "<span style='color:#"+hex+";'>"+editor.getSelection()+"</span>";
+                    editor.replaceSelection(newSelection);
                 }
 				$('#colorpicker').css({'background-color': '#' + hex});
 			}
