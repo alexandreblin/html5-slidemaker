@@ -8,9 +8,11 @@
     
     <link rel=stylesheet href="lib/codemirror/lib/codemirror.css">
   <link rel="stylesheet" media="screen" type="text/css" href="lib/colorpicker/css/colorpicker.css" />
+  <link rel="shortcut icon" href="img/slide.png"> 
 
 	<script src="lib/jquery-1.7.2.min.js"></script>
 	<script src="nowjs/now.js"></script>
+    <script src="js/template.js"></script>
 	<script src="js/editor.js"></script>
     <script src="lib/codemirror/lib/codemirror.js"></script>
     <script src="lib/codemirror/lib/util/search.js"></script>
@@ -28,20 +30,27 @@
 	</header>
 
   <div id="toolbar">
+	<a href="javascript:void(0)" data-tool="save"><span>Save</span></a>
+	<a href="javascript:void(0)" data-tool="saveAs"><span>Save as</span></a>
+	File<select id="files"><option value=""></option></select>  
+	<a href="javascript:void(0)" data-tool="rmFile"><span>Delete file</span></a>
+	&nbsp;
+    <select id="templates"></select>
     <a href="javascript:void(0)" data-tool="add"><span>Add slide</span></a>
     <a href="javascript:void(0)" data-tool="delete"><span>Delete slide</span></a>
     &nbsp;
     <a href="javascript:void(0)" data-tool="strong" title="Bold"><span class="icon" /></a>
     <a href="javascript:void(0)" data-tool="em" title="Italic"><span class="icon" /></a>
-    <a href="javascript:void(0)" data-tool="underline" title="Underline"><span class="icon" /></a>
-    <a href="javascript:void(0)" data-tool="strike" title="Strikethrough"><span class="icon" /></a>
+    <a href="javascript:void(0)" data-tool="u" title="Underline"><span class="icon" /></a>
+    <a href="javascript:void(0)" data-tool="del" title="Strikethrough"><span class="icon" /></a>
     <a href="javascript:void(0)" id="colorpicker" title="Text color"></a>
     &nbsp;
     <a href="javascript:void(0)" data-tool="img" title="Insert image"><span class="icon" /></a>
     <a href="javascript:void(0)" data-tool="a" title="Insert link"><span class="icon" /></a>
-	<button id="save">Save</button>
-	<select id="files"><option value=""></option></select>  
-	<button id="removeFile">Delete</button>
+	&nbsp;
+    <a href="javascript:void(0)" data-tool="prev" title="Previous slide"><span class="icon" /></a>
+    <span id="selectedSlide"></span> sur <span id="totalSlides"></span>
+    <a href="javascript:void(0)" data-tool="next" title="Next slide"><span class="icon" /></a>
   </div>
 
 	<section id="container">

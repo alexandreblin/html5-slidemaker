@@ -26,16 +26,62 @@ $(document).ready(function(){
 		var delay;
 		var previewFrame = $('#preview > iframe')[0];
 		var splitSize = readCookie('splitsize');
-		var saveButton = $("#save");
 		var filesComboId = "#files";
 		var delFileButton = $("#removeFile");
-
+        var slideTemplates = "#templates";
+        var currentTemplate;
+        var totalSlides;
 		var selectedSlide;
+		
+		var fileName = "";
+		var isFileModified = false;
+		var onLoadFile = false;
+
+        for(var t in slideTemplate){
+            var flag = true;
+            if(flag){
+                $(slideTemplates).val(t);
+                currentTemplate = slideTemplate[t].code;
+                flag = false;
+            }
+            $(slideTemplates).append("<option value='"+t+"'>"+slideTemplate[t].title+"</option>");
+        }
+
+        $(slideTemplates).change(function() {
+            var t = $(this).val();
+            if (t != ""){
+                currentTemplate = slideTemplate[t].code;
+            }
+        });
+
 
 		$(window).bind('hashchange', function() {
 			selectedSlide = parseInt(window.location.hash.replace('#', '')) - 1;
 			if (!selectedSlide || selectedSlide < 0) { selectedSlide = 0; }
+
+            $("#selectedSlide").html(selectedSlide + 1);
+
+            if(selectedSlide == 0){
+                $("a[data-tool=prev]").addClass("disabled");
+            }
+            else{
+                $("a[data-tool=prev]").removeClass("disabled");
+            }
+            if(totalSlides && selectedSlide == totalSlides-1){
+                $("a[data-tool=next]").addClass("disabled");
+            }
+            else{
+                $("a[data-tool=next]").removeClass("disabled");
+            }
+
 		});
+
+        $('#preview > iframe').load(function (){
+            totalSlides = previewFrame.contentWindow.slideEls.length;
+            $("#totalSlides").html(totalSlides);
+
+            $(window).trigger('hashchange');
+        });
 		
 		if (!splitSize) {
 			splitSize = $(document).width() / 2;
@@ -54,6 +100,12 @@ $(document).ready(function(){
 			onChange: function() {
 				clearTimeout(delay);
 				delay = setTimeout(updatePreview, 300);
+				if(!onLoadFile){
+					isFileModified = true;
+				}else{
+					onLoadFile = false;
+					isFileModified = false;
+				}
 			},
 			onCursorActivity: function() {
 				selectedSlide = getSlideInfoOnCursor();
@@ -80,19 +132,35 @@ $(document).ready(function(){
 		
 		function fillFilesCombobox(){
 			for (var cle in localStorage){
-				$(filesComboId).append("<option value='"+cle+"'>"+cle+"</option>");
+				if(cle.substr(0,7) == "slides_"){
+					cle = cle.substr(7,cle.length);
+					$(filesComboId).append("<option value='"+cle+"'>"+cle+"</option>");
+				}
 			}
 		}
 		
 		$(filesComboId).change(function() {
-			if (localStorage) {
-				editor.setValue(localStorage[$(this).val()]);
-			} else {
-				alert("'localStorage' not supported by your navigator!");
+			if ($(this).val() != ""){
+				if (localStorage) {
+					if(isFileModified){
+						if (confirm("File not saved. Do you want to save it before switch?")) {
+							if(fileName == ""){
+								saveAsFile();
+							}else{
+								saveFile(fileName);
+							}
+						}
+					}
+					fileName = $(this).val();
+					onLoadFile = true;
+					editor.setValue(localStorage["slides_"+fileName]);
+				} else {
+					alert("'localStorage' not supported by your navigator!");
+				}
 			}
 		});
 		
-		saveButton.click(function() {
+		function saveAsFile(){
 			var name = "";
 			while(name == ""){
 				name = prompt("Enter the name of the presentation");
@@ -100,24 +168,45 @@ $(document).ready(function(){
 			if(name==null) return;
 			
 			if (localStorage) {
-				localStorage[name] = editor.getValue();
-				$(filesComboId).append("<option value='"+name+"'>"+name+"</option>")
-			} else {
-				alert("Functionality not supported by your navigator!");
-			}
-		});
-
-		delFileButton.click(function(){
-			if (localStorage) {
-				var cle = $(filesComboId+" option:selected");
-				if(cle.val() != ""){
-					localStorage.removeItem(cle.text());
-					$(filesComboId+" option:selected").remove()
+				if(localStorage["slides_"+name] != null){
+					if (!confirm("That name already exists! Do you want overwrite this file?")) {
+						return;
+					}
+				}else{
+					$(filesComboId).append("<option value='"+name+"'>"+name+"</option>");
+					$(filesComboId).val(name);
 				}
 			} else {
 				alert("Functionality not supported by your navigator!");
 			}
-		});
+			saveFile(name);
+			fileName = name;
+		}
+		
+		function saveFile(name){
+			if (localStorage) {
+				localStorage["slides_"+name] = editor.getValue();
+				isFileModified = false;
+			} else {
+				alert("Functionality not supported by your navigator!");
+			}
+		}
+		
+		function removeFile(name){
+			if (localStorage) {
+				if(name != ""){
+					if (!confirm("Are you sure you want to delete : " + name + "?")) {
+						return;
+					}
+					localStorage.removeItem("slides_"+name);
+					$(filesComboId+" option:selected").remove();
+					fileName = "";
+					isFileModified = true;
+				}
+			} else {
+				alert("Functionality not supported by your navigator!");
+			}
+		}
 
 		var dragHandler = function(e) {
 			setSplitAt(e.pageX);
@@ -330,6 +419,10 @@ $(document).ready(function(){
         }
 
 		$("#toolbar > *[data-tool]").click(function() {
+			if ($(this).hasClass('disabled')) {
+				return;
+			}
+
 			var tool = $(this).data("tool");
 			var newSelection = editor.getSelection();
 			var endTagLength = null;
@@ -361,68 +454,79 @@ $(document).ready(function(){
 				newSelection = '<a href="' + href + '">' + text + '</a>';
 				endTagLength = 0;
 				
-			}else if(tool == "strike" || tool == "underline"){
-				newSelection = "<span class=\""+tool+"\">"+newSelection+"</span>";
-				endTagLength = 5;
-				
 			}else if(tool == "add"){
-				var iRow = editor.getCursor().line;
+                var slide = getSlideInfo(selectedSlide);
+                var newSlide =
+                editor.replaceRange(currentTemplate,  {line: slide.to.line, ch: slide.to.ch+1}, {line: slide.to.line, ch: slide.to.ch+1});
 
-				while(iRow < editor.lineCount()){
-					var info = editor.lineInfo(iRow);
-					if(info.text.indexOf("</article>") != -1){
-						break;
-					}
-				iRow++;
-				}
+                editor.focus();
+                editor.setCursor({line:slide.to.line+4, ch: 4});
 
-			  //if current slide is last one
-			  if(iRow+1 == editor.lineCount())
-				{
-					editor.replaceRange("\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
-				}
-
-			  editor.replaceRange("\n<article>\n  <p>\n    \n  </p>\n</article>\n",  {line: iRow+1, ch: 0}, {line: iRow+1, ch: 0});
-			  editor.focus();
-			  editor.setCursor({line:iRow+4, ch: 4});
-			  
 			}else if(tool == "delete"){
 				if(confirm("Are you sure you want to delete the current slide?")){
-					var rowStart = editor.getCursor().line;
-					var rowEnd = editor.getCursor().line;
+                    var slide = getSlideInfo(selectedSlide);
+                    var lineEnd = slide.to.line;
+                    var chEnd = slide.to.ch;
+                    var lineBegin = slide.from.line;
+                    var chBegin = slide.from.ch;
 
-					while(rowStart > 0){
-						var info = editor.lineInfo(rowStart);
-						if(info.text.indexOf("<article>") != -1){
-							break;
-						}
-						rowStart--;
-					}
 
-					while(rowEnd < editor.lineCount()){
-						var info = editor.lineInfo(rowEnd);
-						if(info.text.indexOf("</article>") != -1){
-							break;
-						}
-						rowEnd++;
-					}
-						rowEnd++;
 
-						if(editor.lineInfo(rowEnd)!=null && editor.lineInfo(rowEnd).text.length == 0){
-							rowEnd++;
-						}
+                    while(editor.lineInfo(lineEnd)!=null && editor.lineInfo(lineEnd).text.indexOf("<article") == -1 && lineEnd < editor.lineCount()){
+                        lineEnd++;
+                    }
 
-					editor.replaceRange("",{line: rowStart, ch:0}, {line: rowEnd, ch: 0});
+                    if(lineEnd == editor.lineCount())
+                    {
+                        while(editor.lineInfo(lineBegin)!=null && editor.lineInfo(lineBegin).text.indexOf("</article>") == -1 && lineBegin > 0){
+                            lineBegin--;
+                        }
+                        chBegin =  editor.lineInfo(lineBegin).text.indexOf("</article>") + 10;
+                    }
+                    else if(lineEnd != slide.to.line){
+                        chEnd =  editor.lineInfo(lineEnd).text.indexOf("<article");
+                    }
+					editor.replaceRange("",{line: lineBegin, ch:chBegin}, {line: lineEnd, ch: chEnd});
+
+
 				}
+			}else if (tool == "save") {
+				if(fileName != ""){
+					saveFile(fileName);
+				}else{
+					saveAsFile();
+				}
+			}else if (tool == "saveAs") {
+				saveAsFile();
+			}else if (tool == "rmFile") {
+				removeFile(fileName);
 			}
+            else if(tool == "prev"){
+                if(selectedSlide > 0){
+                    var slide = getSlideInfo(selectedSlide-1);
+                    previewFrame.contentWindow.prevSlide();
+                    var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
+                    editor.scrollTo(coord.x, coord.y);
+                }
+                return;
+            }
+            else if(tool == "next"){
+
+                if(selectedSlide < totalSlides-1){
+                    var slide = getSlideInfo(selectedSlide+1);
+                    previewFrame.contentWindow.nextSlide();
+                    var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
+                    editor.scrollTo(coord.x, coord.y);
+                }
+                return;
+            }
 			else {
 				newSelection = "<"+tool+">"+newSelection+"</"+tool+">";
 				endTagLength = tool.length+3;
 			}
 
 			var hadSomethingSelected = editor.somethingSelected();
-
-			editor.replaceSelection(newSelection);
+			if(hadSomethingSelected) editor.replaceSelection(newSelection);
 
 			if(endTagLength != null && !hadSomethingSelected){
 				var pos = editor.getCursor();
@@ -453,6 +557,8 @@ $(document).ready(function(){
 				$('#colorpicker').css({'background-color': '#' + hex});
 			}
 		});
+
+
 
 		function updatePreview() {
 			now.transform(editor.getValue(), function(previewHTML) {
