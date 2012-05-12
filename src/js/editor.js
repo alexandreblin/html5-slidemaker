@@ -332,6 +332,8 @@ $(document).ready(function(){
             var resStyle = getAttributeTag(resBeforeText, "style");
             setColorTag(resStyle, color);
         }
+
+        // if the tag in argument is found, a {line, ch} object will be returned.
         function getTagBeforeStartCursor(szTag, bWithAttr) {
             var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
             var startPos = editor.getCursor(true);
@@ -346,18 +348,21 @@ $(document).ready(function(){
             if(pos2 != szBeforeText.length - 1) {
                 return null;
             }
-            var result = {text:szBeforeText, from: {line:startPos.line, ch:pos1}};
-            return result;
+            return {from: {line:startPos.line, ch:pos1}, to: {line:startPos.line, ch:pos1+pos2+1}};
+
         }
 
+        // check if the selection is between the tag in argument
         function cursorIsBetweenTag(szTag, bWithAttr) {
             var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
             var endTag = '</' + szTag + '>';
 
-            if(!getTagBeforeStartCursor("span", true)) {
+            //check if the start tag exists
+            if(!getTagBeforeStartCursor(szTag, bWithAttr)) {
                 return false;
             }
 
+            //check if the end tag exists
             var endPos = editor.getCursor(false);
             var szLineText = editor.getLine(endPos.line);
             var szNextText = szLineText.substr(endPos.ch);
@@ -365,6 +370,7 @@ $(document).ready(function(){
                 return false;
             }
 
+            // Now we check if the end tag was not for an other tag
             if(editor.somethingSelected()){
                 var selText = editor.getSelection();
                 var tags = [];
@@ -396,25 +402,60 @@ $(document).ready(function(){
             return true;
         }
 
+        // permit to clean the selection when it begins or finishes in a tag
+        function cleanSelection() {
+            if(!editor.somethingSelected()) {
+                return;
+            }
+            var selText = editor.getSelection();
+            var posStartCursor = editor.getCursor(true);
+            var posEndCursor = editor.getCursor(false);
+
+            //when it begins in a tag
+            var pos1 = selText.indexOf("<");
+            var pos2 = selText.indexOf(">");
+            if (pos2 != -1) {
+                if(pos1 == -1 || pos2 < pos1) {
+                    newVal = 1 + parseInt(pos2) + editor.indexFromPos(posStartCursor);
+                    editor.setSelection(editor.posFromIndex(newVal), posEndCursor);
+                    posStartCursor = editor.getCursor(true);
+                    selText = editor.getSelection();
+                }
+            }
+            //when it finishes in a tag
+            var pos3 = selText.lastIndexOf("<");
+            var pos4 = selText.lastIndexOf(">");
+            if (pos3 != -1) {
+                if(pos4 == -1 || pos4 < pos3) {
+                    newVal = parseInt(pos3) + editor.indexFromPos(posStartCursor);
+                    editor.setSelection(posStartCursor, editor.posFromIndex(newVal));
+                }
+            }
+        }
+
         function getAttributeTag(resText, attr) {
-            var szText = resText.text;
+            var szText = editor.getRange(resText.from, resText.to);
             if(szText && szText.length > 0) {
                 if(szText.lastIndexOf('<') == 0 && szText.indexOf('>') == szText.length - 1) {
                     var re = new RegExp('('+attr+'[ ]*=[ ]*)([\'\"][^\'\"]+[\'\"])');
                     re.exec(szText);
-                    return {text: RegExp.$2, from: {line:resText.from.line, ch:resText.from.ch+RegExp.leftContext.length+RegExp.$1.length}};
+                    var vFrom = {line: resText.from.line, ch: resText.from.ch+RegExp.leftContext.length+RegExp.$1.length};
+                    var vTo = {line: vFrom.line, ch: vFrom.ch + RegExp.$2.length};
+                    return {from: vFrom, to: vTo};
                 }
             }
             return null;
         }
+
         function setColorTag(resText, newColor) {
-            var szText = resText.text;
+            var szText = editor.getRange(resText.from, resText.to);
             if(szText && szText.length > 0) {
                 var re1 = new RegExp(/([;'"][ ]*color[ ]*:[ ]*)[^;]+[ ]*([;'"])/);
                 re1.exec(szText);
                 var replacedText = RegExp.leftContext + RegExp.$1 + newColor + RegExp.$2 + RegExp.rightContext;
-                var to = {line:resText.from.line, ch:resText.from.ch+szText.length};
-                editor.replaceRange(replacedText, resText.from, to);
+                var vFrom = resText.from;
+                var vTo = {line: vFrom.line, ch: vFrom.ch + szText.length};
+                editor.replaceRange(replacedText, vFrom, vTo);
             }
         }
 
@@ -441,6 +482,7 @@ $(document).ready(function(){
 				if (!href) return;
 
 				var text;
+                cleanSelection();
 
 				if (editor.somethingSelected()) {
 					text = editor.getSelection();
@@ -521,7 +563,8 @@ $(document).ready(function(){
                 return;
             }
 			else {
-				newSelection = "<"+tool+">"+newSelection+"</"+tool+">";
+                cleanSelection();
+				newSelection = "<"+tool+">"+editor.getSelection()+"</"+tool+">";
 				endTagLength = tool.length+3;
 			}
 
@@ -549,6 +592,7 @@ $(document).ready(function(){
 				}else{
 					newSelection = "<span style='color:#"+hex+";'>"+newSelection+"</span>";
 				}
+                cleanSelection();
                 if(canChangeCurrentColor()) {
                     changeCurrentColor("#"+hex);
                 } else {
