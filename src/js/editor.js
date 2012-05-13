@@ -522,6 +522,14 @@
 			// Allow to clean the selection when it begins or finishes in a tag
 			function cleanSelection() {
 				if(!editor.somethingSelected()) {
+					var startTag = cursorInTagInfo("", true, true);
+					if(startTag) {
+						editor.setSelection(startTag.to, startTag.to);
+					}
+					var endTag = cursorInTagInfo("", true, false);
+					if(endTag) {
+						editor.setSelection(endTag.to, endTag.to);
+					}
 					return;
 				}
 				var selText = editor.getSelection();
@@ -576,6 +584,14 @@
 							}
 						}
 					}
+				}
+				var startTag = cursorInTagInfo("", true, true);
+				if(startTag) {
+					editor.setSelection(startTag.to, startTag.to);
+				}
+				var endTag = cursorInTagInfo("", true, false);
+				if(endTag) {
+					editor.setSelection(endTag.to, endTag.to);
 				}
 			}
 
@@ -647,8 +663,6 @@
 						var lineBegin = slide.from.line;
 						var chBegin = slide.from.ch;
 
-
-
 						while(editor.lineInfo(lineEnd)!=null && editor.lineInfo(lineEnd).text.indexOf("<article") == -1 && lineEnd < editor.lineCount()){
 							lineEnd++;
 						}
@@ -700,7 +714,6 @@
 				else {
 					cleanSelection();
 					newSelection = "<"+tool+">"+editor.getSelection()+"</"+tool+">";
-					console.log(newSelection);
 					endTagLength = tool.length+3;
 				}
 
