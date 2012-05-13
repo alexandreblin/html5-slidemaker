@@ -4,12 +4,14 @@
 	<meta charset="utf-8">
 	<title>HTML5 Slide Maker</title>
 
-	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
     
     <link rel=stylesheet href="lib/codemirror/lib/codemirror.css">
   <link rel="stylesheet" media="screen" type="text/css" href="lib/colorpicker/css/colorpicker.css" />
   <link rel="shortcut icon" href="img/slide.png"> 
-
+  <script>
+    var slideshowID = <%= id ? "'" + id + "'" : "null" %>;
+  </script>
 	<script src="lib/jquery-1.7.2.min.js"></script>
 	<script src="nowjs/now.js"></script>
     <script src="js/template.js"></script>
@@ -31,10 +33,10 @@
 
   <div id="toolbar">
 	<a href="javascript:void(0)" data-tool="save"><span>Save</span></a>
-	<a href="javascript:void(0)" data-tool="saveAs"><span>Save as</span></a>
+	<!--<a href="javascript:void(0)" data-tool="saveAs"><span>Duplicate</span></a>
 	File<select id="files"><option value=""></option></select>  
-	<a href="javascript:void(0)" data-tool="rmFile"><span>Delete file</span></a>
-	&nbsp;
+	<a href="javascript:void(0)" data-tool="rmFile"><span>Delete</span></a>-->
+  &nbsp;
     <select id="templates"></select>
     <a href="javascript:void(0)" data-tool="add"><span>Add slide</span></a>
     <a href="javascript:void(0)" data-tool="delete"><span>Delete slide</span></a>
@@ -55,56 +57,7 @@
 
 	<section id="container">
 		<section id="code">
-<textarea id="editor" onclick="this.select();"><article>
-  <h1>
-    Title Goes Here Up
-    <br>
-    To Two Lines
-  </h1>
-  <p>
-    Sergey Brin
-    <br>
-    May 10, 2011
-  </p>
-</article>
-
-<article>
-  <p>
-    This is a slide with just text. This is a slide with just text.
-    This is a slide with just text. This is a slide with just text.
-    This is a slide with just text. This is a slide with just text.
-  </p>
-  <p>
-    There is more text just underneath.
-  </p>
-</article>
-
-<article>
-  <h3>Exemple de code</h3>
-  <pre>&amp;lt;article&amp;gt;
-  &amp;lt;h1&amp;gt;
-    Title Goes Here Up
-    &amp;lt;br&amp;gt;
-    To Two Lines
-  &amp;lt;/h1&amp;gt;
-  &amp;lt;p&amp;gt;
-    Sergey Brin
-    &amp;lt;br&amp;gt;
-    May 10, 2011
-  &amp;lt;/p&amp;gt;
-&amp;lt;/article&amp;gt;
-
-&amp;lt;article&amp;gt;
-  &amp;lt;p&amp;gt;
-    This is a slide with just text. This is a slide with just text.
-    This is a slide with just text. This is a slide with just text.
-    This is a slide with just text. This is a slide with just text.
-  &amp;lt;/p&amp;gt;
-  &amp;lt;p&amp;gt;
-    There is more text just underneath.
-  &amp;lt;/p&amp;gt;
-&amp;lt;/article&amp;gt;</pre>
-</article></textarea>
+      <textarea id="editor" onclick="this.select();"><%= input %></textarea>
 		</section>
 
 		<section id="preview">

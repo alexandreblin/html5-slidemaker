@@ -106,6 +106,10 @@
 						onLoadFile = false;
 						isFileModified = false;
 					}
+
+					if (isFileModified) {
+						$("a[data-tool=save]").removeClass("disabled");
+					}
 				},
 				onCursorActivity: function() {
 					selectedSlide = getSlideInfoOnCursor();
@@ -130,7 +134,7 @@
 				splitSize = value;
 			}
 
-			function fillFilesCombobox(){
+			/*function fillFilesCombobox(){
 				for (var cle in localStorage){
 					if(cle.substr(0,7) == "slides_"){
 						cle = cle.substr(7,cle.length);
@@ -154,6 +158,7 @@
 						fileName = $(this).val();
 						onLoadFile = true;
 						editor.setValue(localStorage["slides_"+fileName]);
+						$("a[data-tool=save]").addClass("disabled");
 					} else {
 						alert("'localStorage' not supported by your navigator!");
 					}
@@ -187,6 +192,7 @@
 				if (localStorage) {
 					localStorage["slides_"+name] = editor.getValue();
 					isFileModified = false;
+					$("a[data-tool=save]").addClass("disabled");
 				} else {
 					alert("Functionality not supported by your navigator!");
 				}
@@ -206,7 +212,7 @@
 				} else {
 					alert("Functionality not supported by your navigator!");
 				}
-			}
+			}*/
 
 			var dragHandler = function(e) {
 				setSplitAt(e.pageX);
@@ -655,7 +661,6 @@
 
 					newSelection = '<a href="' + href + '">' + text + '</a>';
 					endTagLength = 0;
-
 				}else if(tool == "add"){
 					var slide = getSlideInfo(selectedSlide);
 					var newSlide =
@@ -691,15 +696,20 @@
 
 					}
 				}else if (tool == "save") {
-					if(fileName != ""){
+					/*if(fileName != ""){
 						saveFile(fileName);
 					}else{
 						saveAsFile();
-					}
+					}*/
+					now.save(slideshowID, editor.getValue(), function(slideshow) {
+						slideshowID = slideshow;
+						history.replaceState({}, '', slideshowID + window.location.hash);
+					});
+					$(this).addClass("disabled");
 				}else if (tool == "saveAs") {
-					saveAsFile();
+					//saveAsFile();
 				}else if (tool == "rmFile") {
-					removeFile(fileName);
+					//removeFile(fileName);
 				}
 				else if(tool == "prev") {
 					if(selectedSlide > 0){
@@ -817,7 +827,7 @@
 
 			$(window).trigger('hashchange');
 			setSplitAt(splitSize);
-			fillFilesCombobox();
+			//fillFilesCombobox();
 			updatePreview();
 		});
 	});

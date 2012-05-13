@@ -66,14 +66,54 @@ function parse(input, callback) {
 var app = express.createServer();
 
 app.configure(function(){
-  app.use(express.static(__dirname + '/'));
+  app.use('/lib', express.static(__dirname + '/lib'));
+  app.use('/js', express.static(__dirname + '/js'));
+  app.use('/img', express.static(__dirname + '/img'));
+  app.use('/css', express.static(__dirname + '/css'));
+
+  app.set('views', __dirname);
+  app.set('view engine', 'ejs');
+  app.set('view options', {layout: false});
+  app.register('.html', require('ejs'));
 });
 
-app.get('/', function(req, res, next){
-  res.render('index.html'); 
+app.get('/:id?', function(req, res, next){
+	if (req.params.id) {
+		var id = req.params.id;
+
+		var repo = 'slideshows/' + req.params.id;
+
+		if (!path.existsSync(repo)) {
+			var error = 'Can\'t find slideshow with id ' + req.params.id;
+			logger.error(error);
+			res.send(error);
+			return;
+		}
+
+		execCommand('git', ['show', 'HEAD:input.html'], {cwd: repo}, null,
+			// success
+			function(stdout) {
+				res.render('index.html', {
+					id: id,
+					input: stdout
+				});
+			},
+			// failure
+			function(stderr) {
+				logger.error('Error while retrieving file from git\n' + stderr);
+				next(new Error(stderr));
+			}
+		);
+	}
+	else {
+		res.render('index.html', {
+			id: null,
+			input: fs.readFileSync('parser/input.html')
+		});
+	}
 });
 
-app.get('/show/:id/:rev?', function(req, res, next) {
+app.get('/:id/show/:rev?', function(req, res, next) {
 	var repo = 'slideshows/' + req.params.id;
 
 	if (!path.existsSync(repo)) {
@@ -107,7 +147,7 @@ var nowjs = require('now');
 var everyone = nowjs.initialize(app);
 
 logger.info('Application started on port ' + port);
-logger.debug(randomString(12));
+
 // called when a client joins
 nowjs.on('connect', function(){
 	logger.info(this.socket.handshake.address.address + ' connected');
@@ -122,18 +162,21 @@ everyone.now.transform = function(str, callback) {
 	parse(str, callback);
 }
 
-function saveSlideshow(repository, data) {
-	fs.writeFile(repository + '/input.html', data, function(err) {
+function saveSlideshow(slideshow, data, successCallback) {
+	var repo = 'slideshows/' + slideshow;
+
+	fs.writeFile(repo + '/input.html', data, function(err) {
 	    if(err) {
 	        logger.error('Error while saving slideshow\n' + err);
 	    } else {
-	        execCommand('git', ['add', 'input.html'], {cwd: repository}, null,
+	        execCommand('git', ['add', 'input.html'], {cwd: repo}, null,
 				// success
 				function(stdout) {
-					execCommand('git', ['commit', '-m', 'slideshow'], {cwd: repository}, null,
+					execCommand('git', ['commit', '-m', 'slideshow'], {cwd: repo}, null,
 						// success
 						function(stdout) {
-							logger.debug('Saved slideshow at ' + repository);
+							logger.debug('Saved slideshow at ' + repo);
+							successCallback(slideshow);
 						},
 						// failure
 						function(stderr) {
@@ -150,7 +193,13 @@ function saveSlideshow(repository, data) {
 	});
 }
 
-everyone.now.save = function(slideshow, data) {
+everyone.now.save = function(slideshow, data, successCallback) {
+	if (!slideshow) {
+		do {
+			slideshow = randomString(6);
+		} while (path.existsSync('slideshows/' + slideshow))
+	}
+
 	var repo = 'slideshows/' + slideshow;
 
 	if (!path.existsSync(repo)) {
@@ -160,7 +209,7 @@ everyone.now.save = function(slideshow, data) {
 			function(stdout) {
 				// callback success
 				logger.debug('Created git repo ' + repo);
-				saveSlideshow(repo, data);
+				saveSlideshow(slideshow, data, successCallback);
 			},
 			// failure
 			function(stderr) {
@@ -169,6 +218,6 @@ everyone.now.save = function(slideshow, data) {
 		);
 	}
 	else {
-		saveSlideshow(repo, data);
+		saveSlideshow(slideshow, data, successCallback);
 	} 
 }

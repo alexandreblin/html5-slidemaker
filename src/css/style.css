@@ -107,7 +107,7 @@ body {
 }
 
 header {
-    background: url(css/header.png) repeat-x;
+    background: url(header.png) repeat-x;
     height: 40px;
     padding-bottom: 10px;
 }
@@ -264,57 +264,57 @@ header > h1 a {
     border: 0;
     -webkit-border-radius: 0;
     border-radius: 0;
-    background: url(img/colorpicker.png) center no-repeat, black;
+    background: url(../img/colorpicker.png) center no-repeat, black;
 }
 
 #toolbar a[data-tool='strong'] > span {
-    background: url(img/bold.png);
+    background: url(../img/bold.png);
 }
 
 #toolbar a[data-tool='em'] > span {
-    background: url(img/italic.png);
+    background: url(../img/italic.png);
 }
 
 #toolbar a[data-tool='u'] > span {
-    background: url(img/underline.png);
+    background: url(../img/underline.png);
 }
 
 #toolbar a[data-tool='del'] > span {
-    background: url(img/strike.png);
+    background: url(../img/strike.png);
 }
 
 #toolbar a[data-tool='img'] > span {
-    background: url(img/image-add.png);
+    background: url(../img/image-add.png);
 }
 
 #toolbar a[data-tool='a'] > span {
-    background: url(img/link-add.png);
+    background: url(../img/link-add.png);
 }
 
 #toolbar a[data-tool='add'] > span {
-    background: url(img/slide-add.png) 0px 0px no-repeat;
+    background: url(../img/slide-add.png) 0px 0px no-repeat;
 }
 
 #toolbar a[data-tool='delete'] > span {
-    background: url(img/slide-delete.png) 0px 0px no-repeat;
+    background: url(../img/slide-delete.png) 0px 0px no-repeat;
 }
 
 #toolbar a[data-tool='prev'] > span {
-    background: url(img/previous-slide.png) 0px 0px no-repeat;
+    background: url(../img/previous-slide.png) 0px 0px no-repeat;
 }
 
 #toolbar a[data-tool='next'] > span {
-    background: url(img/next-slide.png) 0px 0px no-repeat;
+    background: url(../img/next-slide.png) 0px 0px no-repeat;
 }
 
 #toolbar a[data-tool='save'] > span {
-    background: url(img/disk.png) 0px 0px no-repeat;
+    background: url(../img/disk.png) 0px 0px no-repeat;
 }
 
 #toolbar a[data-tool='saveAs'] > span {
-    background: url(img/disks.png) 0px 0px no-repeat;
+    background: url(../img/disks.png) 0px 0px no-repeat;
 }
 
 #toolbar a[data-tool='rmFile'] > span {
-    background: url(img/disk--minus.png) 0px 0px no-repeat;
+    background: url(../img/disk--minus.png) 0px 0px no-repeat;
 }
