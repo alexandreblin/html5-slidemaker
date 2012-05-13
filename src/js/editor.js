@@ -234,7 +234,7 @@ $(document).ready(function(){
         // A table of those indexes is returned.
         function getTagIndexes(szText, szTag, bWithAttr) {
             var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
-            var endTag = '</' + szTag + '>'
+            var endTag = '</' + szTag + '>';
 
             var tags = [];
 
@@ -279,7 +279,8 @@ $(document).ready(function(){
 
         // Find the slide with the number passed in parameter and give its position. A {from, to} object will be returned.
 		function getSlideInfo(iSlide) {
-            var tags = getTagIndexes(editor.getValue(), "article", true);
+            var szTag = "article";
+            var tags = getTagIndexes(editor.getValue(), szTag, true);
             var iLevel = 0;
 			var iCurrentSlide = -1;
 			var result = {from: null, to:null};
@@ -349,8 +350,9 @@ $(document).ready(function(){
             var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
             var endTag = '</' + szTag + '>';
             var newVal1, newVal2;
-            if(editor.somethingSelected()){
+            if(editor.somethingSelected()) {
                 var selText = editor.getSelection();
+                //If we select all the tag
                 if(selText.indexOf(startTag) == 0 && selText.lastIndexOf(endTag) == (selText.length - endTag.length)) {
                     var pos1 = selText.indexOf(">");
                     var pos2 = selText.lastIndexOf("<");
@@ -359,9 +361,71 @@ $(document).ready(function(){
                         newVal1 = 1 + parseInt(pos1) + editor.indexFromPos(posCur);
                         newVal2 = parseInt(pos2) + editor.indexFromPos(posCur);
                         editor.setSelection(editor.posFromIndex(newVal1), editor.posFromIndex(newVal2));
+                        return;
                     }
                 }
             }
+
+            var startTagInfo =  cursorInStartTag(szTag, bWithAttr);
+            if (startTagInfo) {
+                var endTagInfo = getInfoEndTag(szTag, startTagInfo);
+                if(endTagInfo) {
+                    editor.setSelection(startTagInfo.to, endTagInfo.from);
+                }
+            }
+        }
+
+        function cursorInStartTag(szTag, bWithAttr) {
+            var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
+            if(editor.somethingSelected()) {
+                return null;//TODO
+            } else {
+                var startPos = editor.getCursor(true);
+                var szLineStText = editor.getLine(startPos.line);
+                var posDelete = szLineStText.indexOf(">");
+                var lastPos = 0;
+                while(posDelete != -1 && posDelete < startPos.ch) {
+                    lastPos = posDelete;
+                    posDelete = szLineStText.indexOf(">", posDelete + 1);
+                }
+                var pos1 = szLineStText.indexOf(startTag, lastPos + 1);
+                if(pos1 == -1 || pos1 >= startPos.ch) {
+                    return null;
+                }
+                var pos2 = szLineStText.indexOf(">", lastPos + 1);
+                if(pos2 == -1 || pos2 < startPos.ch) {
+                    return null;
+                }
+                return {from:{line: startPos.line, ch: pos1}, to:{line: startPos.line, ch: pos2+1}};
+            }
+        }
+
+        function getInfoEndTag(szTag, object) {
+            var szText = editor.getValue();
+            var pos1 = editor.indexFromPos(object.from);
+            var pos2 = szText.indexOf("</article>", pos1);
+            if(pos2 == -1) {
+                return null;
+            }
+            szText = szText.substr(pos1, pos2-pos1);
+            var tags = getTagIndexes(szText, szTag, true);
+            var iLevel = 0;
+            var result = {from: null, to:null};
+            for (var i in tags) {
+                if (tags[i] == true) {
+                    iLevel++;
+                } else {
+                    iLevel--;
+                    if(iLevel == 0) {
+                        var newVal = pos1 + parseInt(i);
+                        result.from = editor.posFromIndex(newVal);
+                        newVal = szTag.length + 3 + newVal;
+                        result.to = editor.posFromIndex(newVal);
+                        return result;
+                    }
+                }
+            }
+            return null;
         }
 
         // if the tag in argument is found, a {from, to} object will be returned.
@@ -402,7 +466,7 @@ $(document).ready(function(){
             }
 
             // Now we check if the end tag was not for an other tag
-            if(editor.somethingSelected()){
+            if(editor.somethingSelected()) {
                 var selText = editor.getSelection();
                 var tags = [];
 
@@ -432,7 +496,7 @@ $(document).ready(function(){
             return true;
         }
 
-        // permit to clean the selection when it begins or finishes in a tag
+        // Allow to clean the selection when it begins or finishes in a tag
         function cleanSelection() {
             if(!editor.somethingSelected()) {
                 return;
@@ -592,12 +656,13 @@ $(document).ready(function(){
 				removeFile(fileName);
 			}
             else if(tool == "prev"){
-                if(selectedSlide > 0){
+                goIntoTag("span", true);
+                /*if(selectedSlide > 0){
                     var slide = getSlideInfo(selectedSlide-1);
                     previewFrame.contentWindow.prevSlide();
                     var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
                     editor.scrollTo(coord.x, coord.y);
-                }
+                }*/
                 return;
             }
             else if(tool == "next"){
