@@ -378,26 +378,34 @@ $(document).ready(function(){
         function cursorInStartTag(szTag, bWithAttr) {
             var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
             if(editor.somethingSelected()) {
-                return null;//TODO
-            } else {
-                var startPos = editor.getCursor(true);
-                var szLineStText = editor.getLine(startPos.line);
-                var posDelete = szLineStText.indexOf(">");
-                var lastPos = 0;
-                while(posDelete != -1 && posDelete < startPos.ch) {
-                    lastPos = posDelete;
-                    posDelete = szLineStText.indexOf(">", posDelete + 1);
-                }
-                var pos1 = szLineStText.indexOf(startTag, lastPos + 1);
-                if(pos1 == -1 || pos1 >= startPos.ch) {
+                var selText = editor.getSelection();
+                var pos3 = selText.lastIndexOf("<");
+                if(pos3 != -1 && pos3 != 0) {
                     return null;
                 }
-                var pos2 = szLineStText.indexOf(">", lastPos + 1);
-                if(pos2 == -1 || pos2 < startPos.ch) {
+                var pos4 = selText.indexOf(">");
+                if(pos4 != -1 && pos4 != selText.length -1) {
                     return null;
                 }
-                return {from:{line: startPos.line, ch: pos1}, to:{line: startPos.line, ch: pos2+1}};
             }
+
+            var startPos = editor.getCursor(true);
+            var szLineStText = editor.getLine(startPos.line);
+            var posDelete = szLineStText.indexOf(">");
+            var lastPos = 0;
+            while(posDelete != -1 && posDelete < startPos.ch) {
+                lastPos = posDelete;
+                posDelete = szLineStText.indexOf(">", posDelete + 1);
+            }
+            var pos1 = szLineStText.indexOf(startTag, lastPos + 1);
+            if(pos1 == -1 || pos1 > startPos.ch) {
+                return null;
+            }
+            var pos2 = szLineStText.indexOf(">", lastPos + 1);
+            if(pos2 == -1 || pos2 < startPos.ch) {
+                return null;
+            }
+            return {from:{line: startPos.line, ch: pos1}, to:{line: startPos.line, ch: pos2+1}};
         }
 
         function getInfoEndTag(szTag, object) {
@@ -705,8 +713,9 @@ $(document).ready(function(){
 				}else{
 					newSelection = "<span style='color:#"+hex+";'>"+newSelection+"</span>";
 				}*/
-                cleanSelection();
+
                 goIntoTag("span", true);//only if possible
+                cleanSelection();
                 if(canChangeCurrentColor()) {
                     changeCurrentColor("#"+hex);
                 } else {
