@@ -310,7 +310,7 @@
 
 			// Check if we have a right selection, that allow us to change the color of the selection.
 			function canChangeCurrentColor() {
-				if(!cursorIsBetweenTag("span", true)){
+				if(!selectionIsBetweenTag("span", true)){
 					return false;
 				}
 
@@ -377,6 +377,15 @@
 				endTagInfo = cursorInTagInfo(szTag, false, false);
 				if(endTagInfo) {
 					editor.setSelection(endTagInfo.to, endTagInfo.to);
+				}
+			}
+
+			//Allow to increase selection outside the tag passed in parameter
+			function goOutToTag(szTag, bWithAttr) {
+				var resStartTag = getTagBeforeStartCursor(szTag, bWithAttr);
+				var resEndTag = getInfoEndTag(szTag, resStartTag);
+				if(resStartTag && resEndTag) {
+					editor.setSelection(resStartTag.from, resEndTag.to);
 				}
 			}
 
@@ -471,7 +480,7 @@
 			}
 
 			// check if the selection is between the passed tag in parameter
-			function cursorIsBetweenTag(szTag, bWithAttr) {
+			function selectionIsBetweenTag(szTag, bWithAttr) {
 				var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
 				var endTag = '</' + szTag + '>';
 
@@ -712,9 +721,15 @@
 					return;
 				}
 				else {
-					cleanSelection();
-					newSelection = "<"+tool+">"+editor.getSelection()+"</"+tool+">";
-					endTagLength = tool.length+3;
+					goIntoTag(tool, false);//only if possible
+					if(selectionIsBetweenTag(tool, false)){
+						newSelection = editor.getSelection();
+						goOutToTag(tool, false);
+					} else {
+						cleanSelection();
+						newSelection = "<"+tool+">"+editor.getSelection()+"</"+tool+">";
+						endTagLength = tool.length+3;
+					}
 				}
 
 				var hadSomethingSelected = editor.somethingSelected();
