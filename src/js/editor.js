@@ -678,14 +678,13 @@
 				}else if (tool == "rmFile") {
 					removeFile(fileName);
 				}
-				else if(tool == "prev"){
-					goIntoTag("span", true);
-					/*if(selectedSlide > 0){
+				else if(tool == "prev") {
+					if(selectedSlide > 0){
 						var slide = getSlideInfo(selectedSlide-1);
 						previewFrame.contentWindow.prevSlide();
 						var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
 						editor.scrollTo(coord.x, coord.y);
-					}*/
+					}
 					return;
 				}
 				else if(tool == "next"){
@@ -701,11 +700,12 @@
 				else {
 					cleanSelection();
 					newSelection = "<"+tool+">"+editor.getSelection()+"</"+tool+">";
+					console.log(newSelection);
 					endTagLength = tool.length+3;
 				}
 
 				var hadSomethingSelected = editor.somethingSelected();
-				if(hadSomethingSelected) editor.replaceSelection(newSelection);
+				editor.replaceSelection(newSelection);
 
 				if(endTagLength != null && !hadSomethingSelected){
 					var pos = editor.getCursor();
