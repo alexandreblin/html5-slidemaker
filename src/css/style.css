@@ -124,6 +124,10 @@ header > h1 a {
     text-decoration: none;
 }
 
+.hidden {
+    display: none;
+}
+
 #container, #code, #preview {
 	position: absolute;
 	top: 0;
@@ -226,6 +230,10 @@ header > h1 a {
     background: linear-gradient(top,  #f9f9f9 0%,#ededed 100%);
 }
 
+#toolbar a.hidden {
+    display: none;
+}
+
 #toolbar a:hover {
     background: #f9f9f9;
 }
@@ -317,4 +325,8 @@ header > h1 a {
 
 #toolbar a[data-tool='rmFile'] > span {
     background: url(../img/disk--minus.png) 0px 0px no-repeat;
+}
+
+#toolbar a#fullscreen > span {
+    background: url(../img/slideshow.png) 0px 0px no-repeat;
 }

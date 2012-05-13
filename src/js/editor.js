@@ -54,6 +54,12 @@
 				}
 			});
 
+			function updateShowFullscreenLink() {
+				if (slideshowID) {
+					$('#fullscreen').removeClass('hidden');
+					$('#fullscreen').attr('href', '/' + slideshowID + '/show' + window.location.hash);
+				}
+			}
 
 			$(window).bind('hashchange', function() {
 				selectedSlide = parseInt(window.location.hash.replace('#', '')) - 1;
@@ -74,6 +80,7 @@
 					$("a[data-tool=next]").removeClass("disabled");
 				}
 
+				updateShowFullscreenLink();
 			});
 
 			$('#preview > iframe').load(function (){
@@ -704,6 +711,7 @@
 					now.save(slideshowID, editor.getValue(), function(slideshow) {
 						slideshowID = slideshow;
 						history.replaceState({}, '', slideshowID + window.location.hash);
+						updateShowFullscreenLink();
 					});
 					$(this).addClass("disabled");
 				}else if (tool == "saveAs") {
