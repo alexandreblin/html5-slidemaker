@@ -633,7 +633,7 @@
 				var tool = $(this).data("tool");
 				var newSelection = editor.getSelection();
 				var endTagLength = null;
-
+				var bGoInto = false;
 				if (tool == "img") {
 					var src = prompt("Enter the URL of the image");
 
@@ -740,10 +740,14 @@
 						newSelection = "<"+tool+">"+editor.getSelection()+"</"+tool+">";
 						endTagLength = tool.length+3;
 					}
+					bGoInto = true;
 				}
 
 				var hadSomethingSelected = editor.somethingSelected();
 				editor.replaceSelection(newSelection);
+				if(bGoInto) {
+					goIntoTag(tool, false);
+				}
 
 				if(endTagLength != null && !hadSomethingSelected){
 					var pos = editor.getCursor();
