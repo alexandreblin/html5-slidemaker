@@ -323,7 +323,7 @@
 
 			// Check if we have a right selection, that allow us to change the color of the selection.
 			function canChangeCurrentColor() {
-				if(!selectionIsBetweenTag("span", true)){
+				if(!selectionIsBetweenTag("span")){
 					return false;
 				}
 
@@ -374,23 +374,27 @@
 							newVal1 = 1 + parseInt(pos1) + editor.indexFromPos(posCur);
 							newVal2 = parseInt(pos2) + editor.indexFromPos(posCur);
 							editor.setSelection(editor.posFromIndex(newVal1), editor.posFromIndex(newVal2));
-							return;
+							return true;
 						}
 					}
 				}
 
+				var bChange = false;
 				var startTagInfo = cursorInTagInfo(szTag, bWithAttr, true);
 				var endTagInfo;
 				if (startTagInfo) {
 					endTagInfo = getInfoEndTag(szTag, startTagInfo);
 					if(endTagInfo) {
 						editor.setSelection(startTagInfo.to, endTagInfo.from);
+						bChange = true;
 					}
 				}
 				endTagInfo = cursorInTagInfo(szTag, false, false);
 				if(endTagInfo) {
 					editor.setSelection(endTagInfo.to, endTagInfo.to);
+					bChange = true;
 				}
+				return bChange;
 			}
 
 			//Allow to increase selection outside the tag passed in parameter
@@ -399,7 +403,9 @@
 				var resEndTag = getInfoEndTag(szTag, resStartTag);
 				if(resStartTag && resEndTag) {
 					editor.setSelection(resStartTag.from, resEndTag.to);
+					return true;
 				}
+				return false;
 			}
 
 			// if the cursor is in the start or end tag (depends on bStart) called szTag, we give the tag position.
@@ -489,56 +495,86 @@
 					return null;
 				}
 				return {from: {line:startPos.line, ch:pos1}, to: {line:startPos.line, ch:pos1+pos2+1}};
+			}
 
+			// get some information of the outside or inside tag of the selection (depends on bOutside)
+			function getSelectionTag(bOutside) {
+				var startPos = editor.getCursor(true);
+				var szLineStText = editor.getLine(startPos.line);
+				var iDecal = 0;
+				if(bOutside) {
+					szLineStText = szLineStText.substr(0, startPos.ch);
+				} else {
+					szLineStText = szLineStText.substr(startPos.ch);
+					iDecal = startPos.ch;
+				}
+				var re = new RegExp(/<([a-z0-9]+)([^>]*)>/gi);
+
+				var arrMatch;
+				var szNameTag;
+				var szTag;
+				var vFrom = null, vTo = null;
+				while (arrMatch = re.exec(szLineStText)){
+					szNameTag = RegExp.$1;
+					szTag = "<" + szNameTag + RegExp.$2 + ">";
+					vFrom = {line: startPos.line, ch: arrMatch.index + iDecal};
+					vTo = {line: startPos.line, ch: iDecal+ arrMatch.index + szTag.length};
+					if(!bOutside) {
+						break;
+					}
+				}
+				if(!vFrom || !vTo) {
+					return null;
+				}
+				if(bOutside) {
+					if(vTo.ch != startPos.ch) {
+						return null;
+					}
+				} else {
+					if(vFrom.ch != (startPos.ch)) {
+						return null;
+					}
+				}
+				var vStartTag = {from: vFrom, to: vTo};
+				var vEndTag = getInfoEndTag(szNameTag, vStartTag);
+				if(vEndTag) {
+					return {name: szNameTag, start: vStartTag, end: vEndTag};
+				}
+
+				return null;
+			}
+
+			// Allow to go outside or inside the tag of the selection (depends on bOutside)
+			function goSelectionTag(bOutside) {
+				var vTagInfo = getSelectionTag(bOutside);
+				if(vTagInfo) {
+					if (bOutside) {
+						editor.setSelection(vTagInfo.start.from, vTagInfo.end.to);
+					} else {
+						editor.setSelection(vTagInfo.start.to, vTagInfo.end.from);
+					}
+					return true;
+				}
+				return false;
+			}
+
+			//We are sure that we can't have infinite loop
+			function minimizeSelection() {
+				var vSel = editor.getSelection();
+				var vTemp;
+				while(goSelectionTag(false)) {
+					vTemp = editor.getSelection();
+					if(vSel == vTemp) {
+						break;
+					}
+					vSel = vTemp;
+				}
 			}
 
 			// check if the selection is between the passed tag in parameter
-			function selectionIsBetweenTag(szTag, bWithAttr) {
-				var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
-				var endTag = '</' + szTag + '>';
-
-				//check if the start tag exists
-				if(!getTagBeforeStartCursor(szTag, bWithAttr)) {
-					return false;
-				}
-
-				//check if the end tag exists
-				var endPos = editor.getCursor(false);
-				var szLineText = editor.getLine(endPos.line);
-				var szNextText = szLineText.substr(endPos.ch);
-				if(szNextText.indexOf(endTag) != 0) {
-					return false;
-				}
-
-				// Now we check if the end tag was not for an other tag
-				if(editor.somethingSelected()) {
-					var selText = editor.getSelection();
-					var tags = [];
-
-					var pos = selText.indexOf(startTag);
-					while (pos != -1) {
-						tags[pos] = true;
-						pos = selText.indexOf(startTag, pos+1);
-					}
-
-					pos = selText.indexOf(endTag);
-					while (pos != -1) {
-						tags[pos] = false;
-						pos = selText.indexOf(endTag, pos+1);
-					}
-					var iLevel = 0;
-					for (var i in tags) {
-						if (tags[i] == true) {
-							iLevel++;
-						} else {
-							iLevel--;
-						}
-						if(iLevel < 0) {
-							return false;
-						}
-					}
-				}
-				return true;
+			function selectionIsBetweenTag(szTag) {
+				var vTagInfo = getSelectionTag(true);
+				return vTagInfo && vTagInfo.name == szTag;
 			}
 
 			// Allow to clean the selection when it begins or finishes in a tag
@@ -581,34 +617,36 @@
 						selText = editor.getSelection();
 					}
 				}
-				//I
-				var re = new RegExp(/<([a-z0-9]+)[ \/>]/);
+
+				var re = new RegExp(/<([a-z0-9]+)([ \/>])/);
 
 				if(re.test(selText)) {
 					var myMatch = re.exec(selText);
 					var szTag = RegExp.$1;
-					var tags = getTagIndexes(selText, szTag, true);
-					var iLevel = 0;
+					if(szTag != "br") {
+						var tags = getTagIndexes(selText, szTag, true);
+						var iLevel = 0;
 
-					for (var i in tags) {
-						if (tags[i] == true) {
-							iLevel++;
-						} else {
-							iLevel--;
+						for (var i in tags) {
+							if (tags[i] == true) {
+								iLevel++;
+							} else {
+								iLevel--;
+							}
 						}
-					}
-					if(iLevel > 0) {
-						var pos5 = selText.indexOf(">");
-						if (pos5 != -1) {
-							if(pos5 > myMatch.index) {
-								newVal = 1 + parseInt(pos5) + editor.indexFromPos(posStartCursor);
-								editor.setSelection(editor.posFromIndex(newVal), posEndCursor);
+						if(iLevel > 0) {
+							var pos5 = selText.indexOf(">");
+							if (pos5 != -1) {
+								if(pos5 > myMatch.index) {
+									newVal = 1 + parseInt(pos5) + editor.indexFromPos(posStartCursor);
+									editor.setSelection(editor.posFromIndex(newVal), posEndCursor);
+								}
 							}
 						}
 					}
 				}
 				var startTag = cursorInTagInfo("", true, true);
-				if(startTag) {
+				if(startTag && posStartCursor.ch < startTag.to.ch) {
 					editor.setSelection(startTag.to, startTag.to);
 				}
 				var endTag = cursorInTagInfo("", true, false);
@@ -728,8 +766,7 @@
 					}
 					return;
 				}
-				else if(tool == "next"){
-
+				else if(tool == "next") {
 					if(selectedSlide < totalSlides-1){
 						var slide = getSlideInfo(selectedSlide+1);
 						previewFrame.contentWindow.nextSlide();
@@ -739,14 +776,34 @@
 					return;
 				}
 				else {
-					goIntoTag(tool, false);//only if possible
+					var bFind = false;
+					var vTagInfo;
+
 					cleanSelection();
-					if(selectionIsBetweenTag(tool, false)){
-						newSelection = editor.getSelection();
-						goOutToTag(tool, false);
-					} else {
-						newSelection = "<"+tool+">"+editor.getSelection()+"</"+tool+">";
-						endTagLength = tool.length+3;
+					minimizeSelection();
+
+					vTagInfo = getSelectionTag(true);
+					while(vTagInfo != null) {
+						if(vTagInfo.name == tool) {
+							newSelection = editor.getSelection();
+							editor.setSelection(vTagInfo.start.from, vTagInfo.end.to);
+							bFind = true;
+							break;
+						}
+						editor.setSelection(vTagInfo.start.from, vTagInfo.end.to);
+						vTagInfo = getSelectionTag(true);
+					}
+
+					if(!bFind) {
+						minimizeSelection();
+						cleanSelection();
+						if(selectionIsBetweenTag(tool)){
+							newSelection = editor.getSelection();
+							goSelectionTag(true);
+						} else {
+							newSelection = "<"+tool+">"+editor.getSelection()+"</"+tool+">";
+							endTagLength = tool.length+2;
+						}
 					}
 					bGoInto = true;
 				}
@@ -754,12 +811,12 @@
 				var hadSomethingSelected = editor.somethingSelected();
 				editor.replaceSelection(newSelection);
 				if(bGoInto) {
-					goIntoTag(tool, false);
+					minimizeSelection();
 				}
 
 				if(endTagLength != null && !hadSomethingSelected){
-					var pos = editor.getCursor();
-					pos = {line: pos.line, ch: pos.ch - endTagLength};
+					var pos = editor.getCursor(true);
+					pos = {line: pos.line, ch: pos.ch + endTagLength};
 					editor.setCursor(pos);
 				}
 
