@@ -28,8 +28,6 @@
 			var splitSize = readCookie('splitsize');
 			var filesComboId = "#files";
 			var delFileButton = $("#removeFile");
-			var slideTemplates = "#templates";
-			var currentTemplate;
 			var totalSlides;
 			var selectedSlide;
 
@@ -38,21 +36,8 @@
 			var onLoadFile = false;
 
 			for(var t in slideTemplate){
-				var flag = true;
-				if(flag){
-					$(slideTemplates).val(t);
-					currentTemplate = slideTemplate[t].code;
-					flag = false;
-				}
-				$(slideTemplates).append("<option value='"+t+"'>"+slideTemplate[t].title+"</option>");
+				$('#templates').append($('<li><a href="javascript:void(0)" data-tool="add" data-template="'+t+'">'+slideTemplate[t].title+'</a></li>'));
 			}
-
-			$(slideTemplates).change(function() {
-				var t = $(this).val();
-				if (t != ""){
-					currentTemplate = slideTemplate[t].code;
-				}
-			});
 
 			function updateShowFullscreenLink() {
 				if (slideshowID) {
@@ -68,16 +53,16 @@
 				$("#selectedSlide").html(selectedSlide + 1);
 
 				if(selectedSlide == 0){
-					$("a[data-tool=prev]").addClass("disabled");
+					$("button[data-tool=prev]").addClass("disabled");
 				}
 				else{
-					$("a[data-tool=prev]").removeClass("disabled");
+					$("button[data-tool=prev]").removeClass("disabled");
 				}
 				if(totalSlides && selectedSlide == totalSlides-1){
-					$("a[data-tool=next]").addClass("disabled");
+					$("button[data-tool=next]").addClass("disabled");
 				}
 				else{
-					$("a[data-tool=next]").removeClass("disabled");
+					$("button[data-tool=next]").removeClass("disabled");
 				}
 
 				updateShowFullscreenLink();
@@ -115,7 +100,7 @@
 					}
 
 					if (isFileModified) {
-						$("a[data-tool=save]").removeClass("disabled");
+						$("button[data-tool=save]").removeClass("disabled");
 					}
 				},
 				onCursorActivity: function() {
@@ -165,7 +150,7 @@
 						fileName = $(this).val();
 						onLoadFile = true;
 						editor.setValue(localStorage["slides_"+fileName]);
-						$("a[data-tool=save]").addClass("disabled");
+						$("button[data-tool=save]").addClass("disabled");
 					} else {
 						alert("'localStorage' not supported by your navigator!");
 					}
@@ -199,7 +184,7 @@
 				if (localStorage) {
 					localStorage["slides_"+name] = editor.getValue();
 					isFileModified = false;
-					$("a[data-tool=save]").addClass("disabled");
+					$("button[data-tool=save]").addClass("disabled");
 				} else {
 					alert("Functionality not supported by your navigator!");
 				}
@@ -632,7 +617,7 @@
 				return null;
 			}
 
-			$("#toolbar > *[data-tool]").click(function() {
+			$("#toolbar *[data-tool]").click(function() {
 				if ($(this).hasClass('disabled')) {
 					return;
 				}
@@ -670,8 +655,8 @@
 					endTagLength = 0;
 				}else if(tool == "add"){
 					var slide = getSlideInfo(selectedSlide);
-					var newSlide =
-					editor.replaceRange(currentTemplate,  {line: slide.to.line, ch: slide.to.ch+1}, {line: slide.to.line, ch: slide.to.ch+1});
+					var template = $(this).data('template') || 't1';
+					editor.replaceRange(slideTemplate[template].code,  {line: slide.to.line, ch: slide.to.ch+1}, {line: slide.to.line, ch: slide.to.ch+1});
 
 					editor.focus();
 					editor.setCursor({line:slide.to.line+4, ch: 4});

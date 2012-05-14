@@ -1,131 +1,7 @@
-/* 
-html5doctor.com Reset Stylesheet
-v1.6.1
-Last Updated: 2010-09-17
-Author: Richard Clark - http://richclarkdesign.com 
-Twitter: @rich_clark
-*/
-
-html, body, div, span, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-abbr, address, cite, code,
-del, dfn, em, img, ins, kbd, q, samp,
-small, strong, sub, sup, var,
-b, i,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section, summary,
-time, mark, audio, video {
-    margin:0;
-    padding:0;
-    border:0;
-    outline:0;
-    font-size:100%;
-    vertical-align:baseline;
-    background:transparent;
-}
+@import 'mixins.less';
 
 body {
-    line-height:1;
-}
-
-article,aside,details,figcaption,figure,
-footer,header,hgroup,menu,nav,section { 
-    display:block;
-}
-
-nav ul {
-    list-style:none;
-}
-
-blockquote, q {
-    quotes:none;
-}
-
-blockquote:before, blockquote:after,
-q:before, q:after {
-    content:'';
-    content:none;
-}
-
-a {
-    margin:0;
-    padding:0;
-    font-size:100%;
-    vertical-align:baseline;
-    background:transparent;
-}
-
-/* change colours to suit your needs */
-ins {
-    background-color:#ff9;
-    color:#000;
-    text-decoration:none;
-}
-
-/* change colours to suit your needs */
-mark {
-    background-color:#ff9;
-    color:#000; 
-    font-style:italic;
-    font-weight:bold;
-}
-
-del {
-    text-decoration: line-through;
-}
-
-abbr[title], dfn[title] {
-    border-bottom:1px dotted;
-    cursor:help;
-}
-
-table {
-    border-collapse:collapse;
-    border-spacing:0;
-}
-
-/* change border colour to suit your needs */
-hr {
-    display:block;
-    height:1px;
-    border:0;   
-    border-top:1px solid #cccccc;
-    margin:1em 0;
-    padding:0;
-}
-
-input, select {
-    vertical-align:middle;
-}
-
-
-body {
-	font-family: sans-serif;
-}
-
-header {
-    background: url(header.png) repeat-x;
-    height: 40px;
-    padding-bottom: 10px;
-}
-
-header > h1 {
-	font-size: 26px;
-    padding: 8px;
-    color: #222;
-    text-shadow: 1px 1px 1px #f5f5f5;
-}
-
-header > h1 a {
-    color: #222;
-    text-decoration: none;
-}
-
-.hidden {
-    display: none;
+	padding-top: 40px;
 }
 
 #container, #code, #preview {
@@ -150,19 +26,16 @@ header > h1 a {
 }
 
 #code > textarea, #code .CodeMirror-scroll {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+	position: absolute;
+	width: 100%;
+	height: 100%;
 }
 
 #code > textarea {
 	outline: none;
-	box-sizing: border-box;
-	-webkit-box-sizing:border-box;
-	-moz-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-    border: 1px solid #eee;
-    border-right: none;
+	.box-sizing(border-box);
+	border: 1px solid #eee;
+	border-right: none;
 }
 
 #code .CodeMirror-scroll, #preview > iframe {
@@ -175,158 +48,126 @@ header > h1 a {
 }
 
 #splitter {
-    position: absolute;
-    width: 4px;
-    height: 100%;
-    left: 50%;
-    background-color: #fff;
-    border-right: 1px solid #eee;
-    border-left: 1px solid #eee;
+	position: absolute;
+	width: 4px;
+	height: 100%;
+	left: 50%;
+	background-color: #fff;
+	border-right: 1px solid #eee;
+	border-left: 1px solid #eee;
 }
 
 #splitter:hover, #splitter:active {
-    cursor: col-resize;
-    background-color: #eee;
+	cursor: col-resize;
+	background-color: #eee;
 }
 
 #dragSurface {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 9999;
-    background: transparent;
-    cursor: col-resize;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 9999;
+	background: transparent;
+	cursor: col-resize;
 }
 
 #toolbar {
-    height: 20px;
-    padding: 0 5px 5px 5px;
-    font-size: 10pt;
+	margin: 6px 0 0 5px;
 }
 
-#toolbar a {
-    vertical-align: middle;
-    display: inline-block;
-
-    height: 16px;
-    
-    padding: 3px;
-
-    border: 1px solid #ccc;
-    -webkit-border-radius: 4px;
-    border-radius: 4px;
-
-    color: black;
-    text-decoration: none;
-
-    background: #f9f9f9;
-    background: -moz-linear-gradient(top,  #f9f9f9 0%, #ededed 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f9f9f9), color-stop(100%,#ededed));
-    background: -webkit-linear-gradient(top,  #f9f9f9 0%,#ededed 100%);
-    background: -o-linear-gradient(top,  #f9f9f9 0%,#ededed 100%);
-    background: -ms-linear-gradient(top,  #f9f9f9 0%,#ededed 100%);
-    background: linear-gradient(top,  #f9f9f9 0%,#ededed 100%);
+#toolbar > * {
+	vertical-align: middle;
 }
 
-#toolbar a.hidden {
-    display: none;
+.icon-16x16 {
+	background-position: 0px 0px;
+	width: 16px;
+	height: 16px;
 }
 
-#toolbar a:hover {
-    background: #f9f9f9;
+#toolbar .btn {
+	padding: 4px 6px;
 }
 
-#toolbar a:active {
-    background: #ededed;
+#toolbar select {
+	margin-bottom: 0;
+	width: auto;
 }
 
-#toolbar a.disabled {
-    background: #f9f9f9;
+#toolbar #colorpicker {
+	display: inline-block;
+	height: 24px;
+	width: 24px;
+	border: 0;
+	background: url(../img/colorpicker.png) center no-repeat, black;
 }
 
-#toolbar a.disabled:hover {
-    cursor: default;
+.colorpicker input {
+	width: auto;
+	line-height: normal;
+	.box-shadow(0);
+	.transition(none);
 }
 
-#toolbar a.disabled > span {
-    opacity: 0.5;
+.colorpicker input:focus {
+	outline: none;
+	.box-shadow(none);
 }
 
-#toolbar a > span {
-    display: inline-block;
-    height: 16px;
-    padding: 1px 3px 0px 20px;
+#toolbar button[data-tool='strong'] > i {
+	background-image: url(../img/bold.png);
 }
 
-#toolbar a > span.icon {
-    width: 16px;
-    padding: 0;
+#toolbar button[data-tool='em'] > i {
+	background-image: url(../img/italic.png);
 }
 
-#toolbar a#colorpicker {
-    height: 24px;
-    width: 24px;
-    padding: 0;
-    border: 0;
-    -webkit-border-radius: 0;
-    border-radius: 0;
-    background: url(../img/colorpicker.png) center no-repeat, black;
+#toolbar button[data-tool='u'] > i {
+	background-image: url(../img/underline.png);
 }
 
-#toolbar a[data-tool='strong'] > span {
-    background: url(../img/bold.png);
+#toolbar button[data-tool='del'] > i {
+	background-image: url(../img/strike.png);
 }
 
-#toolbar a[data-tool='em'] > span {
-    background: url(../img/italic.png);
+#toolbar button[data-tool='img'] > i {
+	background-image: url(../img/image-add.png);
 }
 
-#toolbar a[data-tool='u'] > span {
-    background: url(../img/underline.png);
+#toolbar button[data-tool='a'] > i {
+	background-image: url(../img/link-add.png);
 }
 
-#toolbar a[data-tool='del'] > span {
-    background: url(../img/strike.png);
+#toolbar button[data-tool='add'] > i {
+	background-image: url(../img/slide-add.png);
 }
 
-#toolbar a[data-tool='img'] > span {
-    background: url(../img/image-add.png);
+#toolbar button[data-tool='delete'] > i {
+	background-image: url(../img/slide-delete.png);
 }
 
-#toolbar a[data-tool='a'] > span {
-    background: url(../img/link-add.png);
+#toolbar button[data-tool='prev'] > i {
+	background-image: url(../img/previous-slide.png);
 }
 
-#toolbar a[data-tool='add'] > span {
-    background: url(../img/slide-add.png) 0px 0px no-repeat;
+#toolbar button[data-tool='next'] > i {
+	background-image: url(../img/next-slide.png);
 }
 
-#toolbar a[data-tool='delete'] > span {
-    background: url(../img/slide-delete.png) 0px 0px no-repeat;
+#toolbar button[data-tool='save'] > i {
+	background-image: url(../img/file-save.png);
 }
 
-#toolbar a[data-tool='prev'] > span {
-    background: url(../img/previous-slide.png) 0px 0px no-repeat;
+#toolbar button[data-tool='saveAs'] > i {
+	background-image: url(../img/file-saveas.png);
 }
 
-#toolbar a[data-tool='next'] > span {
-    background: url(../img/next-slide.png) 0px 0px no-repeat;
+#toolbar button[data-tool='rmFile'] > i {
+	background-image: url(../img/file-delete.png);
 }
 
-#toolbar a[data-tool='save'] > span {
-    background: url(../img/disk.png) 0px 0px no-repeat;
-}
-
-#toolbar a[data-tool='saveAs'] > span {
-    background: url(../img/disks.png) 0px 0px no-repeat;
-}
-
-#toolbar a[data-tool='rmFile'] > span {
-    background: url(../img/disk--minus.png) 0px 0px no-repeat;
-}
-
-#toolbar a#fullscreen > span {
-    background: url(../img/slideshow.png) 0px 0px no-repeat;
+#toolbar a#fullscreen > i {
+	background-image: url(../img/slideshow.png);
 }
