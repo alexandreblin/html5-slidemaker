@@ -21,3 +21,35 @@
     There is more text just underneath.
   </p>
 </article>
+
+<article>
+  <h3>Code sample</h3>
+
+  <pre>&lt;script&gt;
+function handleTouchStart(event) {
+    event.preventDefault();
+
+    if (event.touches.length == 1) {
+        touchDX = 0;
+        touchDY = 0;
+
+        touchStartX = event.touches[0].pageX;
+        touchStartY = event.touches[0].pageY;
+
+        document.body.addEventListener('touchmove', handleTouchMove, true);
+        document.body.addEventListener('touchend', handleTouchEnd, true);
+    }
+};
+
+function handleTouchMove(event) {
+    event.preventDefault();
+
+    if (event.touches.length &gt; 1) {
+        cancelTouch();
+    } else {
+        touchDX = event.touches[0].pageX - touchStartX;
+        touchDY = event.touches[0].pageY - touchStartY;
+    }
+};
+&lt;/script&gt;</pre>
+</article>
