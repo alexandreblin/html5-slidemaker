@@ -802,7 +802,7 @@
 							goSelectionTag(true);
 						} else {
 							newSelection = "<"+tool+">"+editor.getSelection()+"</"+tool+">";
-							endTagLength = tool.length+2;
+							endTagLength = tool.length+3;
 						}
 					}
 					bGoInto = true;
@@ -812,12 +812,6 @@
 				editor.replaceSelection(newSelection);
 				if(bGoInto) {
 					minimizeSelection();
-				}
-
-				if(endTagLength != null && !hadSomethingSelected){
-					var pos = editor.getCursor(true);
-					pos = {line: pos.line, ch: pos.ch + endTagLength};
-					editor.setCursor(pos);
 				}
 
 				editor.focus();
