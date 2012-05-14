@@ -37,8 +37,8 @@
 			var isFileModified = false;
 			var onLoadFile = false;
 
-			for(var t in slideTemplate){
-				var flag = true;
+            var flag = true;
+            for(var t in slideTemplate){
 				if(flag){
 					$(slideTemplates).val(t);
 					currentTemplate = slideTemplate[t].code;

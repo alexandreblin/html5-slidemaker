@@ -36,31 +36,31 @@ var slideTemplate = {
     },
     't8':{
         title:"Image centered",
-        code:"\n\n\n\n<article>\n\n\t<h3>\n\n\t\t\n\n\t</h3>\n\n\t<p>\n\n\t\t<img class='centered' style='height: 500px' src=''>\n\n\t</p>\n\n</article>"
+        code:"\n\n<article>\n\t<h3>\n\t\t\n\t</h3>\n\t<p>\n\t\t<img class='centered' style='height: 500px' src=''>\n\t</p>\n</article>"
     },
     't9':{
         title:"Image and text",
-        code:"\n\n\n\n<article>\n\n\t<h3>\n\n\t\t\n\n\t</h3>\n\n\t<p>\n\n\t\t<img class='floatLeft'  style='height: 100px' src=''>\n\n\t</p>\n\n\t<p>\n\n\t\t\n\n\t</p>\n\n</article>"
+        code:"\n\n<article>\n\t<h3>\n\t\t\n\t</h3>\n\t<p>\n\t\t<img class='floatLeft'  style='height: 100px' src=''>\n\t</p>\n\t<p>\n\t\t\n\t</p>\n</article>"
     },
     't10':{
         title:"Image filling the slide",
-        code:"\n\n\n\n<article class='fill'>\n\n\t<h3>\n\n\t\t\n\n\t</h3>\n\n\t<p>\n\n\t\t<img src='images/flower.jpg'>\n\n\t</p>\n\n</article>"
+        code:"\n\n<article class='fill'>\n\t<h3>\n\t\t\n\t</h3>\n\t<p>\n\t\t<img src='images/flower.jpg'>\n\t</p>\n</article>"
     },
     't11':{
         title:"Code",
-        code:"\n\n\n\n<article class='smaller'>\n\n\t<h3>\n\n\t\t\n\n\t</h3>\n\n\t<section class='scroll'>\n\n\t\t<pre  class='noMargin'>\n\n\t\t\t\n\n\t\t</pre>\n\n\t</section>\n\n</article>"
+        code:"\n\n<article class='smaller'>\n\t<h3>\n\t\t\n\t</h3>\n\t<section class='scroll'>\n\t\t<pre  class='noMargin'>\n\t\t\t\n\t\t</pre>\n\t</section>\n</article>"
     },
     't12':{
         title:"Citation",
-        code:"\n\n\n\n<article>\n\n\t<q>\n\n\t\t\n\n\t</q>\n\n\t<div class='author'>\n\n\t\t\n\n\t</div>\n\n</article>"
+        code:"\n\n<article>\n\t<q>\n\t\t\n\t</q>\n\t<div class='author'>\n\t\t\n\t</div>\n</article>"
     },
     't13':{
         title:"Embed",
-        code:"\n\n\n\n<article class='nobackground'>\n\n\t<h3>\n\n\t\t\n\n\t</h3>\n\n\t<iframe src=''></iframe>\n\n</article>"
+        code:"\n\n<article class='nobackground'>\n\t<h3>\n\t\t\n\t</h3>\n\t<iframe src=''></iframe>\n</article>"
     },
     't14':{
         title:"Link list",
-        code:"\n\n\n\n<article>\n\n\t<h3>\n\n\t\t\n\n\t</h3>\n\n\t<ul>\n\n\t\t<li>\n\n\t\t\t<a href=''></a>\n\n\t\t</li>\n\n\t\t<li>\n\n\t\t\t<a href=''></a>\n\n\t\t</li>\n\n\t</ul>\n\n</article>"
+        code:"\n\n<article>\n\t<h3>\n\t\t\n\t</h3>\n\t<ul>\n\t\t<li>\n\t\t\t<a href=''></a>\n\t\t</li>\n\t\t<li>\n\t\t\t<a href=''></a>\n\t\t</li>\n\t</ul>\n</article>"
     }
 };
 
