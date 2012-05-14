@@ -740,11 +740,11 @@
 				}
 				else {
 					goIntoTag(tool, false);//only if possible
+					cleanSelection();
 					if(selectionIsBetweenTag(tool, false)){
 						newSelection = editor.getSelection();
 						goOutToTag(tool, false);
 					} else {
-						cleanSelection();
 						newSelection = "<"+tool+">"+editor.getSelection()+"</"+tool+">";
 						endTagLength = tool.length+3;
 					}
