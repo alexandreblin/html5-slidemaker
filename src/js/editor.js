@@ -343,6 +343,51 @@
 				}
 			}
 
+			function setStyleAttribute(attr, newValue) {
+				var vTagInfo = getSelectionTag(true);
+				if(vTagInfo) {
+					var vStyleInfo = getAttributeTag(vTagInfo.start, "style");
+					if(vStyleInfo) {
+						var szText = editor.getRange(vStyleInfo.from, vStyleInfo.to);
+						if(szText && szText.length > 0) {
+							var re1 = new RegExp('([;\'\"][ ]*'+ attr +'[ ]*:[ ]*)');
+							var re2 = new RegExp(/(['"])/);
+							var myMatch = re1.exec(szText);
+							var replacedText;
+							var vFrom = vStyleInfo.from;
+							var vTo = {line: vFrom.line, ch: vFrom.ch + szText.length};
+							if(myMatch) {
+								var endText =  RegExp.rightContext;
+								var pos1 = endText.indexOf(";", 1);
+								if (pos1 != -1) {
+									endText = endText.substr(pos1);
+								} else {
+									endText = endText.substr(endText.length - 1);
+								}
+								replacedText = RegExp.leftContext + RegExp.$1 + newValue + endText;
+							} else {
+								myMatch = re2.exec(szText);
+								if(!myMatch) {
+									return false;
+								}
+								replacedText = attr + ": "+ newValue + "; ";
+								replacedText = RegExp.leftContext+ RegExp.$1 + replacedText + RegExp.rightContext;
+							}
+							editor.replaceRange(replacedText, vFrom, vTo);
+							return true;
+						}
+					} else {
+						var textInsert = " style='"+ attr + ": " + newValue +";'";
+						var szTextTag = editor.getRange(vTagInfo.start.from, vTagInfo.start.to);
+						var iPos2 = szTextTag.lastIndexOf("/>");
+						var iDecal = (iPos2 == -1) ? 1 : 2;
+						editor.replaceRange(textInsert, {line: vTagInfo.start.to.line, ch: vTagInfo.start.to.ch - iDecal});//We don't take the last
+						return true;
+					}
+				}
+				return false;
+			}
+
 			//Allow to reduce selection inside the tag passed in parameter
 			function goIntoTag(szTag, bWithAttr) {
 				var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
@@ -380,17 +425,6 @@
 					bChange = true;
 				}
 				return bChange;
-			}
-
-			//Allow to increase selection outside the tag passed in parameter
-			function goOutToTag(szTag, bWithAttr) {
-				var resStartTag = getTagBeforeStartCursor(szTag, bWithAttr);
-				var resEndTag = getInfoEndTag(szTag, resStartTag);
-				if(resStartTag && resEndTag) {
-					editor.setSelection(resStartTag.from, resEndTag.to);
-					return true;
-				}
-				return false;
 			}
 
 			// if the cursor is in the start or end tag (depends on bStart) called szTag, we give the tag position.
@@ -645,11 +679,25 @@
 				var szText = editor.getRange(object.from, object.to);
 				if(szText && szText.length > 0) {
 					if(szText.lastIndexOf('<') == 0 && szText.indexOf('>') == szText.length - 1) {
-						var re = new RegExp('('+attr+'[ ]*=[ ]*)([\'\"][^\'\"]+[\'\"])');
-						re.exec(szText);
-						var vFrom = {line: object.from.line, ch: object.from.ch+RegExp.leftContext.length+RegExp.$1.length};
-						var vTo = {line: vFrom.line, ch: vFrom.ch + RegExp.$2.length};
-						return {from: vFrom, to: vTo};
+						var re = new RegExp('('+attr+'[ ]*=[ ]*)([\'\"])');
+						var myMatch = re.exec(szText);
+						if(myMatch) {
+							var vQuote = RegExp.$2;
+							var posNextEquals = szText.indexOf('=', myMatch.index + RegExp.$1.length);
+							if(posNextEquals != -1 ) {
+								szText = szText.substr(myMatch.index, posNextEquals-myMatch.index);
+							} else {
+								szText = szText.substr(myMatch.index);
+							}
+							var posLastQuote = szText.lastIndexOf(vQuote);
+							if(posLastQuote == -1) {
+								return null;
+							}
+							szText = szText.substr(0, posLastQuote + 1);
+							var vFrom = {line: object.from.line, ch: object.from.ch+RegExp.leftContext.length};
+							var vTo = {line: vFrom.line, ch: vFrom.ch + szText.length};
+							return {from: vFrom, to: vTo};
+						}
 					}
 				}
 				return null;
@@ -806,13 +854,19 @@
 				color: '#000000',
 				onChange: function (hsb, hex, rgb) {
 					goIntoTag("span", true);//only if possible
+					//getSelectionTag(false);
 					cleanSelection();
-					if(canChangeCurrentColor()) {
+					var bAddColor = setStyleAttribute("color", "#"+hex);
+					if(!bAddColor) {
+						var newSelection = "<span style='color:#"+hex+";'>"+editor.getSelection()+"</span>";
+						editor.replaceSelection(newSelection);
+					}
+					/*if(canChangeCurrentColor()) {
 						changeCurrentColor("#"+hex);
 					} else {
 						var newSelection = "<span style='color:#"+hex+";'>"+editor.getSelection()+"</span>";
 						editor.replaceSelection(newSelection);
-					}
+					}*/
 					$('#colorpicker').css({'background-color': '#' + hex});
 				}
 			});
