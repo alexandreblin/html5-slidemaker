@@ -304,47 +304,14 @@
 				return result;
 			}
 
-
-
-			// Check if we have a right selection, that allow us to change the color of the selection.
-			function canChangeCurrentColor() {
-				if(!selectionIsBetweenTag("span")){
-					return false;
-				}
-
-				var resBeforeText = getTagBeforeStartCursor("span", true);
-				if(!resBeforeText) {
-					return false;
-				}
-				var resStyle = getAttributeTag(resBeforeText, "style");
-				if(!resStyle) {
-					return false;
-				}
-				return true;
-			}
-
-			// Replace the current color of span tag, must be call after the canChangeCurrentColor() method to be sure it works.
-			function changeCurrentColor(color) {
-				var resBeforeText = getTagBeforeStartCursor("span", true);
-				var resStyle = getAttributeTag(resBeforeText, "style");
-				setColorTag(resStyle, color);
-			}
-
-			// Replace the color in the right place in the {from, to} passed object
-			function setColorTag(object, newColor) {
-				var szText = editor.getRange(object.from, object.to);
-				if(szText && szText.length > 0) {
-					var re1 = new RegExp(/([;'"][ ]*color[ ]*:[ ]*)[^;]+[ ]*([;'"])/);
-					re1.exec(szText);
-					var replacedText = RegExp.leftContext + RegExp.$1 + newColor + RegExp.$2 + RegExp.rightContext;
-					var vFrom = object.from;
-					var vTo = {line: vFrom.line, ch: vFrom.ch + szText.length};
-					editor.replaceRange(replacedText, vFrom, vTo);
-				}
-			}
-
 			function setStyleAttribute(attr, newValue) {
-				var vTagInfo = getSelectionTag(true);
+				cleanSelection();
+				goSelectionTag(true);
+
+				var vTagInfo = searchInformationOnTagSelection(null, attr);
+				if(!vTagInfo){
+					vTagInfo = getSelectionTag(true);
+				}
 				if(vTagInfo) {
 					var vStyleInfo = getAttributeTag(vTagInfo.start, "style");
 					if(vStyleInfo) {
@@ -388,43 +355,35 @@
 				return false;
 			}
 
-			//Allow to reduce selection inside the tag passed in parameter
-			function goIntoTag(szTag, bWithAttr) {
-				var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
-				var endTag = '</' + szTag + '>';
-				var newVal1, newVal2;
-				if(editor.somethingSelected()) {
-					var selText = editor.getSelection();
-					//If we select all the tag
-					if(selText.indexOf(startTag) == 0 && selText.lastIndexOf(endTag) == (selText.length - endTag.length)) {
-						var pos1 = selText.indexOf(">");
-						var pos2 = selText.lastIndexOf("<");
-						if (pos1 != -1 && pos2 != -1) {
-							var posCur = editor.getCursor(true);
-							newVal1 = 1 + parseInt(pos1) + editor.indexFromPos(posCur);
-							newVal2 = parseInt(pos2) + editor.indexFromPos(posCur);
-							editor.setSelection(editor.posFromIndex(newVal1), editor.posFromIndex(newVal2));
-							return true;
+			function searchInformationOnTagSelection(tagName, styleAttr) {
+				cleanSelection();
+				minimizeSelection();
+
+				var vTagInfo = getSelectionTag(true);
+				while(vTagInfo != null) {
+					if(tagName && vTagInfo.name == tagName) {
+						return vTagInfo;
+					}
+					if(styleAttr) {
+						var vStyleInfo = getAttributeTag(vTagInfo.start, "style");
+						if(vStyleInfo) {
+							var szText = editor.getRange(vStyleInfo.from, vStyleInfo.to);
+							if(szText && szText.length > 0) {
+								var re1 = new RegExp('([;\'\"][ ]*'+ styleAttr +'[ ]*:[ ]*)');
+								var myMatch = re1.exec(szText);
+								if(myMatch) {
+									return vTagInfo;
+								}
+							}
 						}
 					}
+					editor.setSelection(vTagInfo.start.from, vTagInfo.end.to);
+					vTagInfo = getSelectionTag(true);
 				}
 
-				var bChange = false;
-				var startTagInfo = cursorInTagInfo(szTag, bWithAttr, true);
-				var endTagInfo;
-				if (startTagInfo) {
-					endTagInfo = getInfoEndTag(szTag, startTagInfo);
-					if(endTagInfo) {
-						editor.setSelection(startTagInfo.to, endTagInfo.from);
-						bChange = true;
-					}
-				}
-				endTagInfo = cursorInTagInfo(szTag, false, false);
-				if(endTagInfo) {
-					editor.setSelection(endTagInfo.to, endTagInfo.to);
-					bChange = true;
-				}
-				return bChange;
+				minimizeSelection();
+
+				return null;
 			}
 
 			// if the cursor is in the start or end tag (depends on bStart) called szTag, we give the tag position.
@@ -447,20 +406,19 @@
 						return null;
 					}
 				}
-
 				var startPos = editor.getCursor(true);
 				var szLineStText = editor.getLine(startPos.line);
 				var posDelete = szLineStText.indexOf(">");
 				var lastPos = 0;
 				while(posDelete != -1 && posDelete < startPos.ch) {
-					lastPos = posDelete;
+					lastPos = posDelete + 1;
 					posDelete = szLineStText.indexOf(">", posDelete + 1);
 				}
-				var pos1 = szLineStText.indexOf(tag, lastPos + 1);
+				var pos1 = szLineStText.indexOf(tag, lastPos);
 				if(pos1 == -1 || pos1 > startPos.ch || (!editor.somethingSelected() && pos1 == startPos.ch)) {
 					return null;
 				}
-				var pos2 = szLineStText.indexOf(">", lastPos + 1);
+				var pos2 = szLineStText.indexOf(">", lastPos);
 				if(pos2 == -1 || pos2 < startPos.ch) {
 					return null;
 				}
@@ -473,10 +431,12 @@
 			function getInfoEndTag(szTag, object) {
 				var szText = editor.getValue();
 				var pos1 = editor.indexFromPos(object.from);
-				var pos2 = szText.indexOf("</article>", pos1);
+				var endArticle = "</article>";
+				var pos2 = szText.indexOf(endArticle, pos1);
 				if(pos2 == -1) {
 					return null;
 				}
+				pos2 = pos2 + endArticle.length;
 				szText = szText.substr(pos1, pos2-pos1);
 				var tags = getTagIndexes(szText, szTag, true);
 				var iLevel = 0;
@@ -496,24 +456,6 @@
 					}
 				}
 				return null;
-			}
-
-			// if the tag in argument is found, a {from, to} object will be returned.
-			function getTagBeforeStartCursor(szTag, bWithAttr) {
-				var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
-				var startPos = editor.getCursor(true);
-				var szLineStText = editor.getLine(startPos.line);
-				var szBeforeText = szLineStText.substr(0, startPos.ch);
-				var pos1 = szBeforeText.lastIndexOf(startTag);
-				if(pos1 == -1) {
-					return null;
-				}
-				szBeforeText = szBeforeText.substr(pos1);
-				var pos2 = szBeforeText.indexOf('>');
-				if(pos2 != szBeforeText.length - 1) {
-					return null;
-				}
-				return {from: {line:startPos.line, ch:pos1}, to: {line:startPos.line, ch:pos1+pos2+1}};
 			}
 
 			// get some information of the outside or inside tag of the selection (depends on bOutside)
@@ -588,12 +530,6 @@
 					}
 					vSel = vTemp;
 				}
-			}
-
-			// check if the selection is between the passed tag in parameter
-			function selectionIsBetweenTag(szTag) {
-				var vTagInfo = getSelectionTag(true);
-				return vTagInfo && vTagInfo.name == szTag;
 			}
 
 			// Allow to clean the selection when it begins or finishes in a tag
@@ -809,34 +745,13 @@
 					return;
 				}
 				else {
-					var bFind = false;
-					var vTagInfo;
-
-					cleanSelection();
-					minimizeSelection();
-
-					vTagInfo = getSelectionTag(true);
-					while(vTagInfo != null) {
-						if(vTagInfo.name == tool) {
-							newSelection = editor.getSelection();
-							editor.setSelection(vTagInfo.start.from, vTagInfo.end.to);
-							bFind = true;
-							break;
-						}
+					var vTagInfo = searchInformationOnTagSelection(tool);
+					if(vTagInfo) {
+						newSelection = editor.getSelection();
 						editor.setSelection(vTagInfo.start.from, vTagInfo.end.to);
-						vTagInfo = getSelectionTag(true);
-					}
-
-					if(!bFind) {
-						minimizeSelection();
-						cleanSelection();
-						if(selectionIsBetweenTag(tool)){
-							newSelection = editor.getSelection();
-							goSelectionTag(true);
-						} else {
-							newSelection = "<"+tool+">"+editor.getSelection()+"</"+tool+">";
-							endTagLength = tool.length+3;
-						}
+					} else {
+						newSelection = "<"+tool+">"+editor.getSelection()+"</"+tool+">";
+						endTagLength = tool.length+3;
 					}
 					bGoInto = true;
 				}
@@ -853,8 +768,6 @@
 			$('#colorpicker').ColorPicker({
 				color: '#000000',
 				onChange: function (hsb, hex, rgb) {
-					goIntoTag("span", true);//only if possible
-					cleanSelection();
 					var bAddColor = setStyleAttribute("color", "#"+hex);
 					if(!bAddColor) {
 						var newSelection = "<span style='color:#"+hex+";'>"+editor.getSelection()+"</span>";
