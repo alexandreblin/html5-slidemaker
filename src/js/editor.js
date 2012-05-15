@@ -67,9 +67,12 @@
 
 				updateShowFullscreenLink();
 
-				var slide = getSlideInfo(selectedSlide);
-				var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch}, "local");
-				editor.scrollTo(coord.x, coord.y);
+				// scroll the editor to the right slide if we're not focused in the editor
+				if (!editorHasFocus) {
+					var slide = getSlideInfo(selectedSlide);
+					var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch}, "local");
+					editor.scrollTo(coord.x, coord.y);
+				}
 			});
 
 			$('#preview > iframe').load(function (){
@@ -83,6 +86,7 @@
 				splitSize = $(document).width() / 2;
 			}
 
+			var editorHasFocus = false;
 			var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
 				mode: 'text/html',
 				//closeTagEnabled: false, // Set this option to disable tag closing behavior without having to remove the key bindings.
@@ -112,6 +116,12 @@
 					if(selectedSlide != -1 && previewFrame.contentWindow.curSlide != selectedSlide) {
 						previewFrame.contentWindow.gotoSlide(selectedSlide);
 					}
+				},
+				onFocus: function() {
+					editorHasFocus = true;
+				},
+				onBlur: function() {
+					editorHasFocus = false;
 				}
 			});
 
