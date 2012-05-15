@@ -21,8 +21,15 @@
 		return null;
 	}
 
+	var initialized = false;
+
 	$(document).ready(function(){
 		now.ready(function() {
+			// prevent doing the initialization more than once
+			// (this function is called every time we (re)connect to nowjs)
+			if (initialized) return;
+			initialized = true;
+
 			var delay;
 			var previewFrame = $('#preview > iframe')[0];
 			var splitSize = readCookie('splitsize');
