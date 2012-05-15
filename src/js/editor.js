@@ -48,7 +48,7 @@
 			}
 
             for(var t in fontList){
-                $('#fontlist').append($('<li><a href="javascript:void(0)" data-tool="font" data-font="'+t+'">'+fontList[t]+'</a></li>'));
+                $('#fontlist').append($('<li><a href="javascript:void(0)" data-tool="font" data-font="'+t+'" style="font-family:'+t+'">'+fontList[t]+'</a></li>'));
             }
 
             $('#currentFont').html(fontList[currentFont]);
