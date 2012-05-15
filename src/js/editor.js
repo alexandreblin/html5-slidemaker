@@ -854,19 +854,12 @@
 				color: '#000000',
 				onChange: function (hsb, hex, rgb) {
 					goIntoTag("span", true);//only if possible
-					//getSelectionTag(false);
 					cleanSelection();
 					var bAddColor = setStyleAttribute("color", "#"+hex);
 					if(!bAddColor) {
 						var newSelection = "<span style='color:#"+hex+";'>"+editor.getSelection()+"</span>";
 						editor.replaceSelection(newSelection);
 					}
-					/*if(canChangeCurrentColor()) {
-						changeCurrentColor("#"+hex);
-					} else {
-						var newSelection = "<span style='color:#"+hex+";'>"+editor.getSelection()+"</span>";
-						editor.replaceSelection(newSelection);
-					}*/
 					$('#colorpicker').css({'background-color': '#' + hex});
 				}
 			});
