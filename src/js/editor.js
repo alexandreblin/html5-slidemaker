@@ -337,6 +337,8 @@
 				return result;
 			}
 
+			//permit to add a style attribute with the value in parameter
+			//It will replace the attribute in the right place if function finds the attribute
 			function setStyleAttribute(attr, newValue) {
 				cleanSelection();
 				goSelectionTag(true);
@@ -388,6 +390,7 @@
 				return false;
 			}
 
+			//can search tag name or a attribute of style attribute in all framing tags
 			function searchInformationOnTagSelection(tagName, styleAttr) {
 				cleanSelection();
 				minimizeSelection();
@@ -744,11 +747,14 @@
 					}
 				}else if(tool == "font"){
                     if(currentFont != null){
-                        newSelection = "<span style='font-family:"+currentFont+";'>"+editor.getSelection()+"</span>";
+						var bAddFont= setStyleAttribute("font-family", currentFont);
+						if(!bAddFont) {
+							newSelection = "<span style='font-family:"+currentFont+";'>"+editor.getSelection()+"</span>";
+							editor.replaceSelection(newSelection);
+						}
+						editor.focus();
                     }
-                    else{
-                        return;
-                    }
+					return;
                 }
                 else if (tool == "save") {
 					/*if(fileName != ""){
@@ -790,8 +796,6 @@
 					}
 					bGoInto = true;
 				}
-
-				var hadSomethingSelected = editor.somethingSelected();
 				editor.replaceSelection(newSelection);
 				if(bGoInto) {
 					minimizeSelection();
