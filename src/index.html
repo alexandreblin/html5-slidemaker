@@ -55,6 +55,12 @@
       <button class="btn" data-tool="del" title="Strikethrough"><i class="icon-16x16"></i></button>
     </div>
 
+      <div class="btn-group">
+          <button class="btn" data-tool="font"><i class="icon-16x16"></i> <span id="currentFont"> </span></button>
+          <button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+          <ul class="dropdown-menu" id="fontlist"></ul>
+      </div>
+
     <button id="colorpicker" title="Text color"></button>
 
     <div class="btn-group">
@@ -97,6 +103,7 @@
   <script src="/js/bootstrap.js"></script>
 
   <script src="/js/template.js"></script>
+  <script src="/js/font.js"></script>
   <script src="/js/editor.js"></script>
 </body>
 </html>

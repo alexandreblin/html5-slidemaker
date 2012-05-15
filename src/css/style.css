@@ -172,3 +172,7 @@ body {
 #toolbar a#fullscreen > i {
 	background-image: url(../img/slideshow.png);
 }
+
+#toolbar button[data-tool='font'] > i {
+    background-image: url(../img/text-font.png);
+}

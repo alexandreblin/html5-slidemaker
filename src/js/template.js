@@ -44,7 +44,7 @@ var slideTemplate = {
     },
     't10':{
         title:"Image filling the slide",
-        code:"\n\n<article class='fill'>\n\t<h3>\n\t\t\n\t</h3>\n\t<p>\n\t\t<img src='images/flower.jpg'>\n\t</p>\n</article>"
+        code:"\n\n<article class='fill'>\n\t<h3>\n\t\t\n\t</h3>\n\t<p>\n\t\t<img src=''>\n\t</p>\n</article>"
     },
     't11':{
         title:"Code",
