@@ -99,10 +99,13 @@ function execCommand(command, args, options, stdin, successCallback, errorCallba
 	});
 
 	process.on('exit', function (code) {
-		if (stderr != '' && errorCallback) {
-			errorCallback(stderr);
+		if (code > 0 && errorCallback) {
+			errorCallback(stderr, code);
 		}
 		else if (successCallback) {
+			if (stderr != '') {
+				logger.warn(stderr);
+			}
 			successCallback(stdout);
 		}
 	});
@@ -245,8 +248,14 @@ function saveSlideshow(slideshow, data, successCallback) {
 							successCallback(slideshow);
 						},
 						// failure
-						function(stderr) {
-							logger.error('Error while retrieving file from git\n' + stderr);
+						function(stderr, code) {
+							if (code == 1) {
+								// exit code 1 = nothing to commit
+								logger.debug('Not saving slideshow because there is no changes');
+							}
+							else {
+								logger.error('Error while saving file to git\n' + stderr);
+							}
 						}
 					);
 				},

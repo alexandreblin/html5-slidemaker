@@ -21,8 +21,15 @@
 		return null;
 	}
 
+	var initialized = false;
+
 	$(document).ready(function(){
 		now.ready(function() {
+			// prevent doing the initialization more than once
+			// (this function is called every time we (re)connect to nowjs)
+			if (initialized) return;
+			initialized = true;
+
 			var delay;
 			var previewFrame = $('#preview > iframe')[0];
 			var splitSize = readCookie('splitsize');
@@ -30,6 +37,7 @@
 			var delFileButton = $("#removeFile");
 			var totalSlides;
 			var selectedSlide;
+            var currentFont = 'Arial';
 
 			var fileName = "";
 			var isFileModified = false;
@@ -38,6 +46,17 @@
 			for(var t in slideTemplate){
 				$('#templates').append($('<li><a href="javascript:void(0)" data-tool="add" data-template="'+t+'">'+slideTemplate[t].title+'</a></li>'));
 			}
+
+            for(var t in fontList){
+                $('#fontlist').append($('<li><a href="javascript:void(0)" data-tool="font" data-font="'+t+'" style="font-family:'+t+'">'+fontList[t]+'</a></li>'));
+            }
+
+            $('#currentFont').html(fontList[currentFont]);
+
+            $("#fontlist a").click(function(){
+                currentFont = $(this).data('font');
+                $('#currentFont').html(fontList[currentFont]);
+            });
 
 			function updateShowFullscreenLink() {
 				if (slideshowID) {
@@ -66,6 +85,13 @@
 				}
 
 				updateShowFullscreenLink();
+
+				// scroll the editor to the right slide if we're not focused in the editor
+				if (!editorHasFocus) {
+					var slide = getSlideInfo(selectedSlide);
+					var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch}, "local");
+					editor.scrollTo(coord.x, coord.y);
+				}
 			});
 
 			$('#preview > iframe').load(function (){
@@ -79,6 +105,7 @@
 				splitSize = $(document).width() / 2;
 			}
 
+			var editorHasFocus = false;
 			var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
 				mode: 'text/html',
 				//closeTagEnabled: false, // Set this option to disable tag closing behavior without having to remove the key bindings.
@@ -108,6 +135,12 @@
 					if(selectedSlide != -1 && previewFrame.contentWindow.curSlide != selectedSlide) {
 						previewFrame.contentWindow.gotoSlide(selectedSlide);
 					}
+				},
+				onFocus: function() {
+					editorHasFocus = true;
+				},
+				onBlur: function() {
+					editorHasFocus = false;
 				}
 			});
 
@@ -709,7 +742,15 @@
 
 
 					}
-				}else if (tool == "save") {
+				}else if(tool == "font"){
+                    if(currentFont != null){
+                        newSelection = "<span style='font-family:"+currentFont+";'>"+editor.getSelection()+"</span>";
+                    }
+                    else{
+                        return;
+                    }
+                }
+                else if (tool == "save") {
 					/*if(fileName != ""){
 						saveFile(fileName);
 					}else{
@@ -728,19 +769,13 @@
 				}
 				else if(tool == "prev") {
 					if(selectedSlide > 0){
-						var slide = getSlideInfo(selectedSlide-1);
 						previewFrame.contentWindow.prevSlide();
-						var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
-						editor.scrollTo(coord.x, coord.y);
 					}
 					return;
 				}
 				else if(tool == "next") {
 					if(selectedSlide < totalSlides-1){
-						var slide = getSlideInfo(selectedSlide+1);
 						previewFrame.contentWindow.nextSlide();
-						var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch},"local");
-						editor.scrollTo(coord.x, coord.y);
 					}
 					return;
 				}
