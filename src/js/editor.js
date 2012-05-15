@@ -760,7 +760,7 @@
 					}
 				}else if(tool == "font"){
                     if(currentFont != null){
-                        newSelection = "<span style='font-family:"+currentFont+";'>"+editor.getSelection()+"</span>";
+                        newSelection = "<span style=\"font-family:'"+currentFont+"';\">"+editor.getSelection()+"</span>";
                     }
                     else{
                         return;
