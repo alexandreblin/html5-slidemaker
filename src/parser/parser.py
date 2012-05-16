@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import lxml.html as html
 import argparse
@@ -21,9 +22,9 @@ if __name__ == '__main__':
 			a1[str.rindex("\"")] = " "
 			str = a1.tostring()
 			
-		doc = html.document_fromstring(str)
+		doc = html.document_fromstring(str.decode('utf8'))
     else:
-        doc = html.parse(args.input)
+        doc = html.document_fromstring(open(args.input, 'r').read().decode('utf8'))
     
     templateName = 'html5slides'
     
