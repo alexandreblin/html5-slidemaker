@@ -68,9 +68,50 @@
         -moz-box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.5);
         box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.5);
     }
+
+	.slides > article.special.far-past {
+		display: block;
+		transform:rotate(-90deg) translate(-1020px, -600px);
+		-moz-transform:rotate(-90deg) translate(-1020px, -600px); /* Firefox 4 */
+		-webkit-transform:rotate(-90deg) translate(-1020px, -600px); /* Safari and Chrome */
+		-o-transform:rotate(-90deg) translate(-1020px, -600px); /* Opera */
+	}
+	.slides > article.special.past {
+		display: block;
+		transition:width 0.5s, height 0.5s;
+		-moz-transition:width 0.5s, height 0.5s, -moz-transform 0.5s; /* Firefox 4 */
+		-webkit-transition:width 0.5s, height 0.5s, -webkit-transform 0.5s; /* Safari and Chrome */
+		-o-transition:width 0.5s, height 0.5s, -o-transform 0.5s; /* Opera */
+		transform:rotate(-90deg) translate(-1020px, -600px);
+		-moz-transform:rotate(-90deg) translate(-1020px, -600px); /* Firefox 4 */
+		-webkit-transform:rotate(-90deg) translate(-1020px, -600px); /* Safari and Chrome */
+		-o-transform:rotate(-90deg) translate(-1020px, -600px); /* Opera */
+	}
+	.slides > article.special.current {
+		display: block;
+		transform: translate(0);
+		-o-transform: translate(0);
+		-moz-transform: translate(0);
+		-webkit-transform: translate3d(0, 0, 0);
+	}
+	.slides > article.special.next {
+		display: block;
+		transform: translate(1020px);
+		-moz-transform: translate(1020px); /* Firefox 4 */
+		-webkit-transform: translate3d(1020px, 0, 0); /* Safari and Chrome */
+		-o-transform: translate(1020px); /* Opera */
+	}
+	.slides > article.special.far-next {
+		display: block;
+		transform: translate(2040px);
+		-moz-transform: translate(2040px); /* Firefox 4 */
+		-webkit-transform: translate3d(2040px, 0, 0); /* Safari and Chrome */
+		-o-transform: translate(2040px); /* Opera */
+	}
+
   </style>
 
-  <body style="display: none">
+  <body style="display: none; overflow-y:hidden;">
 
     <section class="slides layout-regular template-default">
       
