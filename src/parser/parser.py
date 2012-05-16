@@ -28,18 +28,13 @@ if __name__ == '__main__':
     templateName = 'html5slides'
     
     mainTemplate = open(os.path.join(os.path.dirname(__file__), 'templates', templateName, 'main.html')).read()
-    slideTemplate = open(os.path.join(os.path.dirname(__file__), 'templates', templateName, 'slide.html')).read()
     
     mainTemplate = mainTemplate.replace('<!-- {{TITLE}} -->', args.title)
     
     allSlides = ''
     
     for slide in doc.xpath('/html/body/article'):
-        slideHTML = ''
-        for element in slide.xpath('*'):
-            slideHTML += html.tostring(element)
-        
-        allSlides += slideTemplate.replace('<!-- {{CONTENT}} -->', slideHTML)
+        allSlides += html.tostring(slide)
     
     print mainTemplate.replace('<!-- {{SLIDES}} -->', allSlides)
     
