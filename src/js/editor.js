@@ -804,19 +804,27 @@
 				editor.focus();
 			});
 
-			$('#colorpicker').ColorPicker({
-				color: '#000000',
+			var currentColor = '000000';
+			function changeSelectionColor(color) {
+				var bAddColor = setStyleAttribute("color", "#"+color);
+				if(!bAddColor) {
+					var newSelection = "<span style='color:#"+color+";'>"+editor.getSelection()+"</span>";
+					editor.replaceSelection(newSelection);
+				}
+				$('#colorindicator').css({'background-color': '#' + color});
+				currentColor = color;
+			}
+
+			$('#colorpickertool > .dropdown-toggle').ColorPicker({
+				color: '#' + currentColor,
 				onChange: function (hsb, hex, rgb) {
-					var bAddColor = setStyleAttribute("color", "#"+hex);
-					if(!bAddColor) {
-						var newSelection = "<span style='color:#"+hex+";'>"+editor.getSelection()+"</span>";
-						editor.replaceSelection(newSelection);
-					}
-					$('#colorpicker').css({'background-color': '#' + hex});
+					changeSelectionColor(hex);
 				}
 			});
 
-
+			$('#colorpickertool > button:first').click(function() {
+				changeSelectionColor(currentColor);
+			});
 
 			function updatePreview() {
 				now.transform(editor.getValue(), function(previewHTML) {
