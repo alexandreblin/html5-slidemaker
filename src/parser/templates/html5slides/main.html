@@ -18,7 +18,29 @@
     <title><!-- {{TITLE}} --></title>
 
     <meta charset="utf-8">
-    <script src="/lib/slides.js"></script>
+	<script src="/lib/jquery-1.7.2.min.js"></script>
+	<script src="/nowjs/now.js"></script>
+	<script src="/lib/slides.js"></script>
+	<script>
+		$(document).ready(function(){
+			
+			if(parent !== window){
+
+				initNow = function(obj){
+					now = obj;
+				}
+				
+				parent.$(parent.document).trigger('initNow', [initNow]);
+			
+			}
+			
+			now.ready(function() {
+				now.goTo = function(slide){
+					gotoSlide(slide);
+				}
+			});
+		});
+	</script>
   </head>
   
   <style>

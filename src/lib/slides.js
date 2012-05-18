@@ -172,6 +172,7 @@ function gotoSlide(no) {
     if ((no >= 0) && (no < slideEls.length)) {
         curSlide = no;
         updateSlides();
+		//for slideshow	
     }
 }
 
@@ -238,6 +239,9 @@ function prevSlide() {
         curSlide--;
 
         updateSlides();
+		//for slideshow
+		now.changeSlide(curSlide, now.room);
+	
     }
 };
 
@@ -250,6 +254,9 @@ function nextSlide() {
         curSlide++;
 
         updateSlides();
+		//for slideshow
+		now.changeSlide(curSlide, now.room);
+	
     }
 };
 

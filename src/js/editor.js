@@ -57,10 +57,20 @@
                 currentFont = $(this).data('font');
                 $('#currentFont').html(fontList[currentFont]);
             });
+			
+			$("#createRoom").click(function(){
+				if(slideshowID){
+					now.createRoom(slideshowID, function(roomId){
+						//alert('room URL : ' + '/' + roomId + '/showRoom');
+						$(location).attr('href', '/' + roomId + '/showRoom' + window.location.hash);
+					});
+				}
+			});
 
 			function updateShowFullscreenLink() {
 				if (slideshowID) {
 					$('#fullscreen').removeClass('hidden');
+					$('#fullscreenDropdown').removeClass('hidden');fullscreenDropdown
 					$('#fullscreen').attr('href', '/' + slideshowID + '/show' + window.location.hash);
 				}
 			}
@@ -772,6 +782,12 @@
 					//saveAsFile();
 				}else if (tool == "rmFile") {
 					//removeFile(fileName);
+				}else if (tool == "createRoom"){
+					if(slideshowID){
+						now.createRoom(slideshowID, function(roomId){
+							alert('roomId : ' + roomId);
+						});
+					}
 				}
 				else if(tool == "prev") {
 					if(selectedSlide > 0){
@@ -850,10 +866,16 @@
 						// updateHash is broken in firefox when put in an iframe with no src
 						js = js.replace('oldUpdateHash();', '');
 					}
-
+					
 					previewHTML = previewHTML.replace('</head>', js + '</head>');
-
+					previewHTML = previewHTML.replace('<script src="/nowjs/now.js"></script>', '');
+					
+					$(document).bind('initNow', function(e, param1) {
+						param1(now);
+					});
+					
 					content.write(previewHTML);
+					//previewFrame.contentWindow.setNowJs(now);
 
 					content.close();
 				});
