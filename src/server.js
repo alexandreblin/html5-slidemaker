@@ -150,6 +150,11 @@ app.get('/:id?', function(req, res, next){
 	if (req.params.id) {
 		var id = req.params.id;
 
+		if (id == 'favicon.ico') {
+			next();
+			return;
+		}
+
 		var repo = 'slideshows/' + req.params.id;
 
 		if (!path.existsSync(repo)) {
@@ -184,6 +189,11 @@ app.get('/:id?', function(req, res, next){
 
 app.get('/:id/show/:rev?', function(req, res, next) {
 	var repo = 'slideshows/' + req.params.id;
+
+	if (id == 'favicon.ico') {
+		next();
+		return;
+	}
 
 	if (!path.existsSync(repo)) {
 		next(new Error('Can\'t find slideshow with id ' + req.params.id));
