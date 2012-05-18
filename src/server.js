@@ -190,7 +190,7 @@ app.get('/:id?', function(req, res, next){
 app.get('/:id/show/:rev?', function(req, res, next) {
 	var repo = 'slideshows/' + req.params.id;
 
-	if (id == 'favicon.ico') {
+	if (req.params.id == 'favicon.ico') {
 		next();
 		return;
 	}
