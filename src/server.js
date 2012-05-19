@@ -174,14 +174,19 @@ app.configure(function(){
   
 });
 
+app.all('/:id', function (req, res, next) {
+	// ignore requests for /favicon.ico because they're misinterpreted for a slideshow ID
+	if (req.params.id == 'favicon.ico') {
+		res.send(404);
+	}
+	else {
+		next();
+	}
+});
+
 app.get('/:id?', function(req, res, next){
 	if (req.params.id) {
 		var id = req.params.id;
-
-		if (id == 'favicon.ico') {
-			next();
-			return;
-		}
 
 		var repo = 'slideshows/' + req.params.id;
 
@@ -226,11 +231,6 @@ app.get('/:id/showRoom/:rev?', function(req, res, next) {
 
 function slideShow(req, res, next, isRoomId){
 	var slideShowId;
-
-	if (req.params.id == 'favicon.ico') {
-		next();
-		return;
-	}
 
 	if(isRoomId){
 		if(roomInfos[req.params.id] !== undefined){
