@@ -97,14 +97,6 @@ body {
 	width: auto;
 }
 
-#toolbar #colorpicker {
-	display: inline-block;
-	height: 24px;
-	width: 24px;
-	border: 0;
-	background: url(../img/colorpicker.png) center no-repeat, black;
-}
-
 .colorpicker input {
 	width: auto;
 	line-height: normal;
@@ -175,4 +167,20 @@ body {
 
 #toolbar button[data-tool='font'] > i {
     background-image: url(../img/text-font.png);
+}
+
+#colorpickertool > button > i {
+    background-image: url(../img/edit-color.png);
+    position: relative; /* need this to precisely position the color indicator */
+}
+
+#colorpickertool #colorindicator {
+	display: block;
+	background-color: black;
+	
+	position: absolute;
+	left: 0;
+	top: 13px;
+	width: 16px;
+	height: 3px;
 }

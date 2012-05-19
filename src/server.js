@@ -4,10 +4,32 @@ var spawn = require('child_process').spawn;
 var path = require('path');
 var fs = require('fs');
 var logger = require('./lib/logger');
+var sessionStore = new express.session.MemoryStore();
 
 var child;
 
 var port = 8080;
+var cookieMaxAge = 60*60*1000;
+
+var roomInfos = {};
+var roomManaged = {};
+
+function addManagedRoomToUser(sessionSID, roomId, slideShowId){
+	if(roomManaged[sessionSID] == undefined) roomManaged[sessionSID] = {};
+	roomManaged[sessionSID][roomId] = slideShowId;
+	roomInfos[roomId] = {sessionSID : sessionSID, slideShowId : slideShowId};
+	logger.debug("#addManagedRoomToUser# Management of the room : " + roomId + " added to user : " + roomInfos[roomId].sessionSID + " and slideShowId : " + roomInfos[roomId].slideShowId);
+}
+
+function generateUniqueRoomId(newRoomId){
+	if(newRoomId == undefined) newRoomId = randomString(8);
+	if (nowjs.groups[newRoomId] == undefined){
+		return newRoomId;
+	}else{
+		logger.debug("room : " + newRoomId + " already exists!");
+		return generateUniqueRoomId(randomString(8));	
+	}
+}
 
 function randomString(len) {
     var charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -135,20 +157,31 @@ function parse(input, callback) {
 var app = express.createServer();
 
 app.configure(function(){
-  app.use('/lib', express.static(__dirname + '/lib'));
-  app.use('/js', express.static(__dirname + '/js'));
-  app.use('/img', express.static(__dirname + '/img'));
-  app.use('/css', express.static(__dirname + '/css'));
+	app.use('/lib', express.static(__dirname + '/lib'));
+	app.use('/js', express.static(__dirname + '/js'));
+	app.use('/img', express.static(__dirname + '/img'));
+	app.use('/css', express.static(__dirname + '/css'));
 
-  app.set('views', __dirname);
-  app.set('view engine', 'ejs');
-  app.set('view options', {layout: false});
-  app.register('.html', require('ejs'));
+	app.set('views', __dirname);
+	app.set('view engine', 'ejs');
+	app.set('view options', {layout: false});
+	app.register('.html', require('ejs'));
+
+	app.use(express.cookieParser());
+	app.use(express.session({ secret: "secret", store: sessionStore, cookie: {
+      maxAge: cookieMaxAge
+    } }));
+  
 });
 
 app.get('/:id?', function(req, res, next){
 	if (req.params.id) {
 		var id = req.params.id;
+
+		if (id == 'favicon.ico') {
+			next();
+			return;
+		}
 
 		var repo = 'slideshows/' + req.params.id;
 
@@ -166,6 +199,7 @@ app.get('/:id?', function(req, res, next){
 					id: id,
 					input: htmlspecialchars(stdout)
 				});
+
 			},
 			// failure
 			function(stderr) {
@@ -183,10 +217,35 @@ app.get('/:id?', function(req, res, next){
 });
 
 app.get('/:id/show/:rev?', function(req, res, next) {
-	var repo = 'slideshows/' + req.params.id;
+	slideShow(req, res,next, false);
+});
+
+app.get('/:id/showRoom/:rev?', function(req, res, next) {
+	slideShow(req, res,next, true);
+});
+
+function slideShow(req, res, next, isRoomId){
+	var slideShowId;
+
+	if (req.params.id == 'favicon.ico') {
+		next();
+		return;
+	}
+
+	if(isRoomId){
+		if(roomInfos[req.params.id] !== undefined){
+			slideShowId = roomInfos[req.params.id].slideShowId;
+		}else{
+			next(new Error("Incorrect room number !"));
+			return;
+		}
+	}else{
+		slideShowId = req.params.id;
+	}
+	var repo = 'slideshows/' + slideShowId;
 
 	if (!path.existsSync(repo)) {
-		next(new Error('Can\'t find slideshow with id ' + req.params.id));
+		next(new Error('Can\'t find slideshow with id ' + slideShowId));
 	}
 
 	var rev = 'HEAD';
@@ -199,6 +258,12 @@ app.get('/:id/show/:rev?', function(req, res, next) {
 		function(stdout) {
 			parse(stdout, function(html) {
 				res.send(html);
+				
+				//Add the user to the room
+				if(isRoomId){
+					req.session.roomIdToJoin = req.params.id;
+				}
+
 			});
 		},
 		// failure
@@ -207,7 +272,7 @@ app.get('/:id/show/:rev?', function(req, res, next) {
 			next(new Error(stderr));
 		}
 	);
-});
+}
 
 app.listen(port);
 
@@ -219,12 +284,76 @@ logger.info('Application started on port ' + port);
 
 // called when a client joins
 nowjs.on('connect', function(){
-	logger.info(this.socket.handshake.address.address + ' connected');
+	var self = this;
+	logger.info('#on.connect# ' + this.socket.handshake.address.address + ' connected');
+	var sid = unescape( this.user.cookie['connect.sid'] );
+	logger.debug('#on.connect# SID : ' + sid);
+	
+	if(roomManaged[this.user.cookie['connect.sid']['#timer#']] !== undefined){
+		logger.debug('#on.connect# : Timer removed for this SID');
+		clearInterval(roomManaged[this.user.cookie['connect.sid']['#timer#']]);
+	}else{
+		logger.debug('#on.connect# : No timer found for this SID');
+	}
+	
+	sessionStore.get( sid, function( err, session ) {
+		if(err) logger.error('#on.connect# err : ' + err);
+		if (session) {
+		
+			if(session.roomIdToJoin){
+				self.now.room = session.roomIdToJoin;
+				session.roomIdToJoin = undefined;
+				nowjs.getGroup(self.now.room).addUser(self.user.clientId);
+				logger.debug('#on.connect# sessionSID : ' + self.user.cookie['connect.sid'] + ' added to the room : ' + self.now.room);
+			}
+		}else{
+			logger.debug('#on.connect# No session found');
+		}
+	});
+	
+
 });
 
 // called when a client leaves
 nowjs.on('disconnect', function(){
-	logger.info(this.socket.handshake.address.address + ' disconnected');
+	logger.info('#on.disconnect# ' + this.socket.handshake.address.address + ' disconnected');
+	
+	var self = this;
+	nowjs.getGroups(function(groups) {
+		for ( i=0 ; i < groups.length; i++ ) {
+			var grp = nowjs.getGroup(groups[i]);
+			grp.removeUser(self.user.clientId);
+			grp.count(function(count){
+				if(count == 0){
+					if(grp.groupName != 'everyone'){
+						nowjs.removeGroup(grp.groupName);
+						logger.debug('#on.disconnect# Room : ' + grp.groupName + " removed");
+					}
+				}
+			});
+		}
+	});
+		
+	if(roomManaged[self.user.cookie['connect.sid']] !== undefined){
+		logger.debug("#on.disconnect# Interval launched for SID : " + self.user.cookie['connect.sid']);
+		roomManaged[self.user.cookie['connect.sid']['#timer#']] = setInterval(function(){ 
+			
+			for(roomId in roomManaged[self.user.cookie['connect.sid']]){
+				logger.debug("#on.disconnect# remove roomId : " + roomId);
+				delete roomInfos[roomId];
+				logger.debug("#on.disconnect# roomInfos cleened at " + roomId + " position. Object = "  + roomInfos[roomId]);
+			}
+			
+			delete roomManaged[self.user.cookie['connect.sid']];
+			logger.debug("#on.disconnect# roomManaged cleened at " + self.user.cookie['connect.sid'] + " position. Object = "  + roomManaged[self.user.cookie['connect.sid']]);
+			
+			clearInterval(this);
+			
+		}, cookieMaxAge);
+	}else{
+		logger.debug("#on.disconnect# No managed room found for this SID");
+	}
+
 });
 
 everyone.now.transform = function(str, callback) {
@@ -295,4 +424,30 @@ everyone.now.save = function(slideshow, data, successCallback) {
 	else {
 		saveSlideshow(slideshow, data, successCallback);
 	} 
+}
+
+everyone.now.getSlideshowList = function(callback) {
+	callback(roomInfos);
+};
+
+everyone.now.changeSlide = function(slideNumber, roomId){
+
+	if(roomInfos[roomId] !== undefined){
+		if(this.user.cookie['connect.sid'] == roomInfos[roomId].sessionSID){
+			nowjs.getGroup(roomId).exclude(this.user.clientId).now.goTo(slideNumber);
+		}else{
+			logger.debug("#changeSlide# This user : " + this.user.cookie['connect.sid'] + " is not a room manager");
+		}
+	}
+};
+
+everyone.now.createRoom = function(slideshowId, callback){
+	//Create room and associate it with the manager
+	this.now.room = generateUniqueRoomId(randomString(6));
+	addManagedRoomToUser(this.user.cookie['connect.sid'], this.now.room, slideshowId);
+	logger.debug('#createRoom# clientSID : ' + this.user.cookie['connect.sid']);
+	logger.debug('#createRoom# clientId : ' + this.user.clientId);
+	logger.debug('#createRoom# slideshowId : ' + slideshowId);
+	nowjs.getGroup(this.now.room).addUser(this.user.clientId);
+	callback(this.now.room);
 }

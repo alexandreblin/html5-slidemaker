@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import lxml.html as html
 import argparse
@@ -21,25 +22,20 @@ if __name__ == '__main__':
 			a1[str.rindex("\"")] = " "
 			str = a1.tostring()
 			
-		doc = html.document_fromstring(str)
+		doc = html.document_fromstring(str.decode('utf8'))
     else:
-        doc = html.parse(args.input)
+        doc = html.document_fromstring(open(args.input, 'r').read().decode('utf8'))
     
     templateName = 'html5slides'
     
     mainTemplate = open(os.path.join(os.path.dirname(__file__), 'templates', templateName, 'main.html')).read()
-    slideTemplate = open(os.path.join(os.path.dirname(__file__), 'templates', templateName, 'slide.html')).read()
     
     mainTemplate = mainTemplate.replace('<!-- {{TITLE}} -->', args.title)
     
     allSlides = ''
     
     for slide in doc.xpath('/html/body/article'):
-        slideHTML = ''
-        for element in slide.xpath('*'):
-            slideHTML += html.tostring(element)
-        
-        allSlides += slideTemplate.replace('<!-- {{CONTENT}} -->', slideHTML)
+        allSlides += html.tostring(slide)
     
     print mainTemplate.replace('<!-- {{SLIDES}} -->', allSlides)
     
