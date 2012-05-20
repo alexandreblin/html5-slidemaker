@@ -36,7 +36,16 @@
 			
 			now.ready(function() {
 				now.goTo = function(slide){
+					console.log("'"+slide+"'");
 					gotoSlide(slide);
+				}
+				
+				now.changeSlide = function(event){
+					if(event == 'swiperight'){
+						prevSlide();
+					}else if(event == "swipeleft"){
+						nextSlide();
+					}
 				}
 			});
 		});
