@@ -15,11 +15,11 @@ var cookieMaxAge = 60*60*1000;
 var roomInfos = {};
 var roomManaged = {};
 
-function addManagedRoomToUser(sessionSID, roomId, slideShowId, slideShowVersion){
+function addManagedRoomToUser(sessionSID, roomId, slideshowId, slideshowVersion){
 	if(roomManaged[sessionSID] == undefined) roomManaged[sessionSID] = {};
-	roomManaged[sessionSID][roomId] = slideShowId;
-	roomInfos[roomId] = {sessionSID : sessionSID, slideShowId : slideShowId, slideShowVersion : slideShowVersion};
-	logger.debug("#addManagedRoomToUser# Management of the room : " + roomId + " added to user : " + roomInfos[roomId].sessionSID + " and slideShowId : " + roomInfos[roomId].slideShowId);
+	roomManaged[sessionSID][roomId] = slideshowId;
+	roomInfos[roomId] = {sessionSID : sessionSID, slideshowId : slideshowId, slideshowVersion : slideshowVersion, remoteDeviceCo : false};
+	logger.debug("#addManagedRoomToUser# Management of the room : " + roomId + " added to user : " + roomInfos[roomId].sessionSID + " and slideshowId : " + roomInfos[roomId].slideshowId);
 }
 
 function generateUniqueRoomId(newRoomId){
@@ -207,10 +207,10 @@ app.get('/:roomId/showRoom', function(req, res, next) {
 		return;
 	}
 
-	var slideShowId = room.slideShowId;
-	var version = room.slideShowVersion;
+	var slideshowId = room.slideshowId;
+	var version = room.slideshowVersion;
 
-	getSlideshowSource(slideShowId, version, function(source) {
+	getSlideshowSource(slideshowId, version, function(source) {
 		if (!source) {
 			next();
 			return;
@@ -220,16 +220,16 @@ app.get('/:roomId/showRoom', function(req, res, next) {
 			res.send(html);
 			
 			// Add the user to the room
-			req.session.roomIdToJoin = req.params.id;
+			req.session.roomIdToJoin = req.params.roomId;
 		});
 	});
 });
 
 app.get('/:id/:ver?/show', function(req, res, next) {
-	var slideShowId = req.params.id;
+	var slideshowId = req.params.id;
 	var version = req.params.ver || 1;
 
-	getSlideshowSource(slideShowId, version, function(source) {
+	getSlideshowSource(slideshowId, version, function(source) {
 		if (!source) {
 			next();
 			return;
@@ -243,9 +243,17 @@ app.get('/:id/:ver?/show', function(req, res, next) {
 });
 
 app.get('/:id/remote', function(req, res, next){
-	req.session.roomIdToJoin = req.params.id;
-	req.session.isRemote = true;
-	res.render('remote/remote.html');
+	if(roomInfos[req.params.id] !== undefined){
+		if(roomInfos[req.params.id].remoteDeviceCo){
+			next(new Error('cannot connect more than one remode device for room ' + req.params.id));
+		}else{
+			req.session.roomIdToJoin = req.params.id;
+			req.session.isRemote = true;
+			res.render('remote/remote.html');
+		}
+	}else{
+		next(new Error('cannot find room ' + req.params.id));
+	}
 });
 
 app.get('/:id?/:ver?', function(req, res, next){
@@ -305,13 +313,14 @@ nowjs.on('connect', function(){
 			if(session.roomIdToJoin){
 				self.now.room = session.roomIdToJoin;
 				
-				if(!session.isRemote){
+				if(session.isRemote){
+					logger.debug('#on.connect# Remote controll join for the room : ' + self.now.room);
+					self.now.isRemote = true;
+					roomInfos[self.now.room].remoteDeviceCo = true;
+				}else{
 					session.roomIdToJoin = undefined;
 					nowjs.getGroup(self.now.room).addUser(self.user.clientId);
 					logger.debug('#on.connect# sessionSID : ' + self.user.cookie['connect.sid'] + ' added to the room : ' + self.now.room);
-				}else{
-					logger.debug('#on.connect# Remote controll join for the room : ' + self.now.room);
-					self.now.isRemote = true;
 				}
 			}
 		}else{
@@ -341,6 +350,10 @@ nowjs.on('disconnect', function(){
 			});
 		}
 	});
+	
+	if(this.now.isRemote){
+		roomInfos[this.now.room].remoteDeviceCo = false;
+	}
 		
 	if(roomManaged[self.user.cookie['connect.sid']] !== undefined){
 		logger.debug("#on.disconnect# Interval launched for SID : " + self.user.cookie['connect.sid']);
@@ -413,7 +426,6 @@ everyone.now.changeSlide = function(slideNumber, roomId, event){
 			
 		}else{
 			if(slideNumber != undefined){
-				logger.debug("#changeSlide# slide=" + slideNumber + '.');
 				nowjs.getGroup(roomId).now.goTo(slideNumber);
 			}else{
 				nowjs.getGroup(roomId).now.changeSlide(event);
