@@ -497,7 +497,8 @@ function getCurSlideFromHash() {
 };
 
 function updateHash() {
-    location.replace('#' + (curSlide + 1));
+	var slide = parseInt(curSlide) + 1;
+    location.replace('#' + slide);
 };
 
 

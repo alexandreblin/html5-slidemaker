@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+        </title>
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
+        <link rel="stylesheet" href="/css/remote.css" />
+        <style>
+            /* App custom styles */
+			.ui-touch-area {
+				background-color:#424242;
+				height:70%;
+				-webkit-border-radius: 10px;
+				border-radius: 10px;
+    
+			}
+			
+			.ui-content{
+				height:100%;
+			}
+			
+			.main-page{
+				height:100%;
+			}
+			
+			#textinput1{
+				width:50%;
+			}
+        </style>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js">
+        </script>
+        <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js">
+        </script>
+		<script src="/nowjs/now.js"></script>
+    </head>
+    <body>
+        <div class="main-page" data-role="page" id="page1">
+            <div data-theme="a" data-role="header">
+                <h3>
+                    Remote
+                </h3>
+            </div>
+            <div class="ui-content" data-role="content">
+				<div id="touch-area" class="ui-touch-area"></div>
+                <div class="ui-grid-b">
+                    <div class="ui-block-a">
+                        <div>
+                            <label for="textinput1">Go to slide : </label>
+                        </div>
+                    </div>
+                    <div class="ui-block-b">
+                        <div data-role="fieldcontain">
+                            <fieldset data-role="controlgroup" data-mini="true">
+                                <input id="textinput1" placeholder="" value="" type="number" />
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="ui-block-c">
+                        <a id="btnGo" data-role="button" data-transition="fade">
+                            Go
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            //App custom javascript
+			$('#touch-area').live('swipeleft swiperight',function(event){
+				now.ready(function(){
+					console.log(event.type);
+					now.changeSlide(undefined, now.room, event.type);
+				});
+			});
+			
+			$( "#btnGo" ).bind( "click", function(event, ui) {
+				now.ready(function(){
+					now.changeSlide(parseInt($('#textinput1').val()-1), now.room, event.type);
+				});
+			});
+        </script>
+    </body>
+</html>

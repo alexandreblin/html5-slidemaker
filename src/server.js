@@ -229,6 +229,12 @@ app.get('/:id/showRoom/:rev?', function(req, res, next) {
 	slideShow(req, res,next, true);
 });
 
+app.get('/:id/remote', function(req, res, next){
+	req.session.roomIdToJoin = req.params.id;
+	req.session.isRemote = true;
+	res.render('remote/remote.html');
+});
+
 function slideShow(req, res, next, isRoomId){
 	var slideShowId;
 
@@ -302,9 +308,15 @@ nowjs.on('connect', function(){
 		
 			if(session.roomIdToJoin){
 				self.now.room = session.roomIdToJoin;
-				session.roomIdToJoin = undefined;
-				nowjs.getGroup(self.now.room).addUser(self.user.clientId);
-				logger.debug('#on.connect# sessionSID : ' + self.user.cookie['connect.sid'] + ' added to the room : ' + self.now.room);
+				
+				if(!session.isRemote){
+					session.roomIdToJoin = undefined;
+					nowjs.getGroup(self.now.room).addUser(self.user.clientId);
+					logger.debug('#on.connect# sessionSID : ' + self.user.cookie['connect.sid'] + ' added to the room : ' + self.now.room);
+				}else{
+					logger.debug('#on.connect# Remote controll join for the room : ' + self.now.room);
+					self.now.isRemote = true;
+				}
 			}
 		}else{
 			logger.debug('#on.connect# No session found');
@@ -430,13 +442,25 @@ everyone.now.getSlideshowList = function(callback) {
 	callback(roomInfos);
 };
 
-everyone.now.changeSlide = function(slideNumber, roomId){
+everyone.now.changeSlide = function(slideNumber, roomId, event){
 
 	if(roomInfos[roomId] !== undefined){
-		if(this.user.cookie['connect.sid'] == roomInfos[roomId].sessionSID){
-			nowjs.getGroup(roomId).exclude(this.user.clientId).now.goTo(slideNumber);
+		
+		if(!this.now.isRemote){
+	
+			if(this.user.cookie['connect.sid'] == roomInfos[roomId].sessionSID){
+				nowjs.getGroup(roomId).exclude(this.user.clientId).now.goTo(slideNumber);
+			}else{
+				logger.debug("#changeSlide# This user : " + this.user.cookie['connect.sid'] + " is not a room manager");
+			}
+			
 		}else{
-			logger.debug("#changeSlide# This user : " + this.user.cookie['connect.sid'] + " is not a room manager");
+			if(slideNumber != undefined){
+				logger.debug("#changeSlide# slide=" + slideNumber + '.');
+				nowjs.getGroup(roomId).now.goTo(slideNumber);
+			}else{
+				nowjs.getGroup(roomId).now.changeSlide(event);
+			}
 		}
 	}
 };
