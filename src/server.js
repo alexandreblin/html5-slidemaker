@@ -1,9 +1,10 @@
 var express = require('express');
-var sys = require('util');
 var spawn = require('child_process').spawn;
 var path = require('path');
 var fs = require('fs');
 var logger = require('./lib/logger');
+var git = require('./lib/gitwrapper');
+
 var sessionStore = new express.session.MemoryStore();
 
 var child;
@@ -14,10 +15,10 @@ var cookieMaxAge = 60*60*1000;
 var roomInfos = {};
 var roomManaged = {};
 
-function addManagedRoomToUser(sessionSID, roomId, slideShowId){
+function addManagedRoomToUser(sessionSID, roomId, slideShowId, slideShowVersion){
 	if(roomManaged[sessionSID] == undefined) roomManaged[sessionSID] = {};
 	roomManaged[sessionSID][roomId] = slideShowId;
-	roomInfos[roomId] = {sessionSID : sessionSID, slideShowId : slideShowId};
+	roomInfos[roomId] = {sessionSID : sessionSID, slideShowId : slideShowId, slideShowVersion : slideShowVersion};
 	logger.debug("#addManagedRoomToUser# Management of the room : " + roomId + " added to user : " + roomInfos[roomId].sessionSID + " and slideShowId : " + roomInfos[roomId].slideShowId);
 }
 
@@ -153,6 +154,20 @@ function parse(input, callback) {
 	);
 }
 
+function getSlideshowSource(id, version, callback) {
+	try {
+		var repo = new git.Repository(path.join('slideshows', id));
+
+		if (repo) {
+			repo.getFile('input.html', version, callback);
+		}
+	}
+	catch (e) {
+		logger.error(e);
+		callback(null);
+	}
+}
+
 // creating web server
 var app = express.createServer();
 
@@ -184,49 +199,47 @@ app.all('/:id', function (req, res, next) {
 	}
 });
 
-app.get('/:id?', function(req, res, next){
-	if (req.params.id) {
-		var id = req.params.id;
+app.get('/:roomId/showRoom', function(req, res, next) {
+	var room = roomInfos[req.params.roomId];
+	
+	if(room === undefined) {
+		next(new Error("Incorrect room number !"));
+		return;
+	}
 
-		var repo = 'slideshows/' + req.params.id;
+	var slideShowId = room.slideShowId;
+	var version = room.slideShowVersion;
 
-		if (!path.existsSync(repo)) {
-			var error = 'Can\'t find slideshow with id ' + req.params.id;
-			logger.error(error);
-			res.send(error);
+	getSlideshowSource(slideShowId, version, function(source) {
+		if (!source) {
+			next();
 			return;
 		}
 
-		execCommand('git', ['show', 'HEAD:input.html'], {cwd: repo}, null,
-			// success
-			function(stdout) {
-				res.render('index.html', {
-					id: id,
-					input: htmlspecialchars(stdout)
-				});
-
-			},
-			// failure
-			function(stderr) {
-				logger.error('Error while retrieving file from git\n' + stderr);
-				next(new Error(stderr));
-			}
-		);
-	}
-	else {
-		res.render('index.html', {
-			id: null,
-			input: htmlspecialchars(fs.readFileSync('parser/input.html'))
+		parse(source, function(html) {
+			res.send(html);
+			
+			// Add the user to the room
+			req.session.roomIdToJoin = req.params.id;
 		});
-	}
+	});
 });
 
-app.get('/:id/show/:rev?', function(req, res, next) {
-	slideShow(req, res,next, false);
-});
+app.get('/:id/:ver?/show', function(req, res, next) {
+	var slideShowId = req.params.id;
+	var version = req.params.ver || 1;
 
-app.get('/:id/showRoom/:rev?', function(req, res, next) {
-	slideShow(req, res,next, true);
+	getSlideshowSource(slideShowId, version, function(source) {
+		if (!source) {
+			next();
+			return;
+		}
+
+		parse(source, function(html) {
+			res.send(html);
+			req.session.roomIdToJoin = req.params.id;
+		});
+	});
 });
 
 app.get('/:id/remote', function(req, res, next){
@@ -235,50 +248,33 @@ app.get('/:id/remote', function(req, res, next){
 	res.render('remote/remote.html');
 });
 
-function slideShow(req, res, next, isRoomId){
-	var slideShowId;
+app.get('/:id?/:ver?', function(req, res, next){
+	if (req.params.id) {
+		var id = req.params.id;
+		var version = req.params.ver || 1;
 
-	if(isRoomId){
-		if(roomInfos[req.params.id] !== undefined){
-			slideShowId = roomInfos[req.params.id].slideShowId;
-		}else{
-			next(new Error("Incorrect room number !"));
-			return;
-		}
-	}else{
-		slideShowId = req.params.id;
-	}
-	var repo = 'slideshows/' + slideShowId;
+		getSlideshowSource(id, version, function(source) {
+			if (!source) {
+				next()
+				return;
+			}
 
-	if (!path.existsSync(repo)) {
-		next(new Error('Can\'t find slideshow with id ' + slideShowId));
-	}
-
-	var rev = 'HEAD';
-	if (req.params.rev) {
-		rev = req.params.rev;
-	}
-
-	execCommand('git', ['show', rev + ':input.html'], {cwd: repo}, null,
-		// success
-		function(stdout) {
-			parse(stdout, function(html) {
-				res.send(html);
-				
-				//Add the user to the room
-				if(isRoomId){
-					req.session.roomIdToJoin = req.params.id;
-				}
-
+			res.render('index.html', {
+				id: id,
+				version: version,
+				input: htmlspecialchars(source)
 			});
-		},
-		// failure
-		function(stderr) {
-			logger.error('Error while retrieving file from git\n' + stderr);
-			next(new Error(stderr));
-		}
-	);
-}
+		});
+	}
+	else {
+		// render the default template if no ID is specified
+		res.render('index.html', {
+			id: null,
+			version: 1,
+			input: htmlspecialchars(fs.readFileSync('parser/input.html'))
+		});
+	}
+});
 
 app.listen(port);
 
@@ -372,70 +368,31 @@ everyone.now.transform = function(str, callback) {
 	parse(str, callback);
 }
 
-function saveSlideshow(slideshow, data, successCallback) {
-	var repo = 'slideshows/' + slideshow;
-
-	fs.writeFile(repo + '/input.html', data, function(err) {
-	    if(err) {
-	        logger.error('Error while saving slideshow\n' + err);
-	    } else {
-	        execCommand('git', ['add', 'input.html'], {cwd: repo}, null,
-				// success
-				function(stdout) {
-					execCommand('git', ['commit', '-m', 'slideshow'], {cwd: repo}, null,
-						// success
-						function(stdout) {
-							logger.debug('Saved slideshow at ' + repo);
-							successCallback(slideshow);
-						},
-						// failure
-						function(stderr, code) {
-							if (code == 1) {
-								// exit code 1 = nothing to commit
-								logger.debug('Not saving slideshow because there is no changes');
-							}
-							else {
-								logger.error('Error while saving file to git\n' + stderr);
-							}
-						}
-					);
-				},
-				// failure
-				function(stderr) {
-					logger.error('Error adding file to git\n' + stderr);
-				}
-			);
-	    }
-	});
-}
-
-everyone.now.save = function(slideshow, data, successCallback) {
-	if (!slideshow) {
+everyone.now.save = function(id, data, callback) {
+	if (!id) {
 		do {
-			slideshow = randomString(6);
-		} while (path.existsSync('slideshows/' + slideshow))
+			id = randomString(6);
+		} while (path.existsSync('slideshows/' + id))
 	}
 
-	var repo = 'slideshows/' + slideshow;
+	var saveFunction = function(repository) {
+		repository.commitFile('input.html', data, function (version) {
+			logger.debug('Saved slideshow ' + id + ' at version ' + version);
 
-	if (!path.existsSync(repo)) {
-		fs.mkdirSync(repo);
-		execCommand('git', ['init'], {cwd: repo}, null,
-			// success
-			function(stdout) {
-				// callback success
-				logger.debug('Created git repo ' + repo);
-				saveSlideshow(slideshow, data, successCallback);
-			},
-			// failure
-			function(stderr) {
-				logger.error('Error while creating git repository\n' + stderr);
-			}
-		);
+			callback(id, version);
+		});
 	}
-	else {
-		saveSlideshow(slideshow, data, successCallback);
-	} 
+
+	var repositoryPath = path.join('slideshows', id);
+
+	var repo;
+	try {
+		repo = new git.Repository(repositoryPath);
+		saveFunction(repo);
+	}
+	catch (e) {
+		repo = git.createRepository(repositoryPath, saveFunction);
+	}
 }
 
 everyone.now.getSlideshowList = function(callback) {
@@ -465,10 +422,10 @@ everyone.now.changeSlide = function(slideNumber, roomId, event){
 	}
 };
 
-everyone.now.createRoom = function(slideshowId, callback){
+everyone.now.createRoom = function(slideshowId, slideshowVersion, callback){
 	//Create room and associate it with the manager
 	this.now.room = generateUniqueRoomId(randomString(6));
-	addManagedRoomToUser(this.user.cookie['connect.sid'], this.now.room, slideshowId);
+	addManagedRoomToUser(this.user.cookie['connect.sid'], this.now.room, slideshowId, slideshowVersion);
 	logger.debug('#createRoom# clientSID : ' + this.user.cookie['connect.sid']);
 	logger.debug('#createRoom# clientId : ' + this.user.clientId);
 	logger.debug('#createRoom# slideshowId : ' + slideshowId);

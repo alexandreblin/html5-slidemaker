@@ -60,7 +60,7 @@
 			
 			$("#createRoom").click(function(){
 				if(slideshowID){
-					now.createRoom(slideshowID, function(roomId){
+					now.createRoom(slideshowID, slideshowVersion, function(roomId){
 						//alert('room URL : ' + '/' + roomId + '/showRoom');
 						$(location).attr('href', '/' + roomId + '/showRoom' + window.location.hash);
 					});
@@ -71,7 +71,7 @@
 				if (slideshowID) {
 					$('#fullscreen').removeClass('hidden');
 					$('#fullscreenDropdown').removeClass('hidden');fullscreenDropdown
-					$('#fullscreen').attr('href', '/' + slideshowID + '/show' + window.location.hash);
+					$('#fullscreen').attr('href', '/' + slideshowID + '/' + slideshowVersion + '/show' + window.location.hash);
 				}
 			}
 
@@ -772,9 +772,10 @@
 					}else{
 						saveAsFile();
 					}*/
-					now.save(slideshowID, editor.getValue(), function(slideshow) {
-						slideshowID = slideshow;
-						history.replaceState({}, '', slideshowID + window.location.hash);
+					now.save(slideshowID, editor.getValue(), function(id, version) {
+						slideshowID = id;
+						slideshowVersion = version;
+						history.replaceState({}, '', '/' + slideshowID + '/' + slideshowVersion + window.location.hash);
 						updateShowFullscreenLink();
 					});
 					$(this).addClass("disabled");
@@ -784,7 +785,7 @@
 					//removeFile(fileName);
 				}else if (tool == "createRoom"){
 					if(slideshowID){
-						now.createRoom(slideshowID, function(roomId){
+						now.createRoom(slideshowID, slideshowVersion, function(roomId){
 							alert('roomId : ' + roomId);
 						});
 					}
