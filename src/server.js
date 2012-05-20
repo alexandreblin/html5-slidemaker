@@ -17,7 +17,7 @@ var roomManaged = {};
 function addManagedRoomToUser(sessionSID, roomId, slideShowId){
 	if(roomManaged[sessionSID] == undefined) roomManaged[sessionSID] = {};
 	roomManaged[sessionSID][roomId] = slideShowId;
-	roomInfos[roomId] = {sessionSID : sessionSID, slideShowId : slideShowId};
+	roomInfos[roomId] = {sessionSID : sessionSID, slideShowId : slideShowId, remoteDeviceCo : false};
 	logger.debug("#addManagedRoomToUser# Management of the room : " + roomId + " added to user : " + roomInfos[roomId].sessionSID + " and slideShowId : " + roomInfos[roomId].slideShowId);
 }
 
@@ -225,9 +225,17 @@ app.get('/:id/showRoom/:rev?', function(req, res, next) {
 });
 
 app.get('/:id/remote', function(req, res, next){
-	req.session.roomIdToJoin = req.params.id;
-	req.session.isRemote = true;
-	res.render('remote/remote.html');
+	if(roomInfos[req.params.id] !== undefined){
+		if(roomInfos[req.params.id].remoteDeviceCo){
+			next(new Error('cannot connect more than one remode device for room ' + req.params.id));
+		}else{
+			req.session.roomIdToJoin = req.params.id;
+			req.session.isRemote = true;
+			res.render('remote/remote.html');
+		}
+	}else{
+		next(new Error('cannot find room ' + req.params.id));
+	}
 });
 
 function slideShow(req, res, next, isRoomId){
@@ -309,13 +317,14 @@ nowjs.on('connect', function(){
 			if(session.roomIdToJoin){
 				self.now.room = session.roomIdToJoin;
 				
-				if(!session.isRemote){
+				if(session.isRemote){
+					logger.debug('#on.connect# Remote controll join for the room : ' + self.now.room);
+					self.now.isRemote = true;
+					roomInfos[self.now.room].remoteDeviceCo = true;
+				}else{
 					session.roomIdToJoin = undefined;
 					nowjs.getGroup(self.now.room).addUser(self.user.clientId);
 					logger.debug('#on.connect# sessionSID : ' + self.user.cookie['connect.sid'] + ' added to the room : ' + self.now.room);
-				}else{
-					logger.debug('#on.connect# Remote controll join for the room : ' + self.now.room);
-					self.now.isRemote = true;
 				}
 			}
 		}else{
@@ -345,6 +354,10 @@ nowjs.on('disconnect', function(){
 			});
 		}
 	});
+	
+	if(this.now.isRemote){
+		roomInfos[this.now.room].remoteDeviceCo = false;
+	}
 		
 	if(roomManaged[self.user.cookie['connect.sid']] !== undefined){
 		logger.debug("#on.disconnect# Interval launched for SID : " + self.user.cookie['connect.sid']);
@@ -456,7 +469,6 @@ everyone.now.changeSlide = function(slideNumber, roomId, event){
 			
 		}else{
 			if(slideNumber != undefined){
-				logger.debug("#changeSlide# slide=" + slideNumber + '.');
 				nowjs.getGroup(roomId).now.goTo(slideNumber);
 			}else{
 				nowjs.getGroup(roomId).now.changeSlide(event);
