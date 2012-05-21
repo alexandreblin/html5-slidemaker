@@ -79,7 +79,12 @@
 				selectedSlide = parseInt(window.location.hash.replace('#slide', '')) - 1;
 				if (!selectedSlide || selectedSlide < 0) { selectedSlide = 0; }
 
-				$("#selectedSlide").html(selectedSlide + 1);
+                if(totalSlides==0){
+                    $("#selectedSlide").html(0);
+                }
+                else{
+                    $("#selectedSlide").html(selectedSlide + 1);
+                }
 
 				if(selectedSlide == 0){
 					$("button[data-tool=prev]").addClass("disabled");
@@ -845,39 +850,38 @@
 
 			function updatePreview() {
 				now.transform(editor.getValue(), function(previewHTML) {
+                    var content = previewFrame.contentDocument || previewFrame.contentWindow.document;
+
+                    // putting HTML into iframe
+                    content.open();
+
 					if (previewHTML == null) {
-						alert('Error while parsing input');
-						return;
+                        content.write('<span style="color:red; font-family: sans-serif">Error while parsing input</span>');
 					}
+                    else{
+					    // we need to inject some JS before putting it into the iframe to make the slideshow start at the slide we're currently editing
+					    // and to make it so that when we navigate slides in the iframe, the browser's location hash changes too
+					    var js = '<script> \
+					    curSlide = ' + selectedSlide + '; \
+					    var oldUpdateHash = updateHash; \
+					    updateHash = function() { oldUpdateHash(); window.top.location.hash = "slide" + (curSlide + 1); } \
+					    </script>';
 
-					var content = previewFrame.contentDocument || previewFrame.contentWindow.document;
-
-					// putting HTML into iframe
-					content.open();
-
-					// we need to inject some JS before putting it into the iframe to make the slideshow start at the slide we're currently editing
-					// and to make it so that when we navigate slides in the iframe, the browser's location hash changes too
-					var js = '<script> \
-					curSlide = ' + selectedSlide + '; \
-					var oldUpdateHash = updateHash; \
-					updateHash = function() { oldUpdateHash(); window.top.location.hash = "slide" + (curSlide + 1); } \
-					</script>';
-
-					if ($.browser.mozilla) {
-						// updateHash is broken in firefox when put in an iframe with no src
-						js = js.replace('oldUpdateHash();', '');
-					}
+					    if ($.browser.mozilla) {
+						    // updateHash is broken in firefox when put in an iframe with no src
+						    js = js.replace('oldUpdateHash();', '');
+					    }
 					
-					previewHTML = previewHTML.replace('</head>', js + '</head>');
-					previewHTML = previewHTML.replace('<script src="/nowjs/now.js"></script>', '');
+					    previewHTML = previewHTML.replace('</head>', js + '</head>');
+					    previewHTML = previewHTML.replace('<script src="/nowjs/now.js"></script>', '');
 					
-					$(document).bind('initNow', function(e, param1) {
-						param1(now);
-					});
-					
+					    $(document).bind('initNow', function(e, param1) {
+						    param1(now);
+					    });
+
 					content.write(previewHTML);
 					//previewFrame.contentWindow.setNowJs(now);
-
+                    }
 					content.close();
 				});
 			}
