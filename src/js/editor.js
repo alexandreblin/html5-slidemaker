@@ -1,4 +1,4 @@
-	(function() {
+(function() {
 	function createCookie(name,value,days) {
 		var expires;
 		if (days) {
@@ -909,4 +909,4 @@
 			updatePreview();
 		});
 	});
-	}());
+}());
