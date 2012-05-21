@@ -21,6 +21,10 @@
 	<script src="/lib/jquery-1.7.2.min.js"></script>
 	<script src="/nowjs/now.js"></script>
 	<script src="/lib/slides.js"></script>
+
+    <link href="/lib/uulm/uulm.css" rel="stylesheet">
+    <link href="/lib/uulm/styles.css" rel="stylesheet">
+
 	<script>
 		$(document).ready(function(){
 			
@@ -94,11 +98,11 @@
         margin: 20px;
     }
 
-    img{
+    /*img{
         -webkit-box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.5);
         -moz-box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.5);
         box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.5);
-    }
+    }*/
 
 	.slides > article.special.far-past {
 		display: block;
@@ -140,18 +144,18 @@
 		-o-transform: translate(2040px); /* Opera */
 	}
 
+	.slides.template-default > article:not(.nobackground):not(.biglogo).th_blue {
+		background-color: #aad7ce;
+	}
+
   </style>
 
   <body style="display: none; overflow-y:hidden;">
+    <section class="slides layout-regular template-uulm-in">
+      	 <!-- Your slides (<article>s) go here. Delete or comment out the
+					 slides below. -->
 
-    <section class="slides layout-regular template-default">
-      
-      <!-- Your slides (<article>s) go here. Delete or comment out the
-           slides below. -->
-           
-<!-- {{SLIDES}} -->
-      
+		 <!-- {{SLIDES}} -->
     </section>
-
   </body>
 </html>

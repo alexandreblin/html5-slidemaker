@@ -42,14 +42,19 @@
 			var fileName = "";
 			var isFileModified = false;
 			var onLoadFile = false;
+			var t;
 
-			for(var t in slideTemplate){
+			for(t in slideTemplate){
 				$('#templates').append($('<li><a href="javascript:void(0)" data-tool="add" data-template="'+t+'">'+slideTemplate[t].title+'</a></li>'));
 			}
 
-            for(var t in fontList){
+            for(t in fontList){
                 $('#fontlist').append($('<li><a href="javascript:void(0)" data-tool="font" data-font="'+t+'" style="font-family:'+t+'">'+fontList[t]+'</a></li>'));
             }
+
+			for(t in themeList){
+				$('#fontlist').append($('<li><a href="javascript:void(0)" data-tool="theme" data-font="'+t+'" style="font-family:'+t+'">'+themeList[t]+'</a></li>'));
+			}
 
             $('#currentFont').html(fontList[currentFont]);
 

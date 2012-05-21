@@ -20,3 +20,8 @@ var fontList = {
     'Trebuchet MS':'Trebuchet MS',
     'Verdana': 'Verdana'
 };
+
+var themeList = {
+	'template-default' : 'default',
+	'template-uulm-in' : 'uuml'
+};
