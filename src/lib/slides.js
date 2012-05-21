@@ -240,7 +240,7 @@ function prevSlide() {
 
         updateSlides();
 		//for slideshow
-		now.changeSlide(curSlide, now.room);
+		now.changeSlide(curSlide, now.room, undefined);
 	
     }
 };
@@ -255,7 +255,7 @@ function nextSlide() {
 
         updateSlides();
 		//for slideshow
-		now.changeSlide(curSlide, now.room);
+		now.changeSlide(curSlide, now.room, undefined);
 	
     }
 };

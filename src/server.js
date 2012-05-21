@@ -413,11 +413,11 @@ everyone.now.getSlideshowList = function(callback) {
 };
 
 everyone.now.changeSlide = function(slideNumber, roomId, event){
-
+	
 	if(roomInfos[roomId] !== undefined){
 		
 		if(!this.now.isRemote){
-	
+
 			if(this.user.cookie['connect.sid'] == roomInfos[roomId].sessionSID){
 				nowjs.getGroup(roomId).exclude(this.user.clientId).now.goTo(slideNumber);
 			}else{
@@ -425,12 +425,15 @@ everyone.now.changeSlide = function(slideNumber, roomId, event){
 			}
 			
 		}else{
+
 			if(slideNumber != undefined){
 				nowjs.getGroup(roomId).now.goTo(slideNumber);
 			}else{
-				nowjs.getGroup(roomId).now.changeSlide(event);
+				nowjs.getGroup(roomId).now.goTo(slideNumber, event);
 			}
 		}
+	}else{
+		logger.debug("#changeSlide# Room not found in roomInfos");
 	}
 };
 
