@@ -37,7 +37,7 @@
 			var delFileButton = $("#removeFile");
 			var totalSlides;
 			var selectedSlide;
-            var currentFont = 'Arial';
+			var currentFont = 'Arial';
 
 			var fileName = "";
 			var isFileModified = false;
@@ -47,16 +47,16 @@
 				$('#templates').append($('<li><a href="javascript:void(0)" data-tool="add" data-template="'+t+'">'+slideTemplate[t].title+'</a></li>'));
 			}
 
-            for(var t in fontList){
-                $('#fontlist').append($('<li><a href="javascript:void(0)" data-tool="font" data-font="'+t+'" style="font-family:'+t+'">'+fontList[t]+'</a></li>'));
-            }
+			for(var t in fontList){
+				$('#fontlist').append($('<li><a href="javascript:void(0)" data-tool="font" data-font="'+t+'" style="font-family:'+t+'">'+fontList[t]+'</a></li>'));
+			}
 
-            $('#currentFont').html(fontList[currentFont]);
+			$('#currentFont').html(fontList[currentFont]);
 
-            $("#fontlist a").click(function(){
-                currentFont = $(this).data('font');
-                $('#currentFont').html(fontList[currentFont]);
-            });
+			$("#fontlist a").click(function(){
+				currentFont = $(this).data('font');
+				$('#currentFont').html(fontList[currentFont]);
+			});
 			
 			$("#createRoom").click(function(){
 				if(slideshowID){
@@ -64,6 +64,15 @@
 						//alert('room URL : ' + '/' + roomId + '/showRoom');
 						$(location).attr('href', '/' + roomId + '/showRoom');
 					});
+				}
+			});
+
+			new AjaxUpload($('#imgInsert'), {
+				action: '/upload',
+				//Name of the file input box
+				name: 'image',
+				onComplete: function(file, response){
+					editor.replaceSelection('<img src="' + response + '" />');
 				}
 			});
 
@@ -756,17 +765,17 @@
 
 					}
 				}else if(tool == "font"){
-                    if(currentFont != null){
+					if(currentFont != null){
 						var bAddFont= setStyleAttribute("font-family", currentFont);
 						if(!bAddFont) {
 							newSelection = "<span style='font-family:"+currentFont+";'>"+editor.getSelection()+"</span>";
 							editor.replaceSelection(newSelection);
 						}
 						editor.focus();
-                    }
+					}
 					return;
-                }
-                else if (tool == "save") {
+				}
+				else if (tool == "save") {
 					/*if(fileName != ""){
 						saveFile(fileName);
 					}else{

@@ -125,7 +125,7 @@ body {
 	background-image: url(../img/strike.png);
 }
 
-#toolbar button[data-tool='img'] > i {
+#toolbar button#imgInsert > i {
 	background-image: url(../img/image-add.png);
 }
 

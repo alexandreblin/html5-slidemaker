@@ -176,17 +176,39 @@ app.configure(function(){
 	app.use('/js', express.static(__dirname + '/js'));
 	app.use('/img', express.static(__dirname + '/img'));
 	app.use('/css', express.static(__dirname + '/css'));
+	app.use('/uploads', express.static(__dirname + '/uploads'));
 
 	app.set('views', __dirname);
 	app.set('view engine', 'ejs');
 	app.set('view options', {layout: false});
 	app.register('.html', require('ejs'));
 
+	app.use(express.bodyParser());
 	app.use(express.cookieParser());
 	app.use(express.session({ secret: "secret", store: sessionStore, cookie: {
       maxAge: cookieMaxAge
     } }));
   
+});
+
+// thanks to http://www.hacksparrow.com/handle-file-uploads-in-express-node-js.html
+app.post('/upload', function(req, res) {
+    // get the temporary location of the file
+    var tmp_path = req.files.image.path;
+    // set where the file should actually exists - in this case it is in the "images" directory
+    var target_path = '/uploads/' + req.files.image.name;
+
+    // move the file from the temporary location to the intended location
+    fs.rename(tmp_path, '.' + target_path, function(err) {
+        if (err) throw err;
+        
+        // delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
+        fs.unlink(tmp_path, function() {
+            if (err) throw err;
+
+            res.send(target_path);
+        });
+    });
 });
 
 app.all('/:id', function (req, res, next) {
