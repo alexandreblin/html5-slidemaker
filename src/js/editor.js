@@ -62,7 +62,7 @@
 				if(slideshowID){
 					now.createRoom(slideshowID, slideshowVersion, function(roomId){
 						//alert('room URL : ' + '/' + roomId + '/showRoom');
-						$(location).attr('href', '/' + roomId + '/showRoom' + window.location.hash);
+						$(location).attr('href', '/' + roomId + '/showRoom');
 					});
 				}
 			});
@@ -71,12 +71,12 @@
 				if (slideshowID) {
 					$('#fullscreen').removeClass('hidden');
 					$('#fullscreenDropdown').removeClass('hidden');fullscreenDropdown
-					$('#fullscreen').attr('href', '/' + slideshowID + '/' + slideshowVersion + '/show' + window.location.hash);
+					$('#fullscreen').attr('href', '/' + slideshowID + '/' + slideshowVersion + '/show#' + (selectedSlide+1));
 				}
 			}
 
 			$(window).bind('hashchange', function() {
-				selectedSlide = parseInt(window.location.hash.replace('#', '')) - 1;
+				selectedSlide = parseInt(window.location.hash.replace('#slide', '')) - 1;
 				if (!selectedSlide || selectedSlide < 0) { selectedSlide = 0; }
 
 				$("#selectedSlide").html(selectedSlide + 1);
@@ -860,7 +860,7 @@
 					var js = '<script> \
 					curSlide = ' + selectedSlide + '; \
 					var oldUpdateHash = updateHash; \
-					updateHash = function() { oldUpdateHash(); window.top.location.hash = curSlide + 1; } \
+					updateHash = function() { oldUpdateHash(); window.top.location.hash = "slide" + (curSlide + 1); } \
 					</script>';
 
 					if ($.browser.mozilla) {
