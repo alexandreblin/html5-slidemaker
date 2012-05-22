@@ -16,6 +16,8 @@ if __name__ == '__main__':
 	
     if not args.input:
 		str = sys.stdin.read()
+		if len(str.strip()) == 0:
+		    sys.exit(0)
 		if str.startswith("\""):
 			a1 = array.array("c", str)
 			a1[0] = " "

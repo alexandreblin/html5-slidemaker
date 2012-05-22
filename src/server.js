@@ -15,10 +15,10 @@ var cookieMaxAge = 60*60*1000;
 var roomInfos = {};
 var roomManaged = {};
 
-function addManagedRoomToUser(sessionSID, roomId, slideshowId, slideshowVersion){
+function addManagedRoomToUser(sessionSID, roomId, slideshowId, slideshowVersion, maxSlides){
 	if(roomManaged[sessionSID] == undefined) roomManaged[sessionSID] = {};
 	roomManaged[sessionSID][roomId] = slideshowId;
-	roomInfos[roomId] = {sessionSID : sessionSID, slideshowId : slideshowId, slideshowVersion : slideshowVersion, remoteDeviceCo : false};
+	roomInfos[roomId] = {sessionSID : sessionSID, slideshowId : slideshowId, slideshowVersion : slideshowVersion, remoteDeviceCo : false, excludedUsers: {}, currentSlide: 0, maxSlides: maxSlides};
 	logger.debug("#addManagedRoomToUser# Management of the room : " + roomId + " added to user : " + roomInfos[roomId].sessionSID + " and slideshowId : " + roomInfos[roomId].slideshowId);
 }
 
@@ -239,6 +239,7 @@ app.get('/:roomId/showRoom', function(req, res, next) {
 		}
 
 		parse(source, function(html) {
+			html = html.replace("%slideShow%",slideshowId);
 			res.send(html);
 			
 			// Add the user to the room
@@ -258,8 +259,9 @@ app.get('/:id/:ver?/show', function(req, res, next) {
 		}
 
 		parse(source, function(html) {
+			html = html.replace("%slideShow%",slideshowId);
 			res.send(html);
-			req.session.roomIdToJoin = req.params.id;
+			//req.session.roomIdToJoin = req.params.id;
 		});
 	});
 });
@@ -435,34 +437,76 @@ everyone.now.getSlideshowList = function(callback) {
 };
 
 everyone.now.changeSlide = function(slideNumber, roomId, event){
-
+	
 	if(roomInfos[roomId] !== undefined){
 		
 		if(!this.now.isRemote){
-	
+
 			if(this.user.cookie['connect.sid'] == roomInfos[roomId].sessionSID){
-				nowjs.getGroup(roomId).exclude(this.user.clientId).now.goTo(slideNumber);
-			}else{
-				logger.debug("#changeSlide# This user : " + this.user.cookie['connect.sid'] + " is not a room manager");
+				roomInfos[roomId].excludedUsers[this.user.clientId] = this.user.clientId;
+				nowjs.getGroup(roomId).exclude(jsonObjectToArray(roomInfos[roomId].excludedUsers)).now.goTo(slideNumber);
+				delete roomInfos[roomId].excludedUsers[this.user.clientId];
+				roomInfos[roomId].currentSlide = slideNumber;
 			}
 			
 		}else{
+
 			if(slideNumber != undefined){
-				nowjs.getGroup(roomId).now.goTo(slideNumber);
+				nowjs.getGroup(roomId).exclude(jsonObjectToArray(roomInfos[roomId].excludedUsers)).now.goTo(slideNumber);
+				roomInfos[roomId].currentSlide = slideNumber;
 			}else{
-				nowjs.getGroup(roomId).now.changeSlide(event);
+				nowjs.getGroup(roomId).exclude(jsonObjectToArray(roomInfos[roomId].excludedUsers)).now.goTo(slideNumber, event);
+				if(event == 'swipeleft'){
+					if (roomInfos[roomId].currentSlide < roomInfos[roomId].maxSlides.length - 1) roomInfos[roomId].currentSlide++;
+				}else if(event == 'swiperight'){
+					if (roomInfos[roomId].currentSlide > 0) roomInfos[roomId].currentSlide--;
+				}
 			}
 		}
+		
+	}else{
+		logger.debug("#changeSlide# Room not found in roomInfos");
 	}
 };
 
-everyone.now.createRoom = function(slideshowId, slideshowVersion, callback){
+everyone.now.createRoom = function(slideshowId, slideshowVersion, maxSlides, callback){
 	//Create room and associate it with the manager
 	this.now.room = generateUniqueRoomId(randomString(6));
-	addManagedRoomToUser(this.user.cookie['connect.sid'], this.now.room, slideshowId, slideshowVersion);
+	addManagedRoomToUser(this.user.cookie['connect.sid'], this.now.room, slideshowId, slideshowVersion, maxSlides);
 	logger.debug('#createRoom# clientSID : ' + this.user.cookie['connect.sid']);
 	logger.debug('#createRoom# clientId : ' + this.user.clientId);
 	logger.debug('#createRoom# slideshowId : ' + slideshowId);
 	nowjs.getGroup(this.now.room).addUser(this.user.clientId);
 	callback(this.now.room);
+}
+
+everyone.now.unsychronize = function(roomId){
+	if(roomInfos[roomId] !== undefined){
+		roomInfos[roomId].excludedUsers[this.user.clientId] = this.user.clientId;
+	}else{
+		logger.debug('#unsychronize# Room '+ roomId +'not found in roomInfos');
+	}
+}
+
+everyone.now.sychronize = function(roomId, callback){
+	if(roomInfos[roomId] !== undefined){
+		roomInfos[roomId].excludedUsers[this.user.clientId] = undefined;
+		delete roomInfos[roomId].excludedUsers[this.user.clientId];
+	}else{
+		logger.debug('#sychronize# Room '+ roomId +'not found in roomInfos');
+	}
+	
+	callback(roomInfos[roomId].currentSlide);
+}
+
+function jsonObjectToArray(data){
+	var array = new Array();
+	var i = 0;
+	for(cle in data){
+		if(data[cle] !== undefined){
+			array[i] = data[cle];
+			i++;
+		}
+	}
+	return array;
 }
