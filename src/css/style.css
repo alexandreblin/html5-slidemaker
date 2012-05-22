@@ -125,7 +125,7 @@ body {
 	background-image: url(../img/strike.png);
 }
 
-#toolbar button[data-tool='img'] > i {
+#toolbar button#imgInsert > i {
 	background-image: url(../img/image-add.png);
 }
 
@@ -151,6 +151,10 @@ body {
 
 #toolbar button[data-tool='save'] > i {
 	background-image: url(../img/file-save.png);
+}
+
+#toolbar button[data-tool='clone'] > i {
+	background-image: url(../img/file-clone.png);
 }
 
 #toolbar button[data-tool='saveAs'] > i {

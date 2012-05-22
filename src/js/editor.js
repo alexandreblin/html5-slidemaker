@@ -37,7 +37,7 @@
 			var delFileButton = $("#removeFile");
 			var totalSlides;
 			var selectedSlide;
-            var currentFont = 'Arial';
+			var currentFont = 'Arial';
 
 			var fileName = "";
 			var isFileModified = false;
@@ -66,17 +66,26 @@
 
 			$("#createRoom").click(function(){
 				if(slideshowID){
-					now.createRoom(slideshowID, slideshowVersion, function(roomId){
+					now.createRoom(slideshowID, slideshowVersion, totalSlides, function(roomId){
 						//alert('room URL : ' + '/' + roomId + '/showRoom');
-						$(location).attr('href', '/' + roomId + '/showRoom');
+						$(location).attr('href', '/' + roomId + '/showRoom#' + (selectedSlide+1));
 					});
+				}
+			});
+
+			new AjaxUpload($('#imgInsert'), {
+				action: '/upload',
+				//Name of the file input box
+				name: 'image',
+				onComplete: function(file, response){
+					editor.replaceSelection('<img src="' + response + '" />');
 				}
 			});
 
 			function updateShowFullscreenLink() {
 				if (slideshowID) {
 					$('#fullscreen').removeClass('hidden');
-					$('#fullscreenDropdown').removeClass('hidden');fullscreenDropdown
+					$('#fullscreenDropdown').removeClass('hidden');
 					$('#fullscreen').attr('href', '/' + slideshowID + '/' + slideshowVersion + '/show#' + (selectedSlide+1));
 				}
 			}
@@ -148,7 +157,7 @@
 					}
 
 					if (isFileModified) {
-						$("button[data-tool=save]").removeClass("disabled");
+						$('#saveButton button').removeClass("disabled");
 					}
 				},
 				onCursorActivity: function() {
@@ -787,42 +796,45 @@
 						editor.replaceRange("",{line: lineBegin, ch:chBegin}, {line: lineEnd, ch: chEnd});*/
 					}
 				}else if(tool == "font"){
-                    if(currentFont != null){
+					if(currentFont != null){
 						var bAddFont= setStyleAttribute("font-family", currentFont);
 						if(!bAddFont) {
 							newSelection = "<span style='font-family:"+currentFont+";'>"+editor.getSelection()+"</span>";
 							editor.replaceSelection(newSelection);
 						}
 						editor.focus();
-                    }
+					}
 					return;
                 } else if(tool == "theme") {
 					//currentTheme = "template-uulm-in";//$("#mainSection").removeClass("template-uulm-in").addClass("template-default");
 					//previewFrame.contentWindow.changeTheme("template-default");//console.log($("#mainSection").attr('class'));
 
-				} else if (tool == "save") {
+				} else if (tool == "save" || tool == "clone") {
 					/*if(fileName != ""){
 						saveFile(fileName);
 					}else{
 						saveAsFile();
 					}*/
-					now.save(slideshowID, editor.getValue(), function(id, version) {
+
+					var id = slideshowID;
+					if (tool == "clone") {
+						// force a new ID if we clone the slideshow
+						id = null;
+					}
+
+					now.save(id, editor.getValue(), function(id, version) {
 						slideshowID = id;
 						slideshowVersion = version;
 						history.replaceState({}, '', '/' + slideshowID + '/' + slideshowVersion + window.location.hash);
 						updateShowFullscreenLink();
 					});
-					$(this).addClass("disabled");
+					$('#saveButton button').addClass("disabled");
+
+					return;
 				}else if (tool == "saveAs") {
 					//saveAsFile();
 				}else if (tool == "rmFile") {
 					//removeFile(fileName);
-				}else if (tool == "createRoom"){
-					if(slideshowID){
-						now.createRoom(slideshowID, slideshowVersion, function(roomId){
-							alert('roomId : ' + roomId);
-						});
-					}
 				}
 				else if(tool == "prev") {
 					if(selectedSlide > 0){
