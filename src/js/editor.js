@@ -53,7 +53,7 @@
             }
 
 			for(t in themeList){
-				$('#themeList').append($('<li><a href="javascript:void(0)" data-tool="theme" data-theme="'+t+'" style="font-family:'+t+'">'+themeList[t]+'</a></li>'));
+				$('#themeList').append($('<li><a href="javascript:void(0)" data-tool="theme" data-theme="'+t+'">'+themeList[t]+'</a></li>'));
 
 			}
 
