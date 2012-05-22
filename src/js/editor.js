@@ -60,9 +60,9 @@
 			
 			$("#createRoom").click(function(){
 				if(slideshowID){
-					now.createRoom(slideshowID, slideshowVersion, function(roomId){
+					now.createRoom(slideshowID, slideshowVersion, totalSlides, function(roomId){
 						//alert('room URL : ' + '/' + roomId + '/showRoom');
-						$(location).attr('href', '/' + roomId + '/showRoom');
+						$(location).attr('href', '/' + roomId + '/showRoom#' + (selectedSlide+1));
 					});
 				}
 			});
@@ -70,7 +70,7 @@
 			function updateShowFullscreenLink() {
 				if (slideshowID) {
 					$('#fullscreen').removeClass('hidden');
-					$('#fullscreenDropdown').removeClass('hidden');fullscreenDropdown
+					$('#fullscreenDropdown').removeClass('hidden');
 					$('#fullscreen').attr('href', '/' + slideshowID + '/' + slideshowVersion + '/show#' + (selectedSlide+1));
 				}
 			}
@@ -788,12 +788,6 @@
 					//saveAsFile();
 				}else if (tool == "rmFile") {
 					//removeFile(fileName);
-				}else if (tool == "createRoom"){
-					if(slideshowID){
-						now.createRoom(slideshowID, slideshowVersion, function(roomId){
-							alert('roomId : ' + roomId);
-						});
-					}
 				}
 				else if(tool == "prev") {
 					if(selectedSlide > 0){

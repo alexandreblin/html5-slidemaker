@@ -23,7 +23,10 @@
 	<script src="/lib/slides.js"></script>
 	<script>
 		$(document).ready(function(){
-			
+
+			var slideShow = "%slideShow%";
+			var synchro = true;
+		
 			if(parent !== window){
 
 				initNow = function(obj){
@@ -32,6 +35,9 @@
 				
 				parent.$(parent.document).trigger('initNow', [initNow]);
 			
+			}else{
+				$('#link_edit').removeClass('hidden');
+				$('#link_synchro').removeClass('hidden');
 			}
 			
 			now.ready(function() {
@@ -45,6 +51,26 @@
 						gotoSlide(slide);
 					}
 				}
+				
+				$('#link_edit').click(function(){
+					$('#link_edit').attr('href', '/' + slideShow + '#slide' + (parseInt(curSlide) +1));
+				});
+			
+				$('#link_synchro').click(function(){
+					if(synchro){
+						now.unsychronize(now.room);
+						$('#link_synchro').text('Sychronize');
+						synchro = false;
+					}else{
+						now.sychronize(now.room, function(slide){
+							gotoSlide(slide);
+						});
+						$('#link_synchro').text('Unsychronize');
+						synchro = true;
+					}
+				
+				});
+				
 			});
 		});
 	</script>
@@ -137,11 +163,44 @@
 		-webkit-transform: translate3d(2040px, 0, 0); /* Safari and Chrome */
 		-o-transform: translate(2040px); /* Opera */
 	}
+	
+	.hidden {
+		display: none;
+		visibility: hidden;
+	}
+	
+	.link-menu{
+		//position: fixed; 
+		top: -1px; 
+		right: -1px; 
+		padding: 5px 10px; 
+		background-color: rgb(204, 204, 204); 
+		color: rgb(51, 51, 51); 
+		border-top-right-radius: 5px; 
+		border: 1px solid rgb(153, 153, 153); 
+		text-decoration: none; 
+		line-height: normal; 
+		-webkit-transition: opacity 100ms ease-out; 
+		opacity: 1; 
+		background-position: initial initial; 
+		background-repeat: initial initial;
+		z-index:2000;
+	}
+	
+	#menu{
+		position: absolute;
+		z-index:2000;
+	}
 
   </style>
 
   <body style="display: none; overflow-y:hidden;">
-
+	
+	<div id="menu">
+		<a id="link_edit" class="hidden link-menu" href="javascript:void(0)" >Edit</a>
+		<a id="link_synchro" class="hidden link-menu" href="javascript:void(0)" >Unsynchronize</a>
+	</div>
+	
     <section class="slides layout-regular template-default">
       
       <!-- Your slides (<article>s) go here. Delete or comment out the
