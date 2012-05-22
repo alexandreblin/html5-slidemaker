@@ -626,7 +626,14 @@ function updateScale() {
     slides.style.msTransform = 'scale(' + scale + ')';
     slides.style.MozTransform = 'scale(' + scale + ')';
     slides.style.OTransform = 'scale(' + scale + ')';
-}
+};
+
+/*
+function addTheme(newValue) {
+	console.log($("#mainSection").attr('class'));
+	$("#mainSection").addClass(newValue);
+	console.log($("#mainSection").attr('class'));
+};*/
 
 function handleDomLoaded() {
     slideEls = document.querySelectorAll('section.slides > article');

@@ -42,22 +42,28 @@
 			var fileName = "";
 			var isFileModified = false;
 			var onLoadFile = false;
+			var t;
 
-			for(var t in slideTemplate){
+			for(t in slideTemplate){
 				$('#templates').append($('<li><a href="javascript:void(0)" data-tool="add" data-template="'+t+'">'+slideTemplate[t].title+'</a></li>'));
 			}
 
-			for(var t in fontList){
-				$('#fontlist').append($('<li><a href="javascript:void(0)" data-tool="font" data-font="'+t+'" style="font-family:'+t+'">'+fontList[t]+'</a></li>'));
+            for(t in fontList){
+                $('#fontlist').append($('<li><a href="javascript:void(0)" data-tool="font" data-font="'+t+'" style="font-family:'+t+'">'+fontList[t]+'</a></li>'));
+            }
+
+			for(t in themeList){
+				$('#themeList').append($('<li><a href="javascript:void(0)" data-tool="theme" data-theme="'+t+'" style="font-family:'+t+'">'+themeList[t]+'</a></li>'));
+
 			}
 
-			$('#currentFont').html(fontList[currentFont]);
+            $('#currentFont').html(fontList[currentFont]);
 
-			$("#fontlist a").click(function(){
-				currentFont = $(this).data('font');
-				$('#currentFont').html(fontList[currentFont]);
-			});
-			
+            $("#fontlist a").click(function(){
+                currentFont = $(this).data('font');
+                $('#currentFont').html(fontList[currentFont]);
+            });
+
 			$("#createRoom").click(function(){
 				if(slideshowID){
 					now.createRoom(slideshowID, slideshowVersion, totalSlides, function(roomId){
@@ -356,6 +362,9 @@
 							break;
 						}
 					}
+				}
+				if(result.from == null || result.to == null) {
+					return null;
 				}
 				return result;
 			}
@@ -737,14 +746,33 @@
 				}else if(tool == "add"){
 					var slide = getSlideInfo(selectedSlide);
 					var template = $(this).data('template') || 't1';
-					editor.replaceRange(slideTemplate[template].code,  {line: slide.to.line, ch: slide.to.ch+1}, {line: slide.to.line, ch: slide.to.ch+1});
-
+					var szWrap = "\n\n";//only \n characters in this string
+					if(!slide) {
+						slide = {from:{line: 0,ch: 0}, to:{line: 0,ch: 0}};
+						szWrap = "";
+					}
+					editor.replaceRange(szWrap + slideTemplate[template].code,  {line: slide.to.line, ch: slide.to.ch}, {line: slide.to.line, ch: slide.to.ch});
 					editor.focus();
-					editor.setCursor({line:slide.to.line+4, ch: 4});
+					editor.setCursor({line:slide.to.line+2+szWrap.length, ch: 2});
 
 				}else if(tool == "delete"){
 					if(confirm("Are you sure you want to delete the current slide?")){
-						var slide = getSlideInfo(selectedSlide);
+						var previousSlide = getSlideInfo(selectedSlide - 1);
+						var currentSlide = getSlideInfo(selectedSlide);
+						var nextSlide = getSlideInfo(selectedSlide + 1);
+						var startTag = "<article>";
+						if(currentSlide) {
+							var vFrom = previousSlide ? previousSlide.to : currentSlide.from;
+							var vTo = nextSlide ? nextSlide.from : currentSlide.to;
+							var szWrap = (previousSlide && nextSlide) ? "\n\n" : "";
+							if(!previousSlide && !nextSlide) {
+								vFrom = {line: vFrom.line, ch: parseInt(vFrom.ch) + startTag.length};
+							}
+							editor.replaceRange(szWrap, vFrom, vTo);
+							editor.setCursor(vFrom);
+							editor.focus();
+						}
+						/*var slide = getSlideInfo(selectedSlide);
 						var lineEnd = slide.to.line;
 						var chEnd = slide.to.ch;
 						var lineBegin = slide.from.line;
@@ -764,9 +792,7 @@
 						else if(lineEnd != slide.to.line){
 							chEnd =  editor.lineInfo(lineEnd).text.indexOf("<article");
 						}
-						editor.replaceRange("",{line: lineBegin, ch:chBegin}, {line: lineEnd, ch: chEnd});
-
-
+						editor.replaceRange("",{line: lineBegin, ch:chBegin}, {line: lineEnd, ch: chEnd});*/
 					}
 				}else if(tool == "font"){
 					if(currentFont != null){
@@ -778,8 +804,11 @@
 						editor.focus();
 					}
 					return;
-				}
-				else if (tool == "save" || tool == "clone") {
+                } else if(tool == "theme") {
+					//currentTheme = "template-uulm-in";//$("#mainSection").removeClass("template-uulm-in").addClass("template-default");
+					//previewFrame.contentWindow.changeTheme("template-default");//console.log($("#mainSection").attr('class'));
+
+				} else if (tool == "save" || tool == "clone") {
 					/*if(fileName != ""){
 						saveFile(fileName);
 					}else{
@@ -861,38 +890,38 @@
 
 			function updatePreview() {
 				now.transform(editor.getValue(), function(previewHTML) {
-                    var content = previewFrame.contentDocument || previewFrame.contentWindow.document;
+					var content = previewFrame.contentDocument || previewFrame.contentWindow.document;
 
-                    // putting HTML into iframe
-                    content.open();
+					// putting HTML into iframe
+					content.open();
 
 					if (previewHTML == null) {
-                        content.write('<span style="color:red; font-family: sans-serif">Error while parsing input</span>');
+						content.write('<span style="color:red; font-family: sans-serif">Error while parsing input</span>');
 					}
-                    else{
-					    // we need to inject some JS before putting it into the iframe to make the slideshow start at the slide we're currently editing
-					    // and to make it so that when we navigate slides in the iframe, the browser's location hash changes too
-					    var js = '<script> \
+					else{
+						// we need to inject some JS before putting it into the iframe to make the slideshow start at the slide we're currently editing
+						// and to make it so that when we navigate slides in the iframe, the browser's location hash changes too
+						var js = '<script> \
 					    curSlide = ' + selectedSlide + '; \
 					    var oldUpdateHash = updateHash; \
 					    updateHash = function() { oldUpdateHash(); window.top.location.hash = "slide" + (curSlide + 1); } \
 					    </script>';
 
-					    if ($.browser.mozilla) {
-						    // updateHash is broken in firefox when put in an iframe with no src
-						    js = js.replace('oldUpdateHash();', '');
-					    }
-					
-					    previewHTML = previewHTML.replace('</head>', js + '</head>');
-					    previewHTML = previewHTML.replace('<script src="/nowjs/now.js"></script>', '');
-					
-					    $(document).bind('initNow', function(e, param1) {
-						    param1(now);
-					    });
+						if ($.browser.mozilla) {
+							// updateHash is broken in firefox when put in an iframe with no src
+							js = js.replace('oldUpdateHash();', '');
+						}
 
-					content.write(previewHTML);
-					//previewFrame.contentWindow.setNowJs(now);
-                    }
+						previewHTML = previewHTML.replace('</head>', js + '</head>');
+						previewHTML = previewHTML.replace('<script src="/nowjs/now.js"></script>', '');
+
+						$(document).bind('initNow', function(e, param1) {
+							param1(now);
+						});
+
+						content.write(previewHTML);
+						//previewFrame.contentWindow.setNowJs(now);
+					}
 					content.close();
 				});
 			}
@@ -904,7 +933,7 @@
 
 				var type = state.htmlState ? state.htmlState.type : state.type;
 
-				if (state.htmlState.context.tagName == 'pre') {
+				if (state.htmlState.context && state.htmlState.context.tagName == 'pre') {
 					if (ch == '<') {
 						cm.replaceSelection('&lt;');
 					}else if (ch == '>') {

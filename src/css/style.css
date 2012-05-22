@@ -177,6 +177,10 @@ body {
     background-image: url(../img/text-font.png);
 }
 
+#toolbar button#themeDropdown > i {
+	background-image: url(../img/image-sunset.png);
+}
+
 #colorpickertool > button > i {
     background-image: url(../img/edit-color.png);
     position: relative; /* need this to precisely position the color indicator */
