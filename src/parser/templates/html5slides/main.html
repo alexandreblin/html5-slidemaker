@@ -170,7 +170,7 @@
 	}
 	
 	.link-menu{
-		//position: fixed; 
+		opacity: 0.5;
 		top: -1px; 
 		right: -1px; 
 		padding: 5px 10px; 
@@ -180,11 +180,19 @@
 		border: 1px solid rgb(153, 153, 153); 
 		text-decoration: none; 
 		line-height: normal; 
-		-webkit-transition: opacity 100ms ease-out; 
-		opacity: 1; 
+		-webkit-transition: opacity 100ms ease-in-out; 
+		-moz-transition: opacity 100ms ease-in-out;
+		-o-transition: opacity 100ms ease-in-out;
+		-ms-transition: opacity 100ms ease-in-out;	
+		transition: opacity 100ms ease-in-out;
+		
 		background-position: initial initial; 
 		background-repeat: initial initial;
 		z-index:2000;
+	}
+	
+	.link-menu:hover{
+		opacity: 1; 
 	}
 	
 	#menu{
