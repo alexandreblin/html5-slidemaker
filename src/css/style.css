@@ -74,6 +74,10 @@ body {
 	cursor: col-resize;
 }
 
+.btn-group.hide {
+	display: none;
+}
+
 #toolbar {
 	margin: 6px 0 0 5px;
 }

@@ -78,8 +78,7 @@
 
 			function updateShowFullscreenLink() {
 				if (slideshowID) {
-					$('#fullscreen').removeClass('hidden');
-					$('#fullscreenDropdown').removeClass('hidden');
+					$('#fullscreenGroup').removeClass('hide');
 					$('#fullscreen').attr('href', '/' + slideshowID + '/' + slideshowVersion + '/show#' + (selectedSlide+1));
 				}
 			}
