@@ -46,7 +46,14 @@ function htmlencode(str) {
 }
 
 function parse(input, callback) {
-	slidemaker.generateSlideshow(input, 'Slideshow', callback);
+	fs.readFile('template/slideshow.html', function (err, data) {
+		if (err) throw err;
+
+		var result = new String(data).replace('<!-- {{TITLE}} -->', 'Presentation')
+									 .replace('<!-- {{SLIDES}} -->', input);
+
+		callback(result);
+	});
 }
 
 function getSlideshowSource(id, version, callback) {
@@ -296,16 +303,7 @@ nowjs.on('disconnect', function(){
 
 });
 
-everyone.now.transform = function(input, callback) {
-	fs.readFile('template/slideshow.html', function (err, data) {
-		if (err) throw err;
-
-		var result = new String(data).replace('<!-- {{TITLE}} -->', 'Presentation')
-									 .replace('<!-- {{SLIDES}} -->', input);
-
-		callback(result);
-	});
-}
+everyone.now.transform = parse;
 
 everyone.now.save = function(id, data, callback) {
 	if (!id) {
