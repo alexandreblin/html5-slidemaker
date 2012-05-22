@@ -738,18 +738,33 @@
 				}else if(tool == "add"){
 					var slide = getSlideInfo(selectedSlide);
 					var template = $(this).data('template') || 't1';
-					var szWrap = "\n\n";
+					var szWrap = "\n\n";//only \n characters in this string
 					if(!slide) {
 						slide = {from:{line: 0,ch: 0}, to:{line: 0,ch: 0}};
 						szWrap = "";
 					}
-					editor.replaceRange(szWrap + slideTemplate[template].code,  {line: slide.to.line, ch: slide.to.ch+1}, {line: slide.to.line, ch: slide.to.ch+1});
+					editor.replaceRange(szWrap + slideTemplate[template].code,  {line: slide.to.line, ch: slide.to.ch}, {line: slide.to.line, ch: slide.to.ch});
 					editor.focus();
 					editor.setCursor({line:slide.to.line+2+szWrap.length, ch: 2});
 
 				}else if(tool == "delete"){
 					if(confirm("Are you sure you want to delete the current slide?")){
-						var slide = getSlideInfo(selectedSlide);
+						var previousSlide = getSlideInfo(selectedSlide - 1);
+						var currentSlide = getSlideInfo(selectedSlide);
+						var nextSlide = getSlideInfo(selectedSlide + 1);
+						var startTag = "<article>";
+						if(currentSlide) {
+							var vFrom = previousSlide ? previousSlide.to : currentSlide.from;
+							var vTo = nextSlide ? nextSlide.from : currentSlide.to;
+							var szWrap = (previousSlide && nextSlide) ? "\n\n" : "";
+							if(!previousSlide && !nextSlide) {
+								vFrom = {line: vFrom.line, ch: parseInt(vFrom.ch) + startTag.length};
+							}
+							editor.replaceRange(szWrap, vFrom, vTo);
+							editor.setCursor(vFrom);
+							editor.focus();
+						}
+						/*var slide = getSlideInfo(selectedSlide);
 						var lineEnd = slide.to.line;
 						var chEnd = slide.to.ch;
 						var lineBegin = slide.from.line;
@@ -769,9 +784,7 @@
 						else if(lineEnd != slide.to.line){
 							chEnd =  editor.lineInfo(lineEnd).text.indexOf("<article");
 						}
-						editor.replaceRange("",{line: lineBegin, ch:chBegin}, {line: lineEnd, ch: chEnd});
-
-
+						editor.replaceRange("",{line: lineBegin, ch:chBegin}, {line: lineEnd, ch: chEnd});*/
 					}
 				}else if(tool == "font"){
                     if(currentFont != null){
