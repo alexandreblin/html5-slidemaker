@@ -1,5 +1,4 @@
 var express = require('express');
-var spawn = require('child_process').spawn;
 var path = require('path');
 var fs = require('fs');
 var logger = require('./lib/logger');
@@ -108,50 +107,8 @@ function htmlspecialchars (string, quote_style, charset, double_encode) {
     return string;
 }
 
-function execCommand(command, args, options, stdin, successCallback, errorCallback) {
-	var process = spawn(command, args, options);
-	var stdout = '';
-	var stderr = '';
-
-	process.stdout.on('data', function (data) {
-		stdout += data;
-	});
-
-	process.stderr.on('data', function (data) {
-		stderr += data;
-	});
-
-	process.on('exit', function (code) {
-		if (code > 0 && errorCallback) {
-			errorCallback(stderr, code);
-		}
-		else if (successCallback) {
-			if (stderr != '') {
-				logger.warn(stderr);
-			}
-			successCallback(stdout);
-		}
-	});
-
-	if (stdin) {
-		process.stdin.write(stdin);
-	}
-
-	process.stdin.end();
-}
-
 function parse(input, callback) {
-	execCommand('python', ['parser/parser.py'], null, input,
-		// success
-		function(stdout) {
-			callback(stdout);
-		},
-		// failure
-		function(stderr) {
-			logger.error('Error while parsing input\n' + stderr);
-			callback(null);
-		}
-	);
+	slidemaker.generateSlideshow(input, 'Slideshow', callback);
 }
 
 function getSlideshowSource(id, version, callback) {
@@ -303,7 +260,7 @@ app.get('/:id?/:ver?', function(req, res, next){
 		res.render('index.html', {
 			id: null,
 			version: 1,
-			input: htmlspecialchars(fs.readFileSync('parser/input.html'))
+			input: htmlspecialchars(fs.readFileSync('template/defaultinput.html'))
 		});
 	}
 });
@@ -401,8 +358,15 @@ nowjs.on('disconnect', function(){
 
 });
 
-everyone.now.transform = function(str, callback) {
-	parse(str, callback);
+everyone.now.transform = function(input, callback) {
+	fs.readFile('template/slideshow.html', function (err, data) {
+		if (err) throw err;
+
+		var result = new String(data).replace('<!-- {{TITLE}} -->', 'Presentation')
+									 .replace('<!-- {{SLIDES}} -->', input);
+
+		callback(result);
+	});
 }
 
 everyone.now.save = function(id, data, callback) {
