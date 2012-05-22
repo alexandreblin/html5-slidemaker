@@ -350,7 +350,7 @@
 						if (iLevel == 1) {
 							iCurrentSlide++; // we just got a first level <article>
 							if(iCurrentSlide == iSlide) {
-								result.from = editor.posFromIndex(i);
+								result.from = editor.posFromIndex(parseInt(i));
 							}
 						}
 					} else {
@@ -760,39 +760,12 @@
 						var previousSlide = getSlideInfo(selectedSlide - 1);
 						var currentSlide = getSlideInfo(selectedSlide);
 						var nextSlide = getSlideInfo(selectedSlide + 1);
-						var startTag = "<article>";
 						if(currentSlide) {
 							var vFrom = previousSlide ? previousSlide.to : currentSlide.from;
 							var vTo = nextSlide ? nextSlide.from : currentSlide.to;
 							var szWrap = (previousSlide && nextSlide) ? "\n\n" : "";
-							if(!previousSlide && !nextSlide) {
-								vFrom = {line: vFrom.line, ch: parseInt(vFrom.ch) + startTag.length};
-							}
 							editor.replaceRange(szWrap, vFrom, vTo);
-							editor.setCursor(vFrom);
-							editor.focus();
 						}
-						/*var slide = getSlideInfo(selectedSlide);
-						var lineEnd = slide.to.line;
-						var chEnd = slide.to.ch;
-						var lineBegin = slide.from.line;
-						var chBegin = slide.from.ch;
-
-						while(editor.lineInfo(lineEnd)!=null && editor.lineInfo(lineEnd).text.indexOf("<article") == -1 && lineEnd < editor.lineCount()){
-							lineEnd++;
-						}
-
-						if(lineEnd == editor.lineCount())
-						{
-							while(editor.lineInfo(lineBegin)!=null && editor.lineInfo(lineBegin).text.indexOf("</article>") == -1 && lineBegin > 0){
-								lineBegin--;
-							}
-							chBegin =  editor.lineInfo(lineBegin).text.indexOf("</article>") + 10;
-						}
-						else if(lineEnd != slide.to.line){
-							chEnd =  editor.lineInfo(lineEnd).text.indexOf("<article");
-						}
-						editor.replaceRange("",{line: lineBegin, ch:chBegin}, {line: lineEnd, ch: chEnd});*/
 					}
 				}else if(tool == "font"){
 					if(currentFont != null){
