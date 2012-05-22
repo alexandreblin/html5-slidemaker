@@ -355,6 +355,9 @@
 						}
 					}
 				}
+				if(result.from == null || result.to == null) {
+					return null;
+				}
 				return result;
 			}
 
@@ -735,10 +738,14 @@
 				}else if(tool == "add"){
 					var slide = getSlideInfo(selectedSlide);
 					var template = $(this).data('template') || 't1';
-					editor.replaceRange(slideTemplate[template].code,  {line: slide.to.line, ch: slide.to.ch+1}, {line: slide.to.line, ch: slide.to.ch+1});
-
+					var szWrap = "\n\n";
+					if(!slide) {
+						slide = {from:{line: 0,ch: 0}, to:{line: 0,ch: 0}};
+						szWrap = "";
+					}
+					editor.replaceRange(szWrap + slideTemplate[template].code,  {line: slide.to.line, ch: slide.to.ch+1}, {line: slide.to.line, ch: slide.to.ch+1});
 					editor.focus();
-					editor.setCursor({line:slide.to.line+4, ch: 4});
+					editor.setCursor({line:slide.to.line+2+szWrap.length, ch: 2});
 
 				}else if(tool == "delete"){
 					if(confirm("Are you sure you want to delete the current slide?")){
@@ -902,7 +909,7 @@
 
 				var type = state.htmlState ? state.htmlState.type : state.type;
 
-				if (state.htmlState.context.tagName == 'pre') {
+				if (state.htmlState.context && state.htmlState.context.tagName == 'pre') {
 					if (ch == '<') {
 						cm.replaceSelection('&lt;');
 					}else if (ch == '>') {
