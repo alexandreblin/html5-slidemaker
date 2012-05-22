@@ -32,7 +32,7 @@ function generateUniqueRoomId(newRoomId){
 }
 
 function randomString(len) {
-    var charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charset = 'abcdefghijkmnopqrstuvwxyz';
     var randomString = '';
     for (var i = 0; i < len; i++) {
         var randomPoz = Math.floor(Math.random() * charset.length);
