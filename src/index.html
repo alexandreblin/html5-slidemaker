@@ -31,21 +31,28 @@
   </nav>
 
   <div class="btn-toolbar" id="toolbar">
-    <button class="btn" data-tool="save"><i class="icon-16x16"></i> Save</button>
+    <div class="btn-group" id="saveButton">
+      <button class="btn" data-tool="save" id="save"><i class="icon-16x16"></i> Save</button>
+      <button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+      <ul class="dropdown-menu" id="fullscreenMode">
+        <li><a data-tool="clone" href="javascript:void(0)">Clone</a></li>
+      </ul>
+    </div>
+
     <!--<button data-tool="saveAs"><i class="icon-16x16"></i> Duplicate</button>
     File<select id="files"><option value=""></option></select>  
     <button data-tool="rmFile"><i class="icon-16x16"></i> Delete</button>-->
-	
-	<!--a href="" target="_blank" class="btn hidden" id="fullscreen"><i class="icon-16x16"></i> Show fullscreen</a-->
-	
-	<div class="btn-group" id="fullscreenGroup">
-		<a href="" target="_blank" class="btn hidden" id="fullscreen" ><i class="icon-16x16"></i> Show fullscreen</a>
-		<button id="fullscreenDropdown" class="btn dropdown-toggle hidden" data-toggle="dropdown"><span class="caret"></span></button>
-		<ul class="dropdown-menu" id="fullscreenMode">
-			<li><a id="createRoom" href="javascript:void(0)" >Within room</a></li>
-		</ul>
+    
+    <!--a href="" target="_blank" class="btn hidden" id="fullscreen"><i class="icon-16x16"></i> Show fullscreen</a-->
+
+    <div class="btn-group" id="fullscreenGroup">
+      <a href="" target="_blank" class="btn hidden" id="fullscreen" ><i class="icon-16x16"></i> Show fullscreen</a>
+      <button id="fullscreenDropdown" class="btn dropdown-toggle hidden" data-toggle="dropdown"><span class="caret"></span></button>
+      <ul class="dropdown-menu" id="fullscreenMode">
+        <li><a id="createRoom" href="javascript:void(0)" >Within room</a></li>
+      </ul>
     </div>
-	
+  
    
     <!--button class="btn hidden" data-tool="createRoom" id="createRoom"><i class="icon-16x16"></i> Create Room</button-->
 

@@ -153,6 +153,10 @@ body {
 	background-image: url(../img/file-save.png);
 }
 
+#toolbar button[data-tool='clone'] > i {
+	background-image: url(../img/file-clone.png);
+}
+
 #toolbar button[data-tool='saveAs'] > i {
 	background-image: url(../img/file-saveas.png);
 }

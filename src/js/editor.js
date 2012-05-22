@@ -146,7 +146,7 @@
 					}
 
 					if (isFileModified) {
-						$("button[data-tool=save]").removeClass("disabled");
+						$('#saveButton button').removeClass("disabled");
 					}
 				},
 				onCursorActivity: function() {
@@ -775,19 +775,28 @@
 					}
 					return;
 				}
-				else if (tool == "save") {
+				else if (tool == "save" || tool == "clone") {
 					/*if(fileName != ""){
 						saveFile(fileName);
 					}else{
 						saveAsFile();
 					}*/
-					now.save(slideshowID, editor.getValue(), function(id, version) {
+
+					var id = slideshowID;
+					if (tool == "clone") {
+						// force a new ID if we clone the slideshow
+						id = null;
+					}
+
+					now.save(id, editor.getValue(), function(id, version) {
 						slideshowID = id;
 						slideshowVersion = version;
 						history.replaceState({}, '', '/' + slideshowID + '/' + slideshowVersion + window.location.hash);
 						updateShowFullscreenLink();
 					});
-					$(this).addClass("disabled");
+					$('#saveButton button').addClass("disabled");
+
+					return;
 				}else if (tool == "saveAs") {
 					//saveAsFile();
 				}else if (tool == "rmFile") {
