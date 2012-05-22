@@ -169,7 +169,7 @@ body {
     background-image: url(../img/text-font.png);
 }
 
-#toolbar button[data-tool='theme'] > i {
+#toolbar button#themeDropdown > i {
 	background-image: url(../img/image-sunset.png);
 }
 

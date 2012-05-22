@@ -53,7 +53,8 @@
             }
 
 			for(t in themeList){
-				$('#fontlist').append($('<li><a href="javascript:void(0)" data-tool="theme" data-font="'+t+'" style="font-family:'+t+'">'+themeList[t]+'</a></li>'));
+				$('#themeList').append($('<li><a href="javascript:void(0)" data-tool="theme" data-theme="'+t+'" style="font-family:'+t+'">'+themeList[t]+'</a></li>'));
+
 			}
 
             $('#currentFont').html(fontList[currentFont]);
@@ -62,7 +63,7 @@
                 currentFont = $(this).data('font');
                 $('#currentFont').html(fontList[currentFont]);
             });
-			
+
 			$("#createRoom").click(function(){
 				if(slideshowID){
 					now.createRoom(slideshowID, slideshowVersion, function(roomId){
@@ -775,8 +776,11 @@
 						editor.focus();
                     }
 					return;
-                }
-                else if (tool == "save") {
+                } else if(tool == "theme") {
+					//currentTheme = "template-uulm-in";//$("#mainSection").removeClass("template-uulm-in").addClass("template-default");
+					//previewFrame.contentWindow.changeTheme("template-default");//console.log($("#mainSection").attr('class'));
+
+				} else if (tool == "save") {
 					/*if(fileName != ""){
 						saveFile(fileName);
 					}else{
@@ -855,38 +859,38 @@
 
 			function updatePreview() {
 				now.transform(editor.getValue(), function(previewHTML) {
-                    var content = previewFrame.contentDocument || previewFrame.contentWindow.document;
+					var content = previewFrame.contentDocument || previewFrame.contentWindow.document;
 
-                    // putting HTML into iframe
-                    content.open();
+					// putting HTML into iframe
+					content.open();
 
 					if (previewHTML == null) {
-                        content.write('<span style="color:red; font-family: sans-serif">Error while parsing input</span>');
+						content.write('<span style="color:red; font-family: sans-serif">Error while parsing input</span>');
 					}
-                    else{
-					    // we need to inject some JS before putting it into the iframe to make the slideshow start at the slide we're currently editing
-					    // and to make it so that when we navigate slides in the iframe, the browser's location hash changes too
-					    var js = '<script> \
+					else{
+						// we need to inject some JS before putting it into the iframe to make the slideshow start at the slide we're currently editing
+						// and to make it so that when we navigate slides in the iframe, the browser's location hash changes too
+						var js = '<script> \
 					    curSlide = ' + selectedSlide + '; \
 					    var oldUpdateHash = updateHash; \
 					    updateHash = function() { oldUpdateHash(); window.top.location.hash = "slide" + (curSlide + 1); } \
 					    </script>';
 
-					    if ($.browser.mozilla) {
-						    // updateHash is broken in firefox when put in an iframe with no src
-						    js = js.replace('oldUpdateHash();', '');
-					    }
-					
-					    previewHTML = previewHTML.replace('</head>', js + '</head>');
-					    previewHTML = previewHTML.replace('<script src="/nowjs/now.js"></script>', '');
-					
-					    $(document).bind('initNow', function(e, param1) {
-						    param1(now);
-					    });
+						if ($.browser.mozilla) {
+							// updateHash is broken in firefox when put in an iframe with no src
+							js = js.replace('oldUpdateHash();', '');
+						}
 
-					content.write(previewHTML);
-					//previewFrame.contentWindow.setNowJs(now);
-                    }
+						previewHTML = previewHTML.replace('</head>', js + '</head>');
+						previewHTML = previewHTML.replace('<script src="/nowjs/now.js"></script>', '');
+
+						$(document).bind('initNow', function(e, param1) {
+							param1(now);
+						});
+
+						content.write(previewHTML);
+						//previewFrame.contentWindow.setNowJs(now);
+					}
 					content.close();
 				});
 			}
