@@ -177,17 +177,19 @@
 			function setSplitAt(value) {
 				value = Math.max(50, Math.min(value, $(document).width() - 50));
 
-				var leftSize = value;
-				var rightSize = $(document).width() - value;
-
-				$("#code").css({right: rightSize + 2});
-				$("#preview").css({left: leftSize + 2});
-				$("#splitter").css({left: leftSize - 2});
+				$("#code").css({left: 0, width: value - 2});
+				$("#preview").css({left: value + 2});
+				$("#splitter").css({left: value - 2});
 
 				editor.refresh();
 
 				splitSize = value;
 			}
+
+			$(window).resize(function() {
+				// refresh the split size so it doesn't go off screen
+  				setSplitAt(splitSize);
+			});
 			
 			var dragHandler = function(e) {
 				setSplitAt(e.pageX);
