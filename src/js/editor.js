@@ -754,9 +754,9 @@
 					editor.replaceRange(szWrap + slideTemplate[template].code,  {line: slide.to.line, ch: slide.to.ch}, {line: slide.to.line, ch: slide.to.ch});
 					editor.focus();
 					editor.setCursor({line:slide.to.line+2+szWrap.length, ch: 2});
-
+					return;
 				}else if(tool == "delete"){
-					if(confirm("Are you sure you want to delete the current slide?")){
+					if(confirm("Are you sure you want to delete the current slide?")) {
 						var previousSlide = getSlideInfo(selectedSlide - 1);
 						var currentSlide = getSlideInfo(selectedSlide);
 						var nextSlide = getSlideInfo(selectedSlide + 1);
@@ -767,6 +767,7 @@
 							editor.replaceRange(szWrap, vFrom, vTo);
 						}
 					}
+					return;
 				}else if(tool == "font"){
 					if(currentFont != null){
 						var bAddFont= setStyleAttribute("font-family", currentFont);
