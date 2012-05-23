@@ -10,11 +10,11 @@ article:not(.fill):not(.title-slide):before{
 	top: 24px;
 }
 
-article .slide-nr{
+article .paging{
     display:none;
 }
 
-article:not(.fill):not(.title-slide) .slide-nr{
+article:not(.fill):not(.title-slide) .paging{
 	display:inline;
 	position: absolute;
 	color: #eee;
@@ -31,6 +31,9 @@ article:not(.fill):not(.title-slide) .slide-nr{
 	margin:0;
 	background: rgb(163,38,56);
 	text-align:center;
+	bottom: auto;
+	right: auto;
+	width: auto;
 }
 
 
