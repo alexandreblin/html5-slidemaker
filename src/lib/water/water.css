@@ -1,0 +1,26 @@
+.slides > article {
+	background-color: #eefaff;
+	background: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 550, from(#ffffff), to(#efffff));
+	background: -moz-radial-gradient(50% 50%, farthest-side, #ffffff, #efffff);
+	/* opera, IE and other browsers cannot create radial gradients yet */
+}
+
+article .paging{
+	display:none;
+}
+
+article:not(.fill):not(.title-slide) .paging{
+	display: block;
+	background-color: #c1e5ff;
+	color: #ffffff;
+	font-size: 35px;
+}
+
+article h1, article h2, article h3 {
+	color: rgb(84, 150, 204);
+
+}
+
+.slides.template-water > article{
+	font-family: Comic Sans MS;
+}
