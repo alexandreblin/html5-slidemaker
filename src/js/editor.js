@@ -187,87 +187,7 @@
 
 				splitSize = value;
 			}
-
-			/*function fillFilesCombobox(){
-				for (var cle in localStorage){
-					if(cle.substr(0,7) == "slides_"){
-						cle = cle.substr(7,cle.length);
-						$(filesComboId).append("<option value='"+cle+"'>"+cle+"</option>");
-					}
-				}
-			}
-
-			$(filesComboId).change(function() {
-				if ($(this).val() != ""){
-					if (localStorage) {
-						if(isFileModified){
-							if (confirm("File not saved. Do you want to save it before switch?")) {
-								if(fileName == ""){
-									saveAsFile();
-								}else{
-									saveFile(fileName);
-								}
-							}
-						}
-						fileName = $(this).val();
-						onLoadFile = true;
-						editor.setValue(localStorage["slides_"+fileName]);
-						$("button[data-tool=save]").addClass("disabled");
-					} else {
-						alert("'localStorage' not supported by your navigator!");
-					}
-				}
-			});
-
-			function saveAsFile(){
-				var name = "";
-				while(name == ""){
-					name = prompt("Enter the name of the presentation");
-				}
-				if(name==null) return;
-
-				if (localStorage) {
-					if(localStorage["slides_"+name] != null){
-						if (!confirm("That name already exists! Do you want overwrite this file?")) {
-							return;
-						}
-					}else{
-						$(filesComboId).append("<option value='"+name+"'>"+name+"</option>");
-						$(filesComboId).val(name);
-					}
-				} else {
-					alert("Functionality not supported by your navigator!");
-				}
-				saveFile(name);
-				fileName = name;
-			}
-
-			function saveFile(name){
-				if (localStorage) {
-					localStorage["slides_"+name] = editor.getValue();
-					isFileModified = false;
-					$("button[data-tool=save]").addClass("disabled");
-				} else {
-					alert("Functionality not supported by your navigator!");
-				}
-			}
-
-			function removeFile(name){
-				if (localStorage) {
-					if(name != ""){
-						if (!confirm("Are you sure you want to delete : " + name + "?")) {
-							return;
-						}
-						localStorage.removeItem("slides_"+name);
-						$(filesComboId+" option:selected").remove();
-						fileName = "";
-						isFileModified = true;
-					}
-				} else {
-					alert("Functionality not supported by your navigator!");
-				}
-			}*/
-
+			
 			var dragHandler = function(e) {
 				setSplitAt(e.pageX);
 			};
@@ -783,12 +703,6 @@
 					//previewFrame.contentWindow.changeTheme("template-default");//console.log($("#mainSection").attr('class'));
 
 				} else if (tool == "save" || tool == "clone") {
-					/*if(fileName != ""){
-						saveFile(fileName);
-					}else{
-						saveAsFile();
-					}*/
-
 					var id = slideshowID;
 					if (tool == "clone") {
 						// force a new ID if we clone the slideshow
@@ -800,14 +714,11 @@
 						slideshowVersion = version;
 						history.replaceState({}, '', '/' + slideshowID + '/' + slideshowVersion + window.location.hash);
 						updateShowFullscreenLink();
+						updatePreview();
 					});
 					$('#saveButton button').addClass("disabled");
 
 					return;
-				}else if (tool == "saveAs") {
-					//saveAsFile();
-				}else if (tool == "rmFile") {
-					//removeFile(fileName);
 				}
 				else if(tool == "prev") {
 					if(selectedSlide > 0){
@@ -923,7 +834,6 @@
 
 			$(window).trigger('hashchange');
 			setSplitAt(splitSize);
-			//fillFilesCombobox();
 			updatePreview();
 		});
 	});

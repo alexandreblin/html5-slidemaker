@@ -52,6 +52,8 @@ function parse(input, callback) {
 		var result = new String(data).replace('<!-- {{TITLE}} -->', 'Presentation')
 									 .replace('<!-- {{SLIDES}} -->', input);
 
+		result = result.replace('</article>', '<span class="paging"></span></article>');						 
+									 
 		callback(result);
 	});
 }
@@ -364,8 +366,6 @@ everyone.now.changeSlide = function(slideNumber, roomId, event){
 			}
 		}
 		
-	}else{
-		logger.debug("#changeSlide# Room not found in roomInfos");
 	}
 };
 
