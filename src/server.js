@@ -45,15 +45,17 @@ function htmlencode(str) {
     return new String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function parse(input, callback) {
+function parse(input, callback, theme) {
 	fs.readFile('template/slideshow.html', function (err, data) {
 		if (err) throw err;
 
 		var result = new String(data).replace('<!-- {{TITLE}} -->', 'Presentation')
 									 .replace('<!-- {{SLIDES}} -->', input);
 
-		result = result.replace('</article>', '<span class="paging"></span></article>');						 
-									 
+		result = result.replace('</article>', '<span class="paging"></span></article>');
+
+		var js = "<script>curTheme = '" + theme + "'; </script>";
+		result = result.replace('</head>', js + '</head>');
 		callback(result);
 	});
 }

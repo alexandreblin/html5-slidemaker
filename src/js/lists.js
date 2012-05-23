@@ -13,11 +13,6 @@ var fontList = {
     'Verdana': 'Verdana'
 };
 
-var themeList = {
-	'template-default' : 'default',
-	'template-uulm-in' : 'uuml'
-};
-
 var slideTemplate = {
 	't1': {
 		title:"Empty slide",

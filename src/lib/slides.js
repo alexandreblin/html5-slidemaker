@@ -17,6 +17,7 @@ var SLIDE_CLASSES = ['far-past', 'past', 'current', 'next', 'far-next'];
 var PM_TOUCH_SENSITIVITY = 15;
 
 var curSlide;
+var curTheme;
 
 /* ---------------------------------------------------------------------- */
 /* classList polyfill by Eli Grey
@@ -632,12 +633,15 @@ function updateScale() {
     slides.style.OTransform = 'scale(' + scale + ')';
 };
 
-/*
-function addTheme(newValue) {
-	console.log($("#mainSection").attr('class'));
-	$("#mainSection").addClass(newValue);
-	console.log($("#mainSection").attr('class'));
-};*/
+
+function applyCurrentTheme() {
+	if(themeList[curTheme]) {
+		$("#mainSection").addClass(themeList[curTheme].class);
+		if(themeList[curTheme].css) {
+			$('head').append('<link rel="stylesheet" href="'+themeList[curTheme].css+'" type="text/css" />');
+		}
+	}
+};
 
 function handleDomLoaded() {
     slideEls = document.querySelectorAll('section.slides > article');
@@ -648,6 +652,7 @@ function handleDomLoaded() {
     addGeneralStyle();
     addPrettify();
     addEventListeners();
+	applyCurrentTheme();
 
     updateSlides();
 
@@ -665,7 +670,6 @@ function handleDomLoaded() {
 
 function initialize() {
     getCurSlideFromHash();
-
     if (window['_DEBUG']) {
         PERMANENT_URL_PREFIX = '../';
     }

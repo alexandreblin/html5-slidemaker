@@ -38,6 +38,7 @@
 			var totalSlides;
 			var selectedSlide;
 			var currentFont = 'Arial';
+			var currentTheme = "default";
 
 			var fileName = "";
 			var isFileModified = false;
@@ -53,7 +54,7 @@
             }
 
 			for(t in themeList){
-				$('#themeList').append($('<li><a href="javascript:void(0)" data-tool="theme" data-theme="'+t+'">'+themeList[t]+'</a></li>'));
+				$('#themeList').append($('<li><a href="javascript:void(0)" data-tool="theme" data-theme="'+t+'">'+t+'</a></li>'));
 
 			}
 
@@ -676,7 +677,8 @@
 					editor.setCursor({line:slide.to.line+2+szWrap.length, ch: 2});
 					return;
 				}else if(tool == "delete"){
-					if(confirm("Are you sure you want to delete the current slide?")) {
+					if(confirm("Are you sure you want to delete the current slide?"))
+					{
 						var previousSlide = getSlideInfo(selectedSlide - 1);
 						var currentSlide = getSlideInfo(selectedSlide);
 						var nextSlide = getSlideInfo(selectedSlide + 1);
@@ -699,8 +701,9 @@
 					}
 					return;
                 } else if(tool == "theme") {
-					//currentTheme = "template-uulm-in";//$("#mainSection").removeClass("template-uulm-in").addClass("template-default");
-					//previewFrame.contentWindow.changeTheme("template-default");//console.log($("#mainSection").attr('class'));
+					currentTheme = $(this).data('theme');
+					updatePreview();
+					return;
 
 				} else if (tool == "save" || tool == "clone") {
 					var id = slideshowID;
@@ -808,7 +811,7 @@
 						//previewFrame.contentWindow.setNowJs(now);
 					}
 					content.close();
-				});
+				}, currentTheme);
 			}
 
 			function autoEncodePre(cm, ch){
