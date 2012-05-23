@@ -113,6 +113,7 @@ body {
 	.box-shadow(none);
 }
 
+
 #toolbar button[data-tool='strong'] > i {
 	background-image: url(../img/bold.png);
 }
