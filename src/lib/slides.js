@@ -240,7 +240,9 @@ function prevSlide() {
 
         updateSlides();
 		//for slideshow
-		now.changeSlide(curSlide, now.room, undefined);
+		if(parent === window){
+			now.changeSlide(curSlide, now.room, undefined);
+		}
 	
     }
 };
@@ -255,7 +257,9 @@ function nextSlide() {
 
         updateSlides();
 		//for slideshow
-		now.changeSlide(curSlide, now.room, undefined);
+		if(parent === window){
+			now.changeSlide(curSlide, now.room, undefined);
+		}
 	
     }
 };
@@ -637,7 +641,7 @@ function addTheme(newValue) {
 
 function handleDomLoaded() {
     slideEls = document.querySelectorAll('section.slides > article');
-
+	addPagination();
     setupFrames();
 
     addFontStyle();
@@ -671,6 +675,16 @@ function initialize() {
     } else {
         document.addEventListener('DOMContentLoaded', handleDomLoaded, false);
     }
+}
+
+function addPagination(){
+	for(var i = 0; i < slideEls.length; i++){
+		var slide = slideEls[i];
+		var newSpan = document.createElement("span");
+		newSpan.className = "paging";
+		newSpan.innerHTML = (i+1) + "/" + slideEls.length;
+		slide.appendChild(newSpan);
+	}
 }
 
 // If ?debug exists then load the script relative instead of absolute
