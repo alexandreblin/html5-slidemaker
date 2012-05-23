@@ -680,10 +680,10 @@ function initialize() {
 function addPagination(){
 	for(var i = 0; i < slideEls.length; i++){
 		var slide = slideEls[i];
-		var newSpan = document.createElement("span");
-		newSpan.className = "paging";
-		newSpan.innerHTML = (i+1) + "/" + slideEls.length;
-		slide.appendChild(newSpan);
+		var pagenumElt = document.createElement("p");
+		pagenumElt.className = "paging";
+		pagenumElt.innerHTML = (i+1) + " / " + slideEls.length;
+		slide.appendChild(pagenumElt);
 	}
 }
 
