@@ -826,6 +826,7 @@
 						slideshowVersion = version;
 						history.replaceState({}, '', '/' + slideshowID + '/' + slideshowVersion + window.location.hash);
 						updateShowFullscreenLink();
+						updatePreview();
 					});
 					$('#saveButton button').addClass("disabled");
 
