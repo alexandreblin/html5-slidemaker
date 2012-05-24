@@ -113,6 +113,9 @@ body {
 	.box-shadow(none);
 }
 
+#toolbar button[data-tool='iframe'] > i {
+    background-image: url(../img/iframe.png);
+}
 
 #toolbar button[data-tool='strong'] > i {
 	background-image: url(../img/bold.png);
