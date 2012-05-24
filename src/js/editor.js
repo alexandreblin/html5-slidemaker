@@ -705,30 +705,24 @@
                 }
                 else if(tool == "slideSelector"){
                     var slide = prompt("Go to slide number:");
-                    if(slide < 1){
-                        selectedSlide = 0;
-                    }
-                    else if(slide >= totalSlides){
-                        selectedSlide = totalSlides-1;
-                    }
-                    else{
-                        selectedSlide = slide-1;
-                    }
-                    previewFrame.contentWindow.gotoSlide(selectedSlide);
+					if(slide > 0) {
+						selectedSlide = slide >= totalSlides ? totalSlides : slide;
+						selectedSlide--;
+						previewFrame.contentWindow.gotoSlide(selectedSlide);
+					}
                     return;
                 }
                 else if(tool == "iframe"){
                     var src = prompt("Enter the URL of iframe content");
-
-                    newSelection = '<iframe src="' + src + '"></iframe>';
-                    if (src == null) return;
-                    else if (!src){
+					cleanSelection();
+					if (src) {
+						newSelection = '<iframe src="' + src + '"></iframe>';
                         var curs = editor.getCursor(newSelection);
                         editor.replaceSelection(newSelection);
                         editor.focus();
                         editor.setCursor({line:curs.line, ch: curs.ch + 13});
-                        return;
                     }
+					return;
                 }
                 else if(tool == "theme") {
 					currentTheme = $(this).data('theme');
