@@ -119,8 +119,10 @@
 				// scroll the editor to the right slide if we're not focused in the editor
 				if (!editorHasFocus) {
 					var slide = getSlideInfo(selectedSlide);
-					var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch}, "local");
-					editor.scrollTo(coord.x, coord.y);
+					if(slide) {
+						var coord = editor.charCoords({line:slide.from.line, ch:slide.from.ch}, "local");
+						editor.scrollTo(coord.x, coord.y);
+					}
 				}
 			});
 
@@ -219,21 +221,30 @@
 				var startTag = bWithAttr ? '<' + szTag : '<' + szTag + '>';
 				var endTag = '</' + szTag + '>';
 
-				var tags = [];
+				var tags = {};
 
-				var pos = szText.indexOf(startTag);
-				while (pos != -1) {
-					tags[pos] = true;
-					pos = szText.indexOf(startTag, pos+1);
-				}
-
-				pos = szText.indexOf(endTag);
-				while (pos != -1) {
-					tags[pos] = false;
-					pos = szText.indexOf(endTag, pos+1);
+				var sPos = szText.indexOf(startTag);
+				var ePos = szText.indexOf(endTag);
+				while (sPos != -1 || ePos != -1) {
+					if(sPos != -1 && ePos !=1) {
+						if(sPos < ePos){
+							tags[sPos] = true;
+							sPos = szText.indexOf(startTag, sPos+1);
+						} else {
+							tags[ePos] = false;
+							ePos = szText.indexOf(endTag, ePos+1);
+						}
+					} else if(sPos != -1){
+						tags[sPos] = true;
+						sPos = szText.indexOf(startTag, sPos+1);
+					} else {
+						tags[ePos] = false;
+						ePos = szText.indexOf(endTag, ePos+1);
+					}
 				}
 				return tags;
 			}
+
 
 			// Return the current slide compared with to the cursor position.
 			function getSlideInfoOnCursor() {
