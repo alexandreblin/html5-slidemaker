@@ -702,7 +702,22 @@
 						editor.focus();
 					}
 					return;
-                } else if(tool == "theme") {
+                }
+                else if(tool == "slideSelector"){
+                    var slide = prompt("Go to slide number:");
+                    if(slide < 1){
+                        selectedSlide = 0;
+                    }
+                    else if(slide >= totalSlides){
+                        selectedSlide = totalSlides-1;
+                    }
+                    else{
+                        selectedSlide = slide-1;
+                    }
+                    previewFrame.contentWindow.gotoSlide(selectedSlide);
+                    return;
+                }
+                else if(tool == "theme") {
 					currentTheme = $(this).data('theme');
 					updatePreview();
 					return;
