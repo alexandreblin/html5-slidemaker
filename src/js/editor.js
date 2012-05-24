@@ -717,6 +717,19 @@
                     previewFrame.contentWindow.gotoSlide(selectedSlide);
                     return;
                 }
+                else if(tool == "iframe"){
+                    var src = prompt("Enter the URL of iframe content");
+
+                    newSelection = '<iframe src="' + src + '"></iframe>';
+                    if (src == null) return;
+                    else if (!src){
+                        var curs = editor.getCursor(newSelection);
+                        editor.replaceSelection(newSelection);
+                        editor.focus();
+                        editor.setCursor({line:curs.line, ch: curs.ch + 13});
+                        return;
+                    }
+                }
                 else if(tool == "theme") {
 					currentTheme = $(this).data('theme');
 					updatePreview();
