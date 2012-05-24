@@ -11,9 +11,9 @@ article .paging{
 
 article:not(.fill):not(.title-slide) .paging{
 	display: block;
-	background-color: #c1e5ff;
+	background-color: #5496cc;
 	color: #ffffff;
-	font-size: 35px;
+	font-size: 20px;
 }
 
 article h1, article h2, article h3 {
@@ -22,5 +22,13 @@ article h1, article h2, article h3 {
 }
 
 .slides.template-water > article{
-	font-family: Comic Sans MS;
+	font-family: Verdana;
+}
+
+body.loaded {
+	background: url('/img/raindrops-on-water.jpg') no-repeat top right;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
 }

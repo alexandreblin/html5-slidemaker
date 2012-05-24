@@ -10,5 +10,9 @@ var themeList = {
 	'water': {
 		class: "template-water",
 		css: "/lib/water/water.css"
+	},
+	'nature': {
+		class: "template-nature",
+		css: "/lib/nature/nature.css"
 	}
 };

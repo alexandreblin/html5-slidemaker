@@ -1,0 +1,39 @@
+.slides > article {
+	background-color: #f7f6db;
+	/* Safari 4-5, Chrome 1-9 */
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f1ebc8), to(#ffffff));
+	/* Safari 5.1, Chrome 10+ */
+	background: -webkit-linear-gradient(top, #f1ebc8, #ffffff);
+	/* Firefox 3.6+ */
+	background: -moz-linear-gradient(top, #f1ebc8, #ffffff);
+	/* IE 10 */
+	background: -ms-linear-gradient(top, #f1ebc8, #ffffff);
+	/* Opera 11.10+ */
+	background: -o-linear-gradient(top, #f1ebc8, #ffffff);
+}
+
+body.loaded {
+	background: url('/img/water-on-hill.jpg') no-repeat top right;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+article h1, article h2, article h3 {
+	color: #7A592F;
+}
+
+.slides.template-water > article{
+	font-family: Verdana;
+}
+
+article .paging{
+	display:none;
+}
+
+article:not(.fill):not(.title-slide) .paging{
+	display: block;
+	color: #7A592F;
+	font-size: 20px;
+}
