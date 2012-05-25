@@ -52,8 +52,6 @@ function parse(input, callback, theme) {
 		var result = new String(data).replace('<!-- {{TITLE}} -->', 'Presentation')
 									 .replace('<!-- {{SLIDES}} -->', input);
 
-		result = result.replace('</article>', '<span class="paging"></span></article>');
-
 		var js = "<script>curTheme = '" + theme + "'; </script>";
 		result = result.replace('</head>', js + '</head>');
 		callback(result);
