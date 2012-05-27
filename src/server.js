@@ -97,7 +97,9 @@ app.configure(function(){
 });
 
 // thanks to http://www.hacksparrow.com/handle-file-uploads-in-express-node-js.html
-app.post('/upload/:id', function(req, res) {
+app.post('/upload/:id', function(req, res, next) {
+	if (!req.files.image) { next(); return; }
+
 	var slideshowId = req.params.id;
 
     // get the temporary location of the file

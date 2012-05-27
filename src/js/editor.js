@@ -117,50 +117,54 @@
 			refreshPictures();
 		});
 
-		function uploadPicture(pic) {
-			// little hack to set the progress bar to 0% without the CSS transition (so it goes directly back to 0)
-			$('#uploadProgress > .bar').css({'-webkit-transition-duration': '0s'});
-			$('#uploadProgress > .bar').css({width: '0%'});
-			setTimeout(function() {
-				$('#uploadProgress > .bar').css({'-webkit-transition-duration': ''});
-			}, 0);
+		function uploadPicture(pics) {
+			for (var i in pics) {
+				var pic = pics[i];
 
-			// start animating the toolbar
-			$('#uploadProgress').addClass('active');
+				// little hack to set the progress bar to 0% without the CSS transition (so it goes directly back to 0)
+				$('#uploadProgress > .bar').css({'-webkit-transition-duration': '0s'});
+				$('#uploadProgress > .bar').css({width: '0%'});
+				setTimeout(function() {
+					$('#uploadProgress > .bar').css({'-webkit-transition-duration': ''});
+				}, 0);
 
-			// hide any alerts from a previous upload
-			$('#uploadModal form .alert').hide();
+				// start animating the toolbar
+				$('#uploadProgress').addClass('active');
 
-			var fd = new FormData();
-			
-			fd.append('image', pic);
-			
-			var xhr = new XMLHttpRequest();
+				// hide any alerts from a previous upload
+				$('#uploadModal form .alert').hide();
 
-			xhr.addEventListener('load', function(e) {
-				refreshPictures();
+				var fd = new FormData();
+				
+				fd.append('image', pic);
+				
+				var xhr = new XMLHttpRequest();
 
-				// stop animating the bar when the upload is done
-    			$('#uploadProgress > .bar').css({width: '100%'});
-    			$('#uploadProgress').removeClass('active');
-			}, false);
-			
-			xhr.upload.addEventListener("progress", function(e) {
-				if (e.lengthComputable) {
-    				var percentComplete = e.loaded * 100 / e.total;
-    				$('#uploadProgress > .bar').css({width: percentComplete + '%'});
-  				}
-			}, false);
+				xhr.addEventListener('load', function(e) {
+					refreshPictures();
 
-			function uploadFailed(e) {
-				$('#uploadModal form .alert-error').show();
+					// stop animating the bar when the upload is done
+	    			$('#uploadProgress > .bar').css({width: '100%'});
+	    			$('#uploadProgress').removeClass('active');
+				}, false);
+				
+				xhr.upload.addEventListener("progress", function(e) {
+					if (e.lengthComputable) {
+	    				var percentComplete = e.loaded * 100 / e.total;
+	    				$('#uploadProgress > .bar').css({width: percentComplete + '%'});
+	  				}
+				}, false);
+
+				function uploadFailed(e) {
+					$('#uploadModal form .alert-error').show();
+				}
+
+				xhr.addEventListener("error", uploadFailed, false);
+				xhr.addEventListener("abort", uploadFailed, false);
+
+				xhr.open('POST', '/upload/' + slideshowID);
+				xhr.send(fd);
 			}
-
-			xhr.addEventListener("error", uploadFailed, false);
-			xhr.addEventListener("abort", uploadFailed, false);
-
-			xhr.open('POST', '/upload/' + slideshowID);
-			xhr.send(fd);
 		}
 
 		$('#dropbox').bind('dragenter', function(e) {
@@ -185,11 +189,11 @@
 
 			console.log(files);
 
-			uploadPicture(files[0]);
+			uploadPicture(files);
 		});
 
 		$('#uploadButton').click(function() {
-			uploadPicture(document.getElementById('imageInput').files[0]);
+			uploadPicture(document.getElementById('imageInput').files);
     		
     		return false;
 		});
