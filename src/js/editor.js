@@ -119,57 +119,77 @@
 
 		function uploadPicture(pics) {
 			$('#uploadModal form .alert-warn').html('');
-			for (var i in pics) {
-				var pic = pics[i];
-				
-				if (pic.type.substr(0, 6) != 'image/') {
-					$('#uploadModal form .alert-warn').append(pic.name + ' is not an image.<br />').show();
-					continue;
-				}
+			var total = pics.length;
+			var done = 0;
+			var fileProgresses = [];
+			for (var i = 0; i < total; ++i) {
+				(function(i) {
+					var pic = pics[i];
 
-				// little hack to set the progress bar to 0% without the CSS transition (so it goes directly back to 0)
-				$('#uploadProgress > .bar').css({'-webkit-transition-duration': '0s'});
-				$('#uploadProgress > .bar').css({width: '0%'});
-				setTimeout(function() {
-					$('#uploadProgress > .bar').css({'-webkit-transition-duration': ''});
-				}, 0);
+					if (pic.type.substr(0, 6) != 'image/') {
+						$('#uploadModal form .alert-warn').append(pic.name + ' is not an image.<br />').show();
 
-				// start animating the toolbar
-				$('#uploadProgress').addClass('active');
+						return;
+					}
 
-				// hide any alerts from a previous upload
-				$('#uploadModal form .alert').hide();
+					if (i == 0) {
+						// little hack to set the progress bar to 0% without the CSS transition (so it goes directly back to 0)
+						$('#uploadProgress > .bar').css({'-webkit-transition-duration': '0s'});
+						$('#uploadProgress > .bar').css({width: '0%'});
+						setTimeout(function() {
+							$('#uploadProgress > .bar').css({'-webkit-transition-duration': ''});
+						}, 0);
 
-				var fd = new FormData();
-				
-				fd.append('image', pic);
-				
-				var xhr = new XMLHttpRequest();
+						// start animating the toolbar
+						$('#uploadProgress').addClass('active');
 
-				xhr.addEventListener('load', function(e) {
-					refreshPictures();
+						// hide any alerts from a previous upload
+						$('#uploadModal form .alert').hide();
+					}
 
-					// stop animating the bar when the upload is done
-	    			$('#uploadProgress > .bar').css({width: '100%'});
-	    			$('#uploadProgress').removeClass('active');
-				}, false);
-				
-				xhr.upload.addEventListener("progress", function(e) {
-					if (e.lengthComputable) {
-	    				var percentComplete = e.loaded * 100 / e.total;
-	    				$('#uploadProgress > .bar').css({width: percentComplete + '%'});
-	  				}
-				}, false);
+					var fd = new FormData();
+					
+					fd.append('image', pic);
+					
+					var xhr = new XMLHttpRequest();
 
-				function uploadFailed(e) {
-					$('#uploadModal form .alert-error').show();
-				}
+					xhr.addEventListener('load', function(e) {
+						done++;
 
-				xhr.addEventListener("error", uploadFailed, false);
-				xhr.addEventListener("abort", uploadFailed, false);
+						// refresh pictures and stop animating the bar when the upload is done
+						if (done == total) {
+							refreshPictures();
 
-				xhr.open('POST', '/upload/' + slideshowID);
-				xhr.send(fd);
+		    				$('#uploadProgress > .bar').css({width: '100%'});
+		    				$('#uploadProgress').removeClass('active');
+		    			}
+					}, false);
+					
+					xhr.upload.addEventListener("progress", function(e) {
+						if (e.lengthComputable) {
+		    				fileProgresses[i] = e.loaded / e.total;
+
+		    				var totalProgress = 0;
+		    				for (var j = 0; j < total; ++j) {
+		    					totalProgress += (fileProgresses[j] || 0) / (total*1.0);
+		    				}
+
+		    				// set the progress bar according to which file is currently uploading and its progress
+		    				$('#uploadProgress > .bar').css({width: (totalProgress*100) + '%'});
+		    				console.log(totalProgress);
+		  				}
+					}, false);
+
+					function uploadFailed(e) {
+						$('#uploadModal form .alert-error').show();
+					}
+
+					xhr.addEventListener("error", uploadFailed, false);
+					xhr.addEventListener("abort", uploadFailed, false);
+
+					xhr.open('POST', '/upload/' + slideshowID);
+					xhr.send(fd);
+				})(i);
 			}
 		}
 
@@ -192,8 +212,6 @@
 
 			// Using e.files with fallback because e.dataTransfer is immutable and can't be overridden in Polyfills (http://sandbox.knarly.com/js/dropfiles/).            
 			var files = (e.files || e.dataTransfer.files);
-
-			console.log(files);
 
 			uploadPicture(files);
 		});
