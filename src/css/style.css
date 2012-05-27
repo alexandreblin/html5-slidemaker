@@ -110,6 +110,14 @@ body {
 	background-color: #efefef;
 }
 
+#uploadModal form label {
+	display: inline;
+}
+
+#uploadModal form input {
+	margin: 0;
+}
+
 #toolbar {
 	margin: 6px 0 0 5px;
 }

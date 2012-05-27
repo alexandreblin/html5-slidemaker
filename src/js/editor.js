@@ -192,7 +192,7 @@
 			uploadPicture(files);
 		});
 
-		$('#uploadButton').click(function() {
+		$('#imageInput').change(function() {
 			uploadPicture(document.getElementById('imageInput').files);
     		
     		return false;
