@@ -117,10 +117,10 @@
 			refreshPictures();
 		});
 
-		$('#uploadButton').click(function() {
+		function uploadPicture(pic) {
 			var fd = new FormData();
 			
-			fd.append('image', document.getElementById('imageInput').files[0]);
+			fd.append('image', pic);
 			
 			var xhr = new XMLHttpRequest();
 
@@ -131,6 +131,35 @@
 
 			xhr.open('POST', '/upload/' + slideshowID);
 			xhr.send(fd);
+		}
+
+		$('#dropbox').bind('dragenter', function(e) {
+			$(this).addClass('draghover');
+		});
+
+		$('#dropbox').bind('dragleave', function(e) {
+			$(this).removeClass('draghover');
+		});
+
+		$('#dropbox').bind('drop', function(e) {
+			$(this).removeClass('draghover');
+			
+			// jQuery wraps the originalEvent, so we try to detect that here...
+			e = e.originalEvent || e;
+			
+			e.stopPropagation();
+			e.preventDefault();
+
+			// Using e.files with fallback because e.dataTransfer is immutable and can't be overridden in Polyfills (http://sandbox.knarly.com/js/dropfiles/).            
+			var files = (e.files || e.dataTransfer.files);
+
+			console.log(files);
+
+			uploadPicture(files[0]);
+		});
+
+		$('#uploadButton').click(function() {
+			uploadPicture(document.getElementById('imageInput').files[0]);
     		
     		return false;
 		});
