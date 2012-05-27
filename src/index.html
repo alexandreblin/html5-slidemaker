@@ -12,6 +12,7 @@
   <link href="/css/bootstrap.css" rel="stylesheet">
   <link href="/css/bootstrap-responsive.css" rel="stylesheet">
   <link href="/lib/codemirror/lib/codemirror.css" rel="stylesheet">
+  <link href="/lib/nailthumb/jquery.nailthumb.1.1.min.css" type="text/css" rel="stylesheet" /> 
   <link href="/lib/colorpicker/css/colorpicker.css" rel="stylesheet">
   <link href="/css/style.css" rel="stylesheet/less">
 
@@ -97,6 +98,29 @@
     </div>
   </div>
 
+  <div class="modal hide" id="uploadModal" data-backdrop="false">
+    <div class="modal-header">
+      <button class="close" data-dismiss="modal">×</button>
+      <h3>Image gallery</h3>
+    </div>
+    <div class="modal-body">
+      <form enctype="multipart/form-data" method="post" action="#">
+        <p>
+          <label for="imageInput">Select an image to upload:</label>
+          <input type="file" name="image" id="imageInput" />
+          <button class="btn" id="uploadButton">Upload</button>
+        </p>
+        <p id="fileDataMsg"></p>
+      </form>
+      <p>Click on an image to insert it:</p>
+      <p class="grayInfo" id="noImages">No image uploaded yet</p>
+      <ul class="thumbnails"></ul>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-dismiss="modal">Close</button>
+    </div>
+  </div>
+
   <section id="container">
     <section id="code">
       <textarea id="editor" onclick="this.select();"><%- input %></textarea>
@@ -113,7 +137,6 @@
   </form>
 
   <script src="/lib/jquery-1.7.2.min.js"></script>
-  <script src="/lib/ajaxupload.3.5.js"></script>
   <script src="/nowjs/now.js"></script>
 
   <script src="/lib/codemirror/lib/codemirror.js"></script>
@@ -123,6 +146,8 @@
   <script src="/lib/codemirror/mode/css/css.js"></script>
   <script src="/lib/codemirror/mode/htmlmixed/htmlmixed.js"></script>
   <script src="/lib/codemirror/lib/util/closetag.js"></script>
+
+  <script src="/lib/nailthumb/jquery.nailthumb.1.1.min.js"></script>
 
   <script src="/lib/colorpicker/js/colorpicker.js" type="text/javascript"></script>
 

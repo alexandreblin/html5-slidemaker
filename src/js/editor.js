@@ -79,13 +79,60 @@
 			}
 		});
 
-		new AjaxUpload($('#imgInsert'), {
-			action: '/upload',
-			//Name of the file input box
-			name: 'image',
-			onComplete: function(file, response){
-				editor.replaceSelection('<img src="' + response + '" />');
+		var images;
+		function refreshPictures() {
+			now.availableImages(slideshowID, function (err, files) {
+				images = files;
+
+				if (files.length > 0) {
+					$('#noImages').addClass('hide');
+				}
+				else {
+					$('#noImages').removeClass('hide');
+				}
+
+				$('#uploadModal .thumbnails').empty();
+				for (var i in images) {
+					$('#uploadModal .thumbnails').append('<li><a href="javascript:void(0)" data-imgid="'+i+'" class="thumbnail"><span><img src="'+ images[i] +'" alt=""></a></span></li>')
+				}
+
+				$('#uploadModal .thumbnail span').nailthumb({replaceAnimation: null});
+
+				$('#uploadModal .thumbnail').click(function() {
+					editor.replaceSelection('<img src="' + images[$(this).data('imgid')] + '" alt="" />');
+					$('#uploadModal').modal('hide');
+				});
+			});
+		}
+
+		$('#imgInsert').click(function() {
+			if (!slideshowID) {
+				alert('You have to save the slideshow before inserting pictures');
+
+				return;
 			}
+
+			$('#uploadModal').modal();
+
+			refreshPictures();
+		});
+
+		$('#uploadButton').click(function() {
+			var fd = new FormData();
+			
+			fd.append('image', document.getElementById('imageInput').files[0]);
+			
+			var xhr = new XMLHttpRequest();
+
+			//xhr.upload.addEventListener("progress", uploadProgress, false);
+			xhr.addEventListener('load', refreshPictures, false);
+			//xhr.addEventListener("error", uploadFailed, false);
+			//xhr.addEventListener("abort", uploadCanceled, false);
+
+			xhr.open('POST', '/upload/' + slideshowID);
+			xhr.send(fd);
+    		
+    		return false;
 		});
 
 		function updateShowFullscreenLink() {
