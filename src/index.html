@@ -105,14 +105,16 @@
     </div>
     <div class="modal-body">
       <form enctype="multipart/form-data" method="post" action="#">
+        <div class="alert alert-error hide">Error while uploading image.</div>
         <p>
           <label for="imageInput">Select an image to upload:</label>
           <input type="file" name="image" id="imageInput" />
           <button class="btn" id="uploadButton">Upload</button>
         </p>
         <div id="dropbox" class="grayInfo">or drag it here...</div>
+        <div id="uploadProgress" class="progress progress-striped"><div class="bar" style="width: 0%;"></div></div>
       </form>
-      <p>Click on an image to insert it:</p>
+      <p>Uploaded images:</p>
       <p class="grayInfo" id="noImages">No image uploaded yet</p>
       <ul class="thumbnails"></ul>
     </div>

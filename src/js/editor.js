@@ -118,16 +118,46 @@
 		});
 
 		function uploadPicture(pic) {
+			// little hack to set the progress bar to 0% without the CSS transition (so it goes directly back to 0)
+			$('#uploadProgress > .bar').css({'-webkit-transition-duration': '0s'});
+			$('#uploadProgress > .bar').css({width: '0%'});
+			setTimeout(function() {
+				$('#uploadProgress > .bar').css({'-webkit-transition-duration': ''});
+			}, 0);
+
+			// start animating the toolbar
+			$('#uploadProgress').addClass('active');
+
+			// hide any alerts from a previous upload
+			$('#uploadModal form .alert').hide();
+
 			var fd = new FormData();
 			
 			fd.append('image', pic);
 			
 			var xhr = new XMLHttpRequest();
 
-			//xhr.upload.addEventListener("progress", uploadProgress, false);
-			xhr.addEventListener('load', refreshPictures, false);
-			//xhr.addEventListener("error", uploadFailed, false);
-			//xhr.addEventListener("abort", uploadCanceled, false);
+			xhr.addEventListener('load', function(e) {
+				refreshPictures();
+
+				// stop animating the bar when the upload is done
+    			$('#uploadProgress > .bar').css({width: '100%'});
+    			$('#uploadProgress').removeClass('active');
+			}, false);
+			
+			xhr.upload.addEventListener("progress", function(e) {
+				if (e.lengthComputable) {
+    				var percentComplete = e.loaded * 100 / e.total;
+    				$('#uploadProgress > .bar').css({width: percentComplete + '%'});
+  				}
+			}, false);
+
+			function uploadFailed(e) {
+				$('#uploadModal form .alert-error').show();
+			}
+
+			xhr.addEventListener("error", uploadFailed, false);
+			xhr.addEventListener("abort", uploadFailed, false);
 
 			xhr.open('POST', '/upload/' + slideshowID);
 			xhr.send(fd);
@@ -143,7 +173,7 @@
 
 		$('#dropbox').bind('drop', function(e) {
 			$(this).removeClass('draghover');
-			
+
 			// jQuery wraps the originalEvent, so we try to detect that here...
 			e = e.originalEvent || e;
 			
