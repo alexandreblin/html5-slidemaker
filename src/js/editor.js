@@ -118,8 +118,14 @@
 		});
 
 		function uploadPicture(pics) {
+			$('#uploadModal form .alert-warn').html('');
 			for (var i in pics) {
 				var pic = pics[i];
+				
+				if (pic.type.substr(0, 6) != 'image/') {
+					$('#uploadModal form .alert-warn').append(pic.name + ' is not an image.<br />').show();
+					continue;
+				}
 
 				// little hack to set the progress bar to 0% without the CSS transition (so it goes directly back to 0)
 				$('#uploadProgress > .bar').css({'-webkit-transition-duration': '0s'});
