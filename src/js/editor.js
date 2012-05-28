@@ -79,13 +79,147 @@
 			}
 		});
 
-		new AjaxUpload($('#imgInsert'), {
-			action: '/upload',
-			//Name of the file input box
-			name: 'image',
-			onComplete: function(file, response){
-				editor.replaceSelection('<img src="' + response + '" />');
+		var images;
+		function refreshPictures() {
+			now.availableImages(slideshowID, function (err, files) {
+				images = files;
+
+				if (files.length > 0) {
+					$('#noImages').addClass('hide');
+				}
+				else {
+					$('#noImages').removeClass('hide');
+				}
+
+				$('#uploadModal .thumbnails').empty();
+				for (var i in images) {
+					$('#uploadModal .thumbnails').append('<li><a href="javascript:void(0)" data-imgid="'+i+'" class="thumbnail"><span><img src="'+ images[i] +'" alt=""></a></span></li>')
+				}
+
+				$('#uploadModal .thumbnail span').nailthumb({replaceAnimation: null});
+
+				$('#uploadModal .thumbnail').click(function() {
+					editor.replaceSelection('<img src="' + images[$(this).data('imgid')] + '" alt="" />');
+					$('#uploadModal').modal('hide');
+				});
+			});
+		}
+
+		$('#imgInsert').click(function() {
+			if (!slideshowID) {
+				alert('You have to save the slideshow before inserting pictures');
+
+				return;
 			}
+
+			$('#uploadModal').modal();
+
+			refreshPictures();
+		});
+
+		function uploadPicture(pics) {
+			$('#uploadModal form .alert-warn').html('');
+			var total = pics.length;
+			var done = 0;
+			var fileProgresses = [];
+			for (var i = 0; i < total; ++i) {
+				(function(i) {
+					var pic = pics[i];
+
+					if (pic.type.substr(0, 6) != 'image/') {
+						$('#uploadModal form .alert-warn').append(pic.name + ' is not an image.<br />').show();
+
+						return;
+					}
+
+					if (i == 0) {
+						// little hack to set the progress bar to 0% without the CSS transition (so it goes directly back to 0)
+						$('#uploadProgress > .bar').css({'-webkit-transition-duration': '0s'});
+						$('#uploadProgress > .bar').css({width: '0%'});
+						setTimeout(function() {
+							$('#uploadProgress > .bar').css({'-webkit-transition-duration': ''});
+						}, 0);
+
+						// start animating the toolbar
+						$('#uploadProgress').addClass('active');
+
+						// hide any alerts from a previous upload
+						$('#uploadModal form .alert').hide();
+					}
+
+					var fd = new FormData();
+					
+					fd.append('image', pic);
+					
+					var xhr = new XMLHttpRequest();
+
+					xhr.addEventListener('load', function(e) {
+						done++;
+
+						// refresh pictures and stop animating the bar when the upload is done
+						if (done == total) {
+							refreshPictures();
+
+		    				$('#uploadProgress > .bar').css({width: '100%'});
+		    				$('#uploadProgress').removeClass('active');
+		    			}
+					}, false);
+					
+					xhr.upload.addEventListener("progress", function(e) {
+						if (e.lengthComputable) {
+		    				fileProgresses[i] = e.loaded / e.total;
+
+		    				var totalProgress = 0;
+		    				for (var j = 0; j < total; ++j) {
+		    					totalProgress += (fileProgresses[j] || 0) / (total*1.0);
+		    				}
+
+		    				// set the progress bar according to which file is currently uploading and its progress
+		    				$('#uploadProgress > .bar').css({width: (totalProgress*100) + '%'});
+		    				console.log(totalProgress);
+		  				}
+					}, false);
+
+					function uploadFailed(e) {
+						$('#uploadModal form .alert-error').show();
+					}
+
+					xhr.addEventListener("error", uploadFailed, false);
+					xhr.addEventListener("abort", uploadFailed, false);
+
+					xhr.open('POST', '/upload/' + slideshowID);
+					xhr.send(fd);
+				})(i);
+			}
+		}
+
+		$('#dropbox').bind('dragenter', function(e) {
+			$(this).addClass('draghover');
+		});
+
+		$('#dropbox').bind('dragleave', function(e) {
+			$(this).removeClass('draghover');
+		});
+
+		$('#dropbox').bind('drop', function(e) {
+			$(this).removeClass('draghover');
+
+			// jQuery wraps the originalEvent, so we try to detect that here...
+			e = e.originalEvent || e;
+			
+			e.stopPropagation();
+			e.preventDefault();
+
+			// Using e.files with fallback because e.dataTransfer is immutable and can't be overridden in Polyfills (http://sandbox.knarly.com/js/dropfiles/).            
+			var files = (e.files || e.dataTransfer.files);
+
+			uploadPicture(files);
+		});
+
+		$('#imageInput').change(function() {
+			uploadPicture(document.getElementById('imageInput').files);
+    		
+    		return false;
 		});
 
 		//TODO change name function

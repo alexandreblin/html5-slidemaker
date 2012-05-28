@@ -4,6 +4,7 @@ var fs = require('fs');
 var zipstream = require('zipstream');
 var logger = require('./lib/logger');
 var git = require('./lib/gitwrapper');
+var util = require('util');
 
 var sessionStore = new express.session.MemoryStore();
 
@@ -106,23 +107,33 @@ app.configure(function(){
 });
 
 // thanks to http://www.hacksparrow.com/handle-file-uploads-in-express-node-js.html
-app.post('/upload', function(req, res) {
+app.post('/upload/:id', function(req, res, next) {
+	if (!req.files.image) { next(); return; }
+
+	var slideshowId = req.params.id;
+
     // get the temporary location of the file
     var tmp_path = req.files.image.path;
-    // set where the file should actually exists - in this case it is in the "images" directory
-    var target_path = '/uploads/' + req.files.image.name;
+
+    var target_folder = 'uploads/' + slideshowId + '/';
+
+    if (!path.existsSync(target_folder)) {
+    	fs.mkdirSync(target_folder);
+    }
+
+    // set where the file should actually exists
+    var target_path = target_folder + req.files.image.name;
 
     // move the file from the temporary location to the intended location
-    fs.rename(tmp_path, '.' + target_path, function(err) {
-        if (err) throw err;
-        
-        // delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
-        fs.unlink(tmp_path, function() {
-            if (err) throw err;
+	var is = fs.createReadStream(tmp_path)
+	var os = fs.createWriteStream(target_path);
 
-            res.send(target_path);
-        });
-    });
+	util.pump(is, os, function(err) {
+        if (err) throw err;
+		res.send('/' + target_path);
+
+		fs.unlink(tmp_path);
+	});
 });
 
 app.all('/:id', function (req, res, next) {
@@ -452,6 +463,36 @@ everyone.now.sychronize = function(roomId, callback){
 	}
 	
 	callback(roomInfos[roomId].currentSlide);
+}
+
+var validImageExtensions = ['.jpg', '.jpeg', '.gif', '.png', '.bmp', '.svg']
+function isValidImage(imgPath) {
+	return (validImageExtensions.indexOf(path.extname(imgPath).toLowerCase()) != -1);
+}
+
+everyone.now.availableImages = function(slideshowId, callback) {
+	var imagesPath = path.join('uploads', slideshowId);
+
+	if (!path.existsSync(imagesPath)) {
+		fs.mkdirSync(imagesPath);
+	}
+
+	fs.readdir(imagesPath, function (err, files) {
+		if (err) {
+			callback(err, null);
+			throw err;
+		}
+
+		var images = [];
+
+		for (var i in files) {
+			if (!isValidImage(files[i])) continue;
+
+			images.push('/' + path.join(imagesPath, files[i]));
+		}
+
+		callback(null, images);
+	})
 }
 
 function jsonObjectToArray(data){
