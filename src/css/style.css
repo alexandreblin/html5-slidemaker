@@ -120,6 +120,7 @@ body {
 
 #toolbar {
 	margin: 6px 0 0 5px;
+	white-space: nowrap;
 }
 
 #toolbar > * {
