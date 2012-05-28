@@ -43,7 +43,6 @@
 		var totalSlides;
 		var selectedSlide;
 		var currentFont = 'Arial';
-		var currentTheme = "default";
 
 		var fileName = "";
 		var isFileModified = false;
@@ -894,7 +893,9 @@
 					}
 				}
 
-				now.save(id, editor.getValue(), function(id, version) {
+				var options = {theme: currentTheme};
+
+				now.save(id, editor.getValue(), options, function(id, version) {
 					slideshowID = id;
 					slideshowVersion = version;
 					history.replaceState({}, '', '/' + slideshowID + '/' + slideshowVersion + window.location.hash);
@@ -965,7 +966,7 @@
 		}
 
 		function updatePreview() {
-			now.transform(editor.getValue(), false, function(previewHTML) {
+			now.transform(editor.getValue(), currentTheme, false, function(previewHTML) {
 				var content = previewFrame.contentDocument || previewFrame.contentWindow.document;
 
 				// putting HTML into iframe
@@ -999,7 +1000,7 @@
 					//previewFrame.contentWindow.setNowJs(now);
 				}
 				content.close();
-			}, currentTheme);
+			});
 		}
 
 		function autoEncodePre(cm, ch){

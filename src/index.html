@@ -22,7 +22,8 @@
 
   <script>
     var slideshowID = <%= id ? "'" + id + "'" : "null" %>;
-  var slideshowVersion = <%= version ? version : 1 %>;
+    var slideshowVersion = <%= version ? version : 1 %>;
+    var currentTheme = '<%= theme ? theme : "default" %>';
   </script>
 </head>
 <body>

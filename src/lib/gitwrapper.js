@@ -88,10 +88,11 @@ git.Repository.prototype.getFile = function (filename, version, callback) {
 		utils.exec('git', ['show', commit + ':' + filename], {cwd: repo.repositoryPath}, null,
 			function(code, stdout, stderr) {
 				if (code != 0) {
-					throw new Error('Error getting file "' + filename + '" at revision ' + commit + ' for repository ' + repo.repositoryPath + ':\n' + stderr);
+					callback(new Error('Error getting file "' + filename + '" at revision ' + commit + ' for repository ' + repo.repositoryPath + ':\n' + stderr), null);
 				}
-
-				callback(stdout);
+				else {
+					callback(null, stdout);
+				}
 			}
 		);
 	});

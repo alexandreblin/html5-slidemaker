@@ -47,7 +47,7 @@ function htmlencode(str) {
     return new String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function parse(input, bDownload, callback, theme) {
+function parse(input, theme, bDownload, callback) {
 	fs.readFile('template/slideshow.html', function (err, data) {
 		if (err) throw err;
 
@@ -74,7 +74,28 @@ function getSlideshowSource(id, version, callback) {
 		var repo = new git.Repository(path.join('slideshows', id));
 
 		if (repo) {
-			repo.getFile('input.html', version, callback);
+			repo.getFile('input.html', version, function(err, source) {
+				if (err) throw err;
+
+				repo.getFile('options.json', version, function(err, json) {
+					var options;
+
+					if (err) {
+						if (err.toString().indexOf("fatal: Path 'options.json' does not exist") != -1) {
+							// no options.json, just return an empty option object
+							options = {};
+						}
+						else {
+							throw err;
+						}
+					}
+					else {
+						options = JSON.parse(json);
+					}
+
+					callback(source, options);
+				})
+			});
 		}
 	}
 	catch (e) {
@@ -157,13 +178,13 @@ app.get('/:roomId/showRoom', function(req, res, next) {
 	var slideshowId = room.slideshowId;
 	var version = room.slideshowVersion;
 
-	getSlideshowSource(slideshowId, version, function(source) {
+	getSlideshowSource(slideshowId, version, function(source, options) {
 		if (!source) {
 			next();
 			return;
 		}
 
-		parse(source, function(html) {
+		parse(source, options.theme, false, function(html) {
 			html = html.replace("%slideShow%",slideshowId);
 			res.send(html);
 			
@@ -177,12 +198,12 @@ app.get('/:id/:ver?/slideshow.zip*', function(req, res, next) {
 	var slideshowId = req.params.id;
 	var version = req.params.ver || 1;
 
-	getSlideshowSource(slideshowId, version, function(source) {
+	getSlideshowSource(slideshowId, version, function(source, options) {
 		if (!source) {
 			next();
 			return;
 		}
-		parse(source, true, function(html) {
+		parse(source, options.theme, true, function(html) {
 			html = html.replace("%slideShow%",slideshowId);
 			var zip = zipstream.createZip({ level: 1 });
 
@@ -222,13 +243,13 @@ app.get('/:id/:ver?/show', function(req, res, next) {
 	var slideshowId = req.params.id;
 	var version = req.params.ver || 1;
 
-	getSlideshowSource(slideshowId, version, function(source) {
+	getSlideshowSource(slideshowId, version, function(source, options) {
 		if (!source) {
 			next();
 			return;
 		}
 
-		parse(source, false, function(html) {
+		parse(source, options.theme, false, function(html) {
 			html = html.replace("%slideShow%",slideshowId);
 			res.send(html);
 			//req.session.roomIdToJoin = req.params.id;
@@ -255,7 +276,7 @@ app.get('/:id?/:ver?', function(req, res, next){
 		var id = req.params.id;
 		var version = req.params.ver || 1;
 
-		getSlideshowSource(id, version, function(source) {
+		getSlideshowSource(id, version, function(source, options) {
 			if (!source) {
 				next()
 				return;
@@ -264,6 +285,7 @@ app.get('/:id?/:ver?', function(req, res, next){
 			res.render('index.html', {
 				id: id,
 				version: version,
+				theme: options.theme,
 				input: htmlencode(source)
 			});
 		});
@@ -273,6 +295,7 @@ app.get('/:id?/:ver?', function(req, res, next){
 		res.render('index.html', {
 			id: null,
 			version: 1,
+			theme: null,
 			input: htmlencode(fs.readFileSync('template/defaultinput.html'))
 		});
 	}
@@ -373,7 +396,7 @@ nowjs.on('disconnect', function(){
 
 everyone.now.transform = parse;
 
-everyone.now.save = function(id, data, callback) {
+everyone.now.save = function(id, data, options, callback) {
 	if (!id) {
 		do {
 			id = randomString(6);
@@ -381,7 +404,7 @@ everyone.now.save = function(id, data, callback) {
 	}
 
 	var saveFunction = function(repository) {
-		repository.commitFiles({'input.html': data}, function (version) {
+		repository.commitFiles({'input.html': data, 'options.json': JSON.stringify(options)}, function (version) {
 			logger.debug('Saved slideshow ' + id + ' at version ' + version);
 
 			callback(id, version);
