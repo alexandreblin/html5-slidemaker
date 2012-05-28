@@ -637,9 +637,6 @@ function updateScale() {
 function applyCurrentTheme() {
 	if(themeList[curTheme]) {
 		$("#mainSection").addClass(themeList[curTheme].class);
-		if(themeList[curTheme].css) {
-			$('head').append('<link rel="stylesheet" href="'+themeList[curTheme].css+'" type="text/css" />');
-		}
 	}
 };
 

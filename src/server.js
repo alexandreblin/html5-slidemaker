@@ -5,6 +5,7 @@ var zipstream = require('zipstream');
 var logger = require('./lib/logger');
 var git = require('./lib/gitwrapper');
 var util = require('util');
+var themeList = require('./lib/theme.js');
 
 var sessionStore = new express.session.MemoryStore();
 
@@ -54,16 +55,29 @@ function parse(input, theme, bDownload, callback) {
 		var result = new String(data).replace('<!-- {{TITLE}} -->', 'Presentation')
 									 .replace('<!-- {{SLIDES}} -->', input);
 		var basePath = "";
-
+		var js = "";
 		if(!bDownload) {
-			var js = 	"<script src='/nowjs/now.js'></script>" +
-						"<script src='/js/remoteControl.js'></script>";
-			if(theme) {
-				js += "<script>curTheme = '" + theme + "'; </script>";
-			}
-			result = result.replace('</head>', js + '</head>');
+			js = 	"<script src='/nowjs/now.js'></script>" +
+					"<script src='/js/remoteControl.js'></script>";
 			basePath = "/";
 		}
+		if(theme) {
+			js += "<script>curTheme = '" + theme + "'; </script>";
+			if(themeList[theme].css) {
+				js += "<link rel='stylesheet' href='<!-- {{BASEPATH}} -->"+themeList[theme].css+"' type='text/css' />";
+			}
+			if(themeList[theme].img) {
+				js += "<style>" +
+					"body.loaded {"+
+						"background: url('<!-- {{BASEPATH}} -->"+themeList[theme].img+"') no-repeat top right;"+
+						"-webkit-background-size: cover;"+
+						"-moz-background-size: cover;"+
+						"-o-background-size: cover;"+
+						"background-size: cover;"+
+					"}";
+			}
+		}
+		result = result.replace('</head>', js + '</head>');
 		result = result.replace(/<!-- {{BASEPATH}} -->/g, basePath);
 		callback(result);
 	});
@@ -216,6 +230,13 @@ app.get('/:id/:ver?/slideshow.zip*', function(req, res, next) {
 				{name: '/lib/theme.js', content: 'lib/theme.js'},
 				{name: '/lib/jquery-1.7.2.min.js', content: 'lib/jquery-1.7.2.min.js'}
 			];
+
+			if(options.theme) {
+				var css = themeList[options.theme].css;
+				files.push({name: "/"+css, content: css});
+				var img = themeList[options.theme].img;
+				files.push({name: "/"+img, content: img});
+			}
 
 			function addFiles() {
 				if (files.length == 0) return zip.finalize();

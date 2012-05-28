@@ -230,7 +230,7 @@ body {
     position: relative; /* need this to precisely position the color indicator */
 }
 
-a.disabled {
+#toolbar li > a.disabled {
 	color: rgb(169,162,141);
 }
 

@@ -12,14 +12,6 @@
 	background: -o-linear-gradient(top, #f1ebc8, #ffffff);
 }
 
-body.loaded {
-	background: url('/img/water-on-hill.jpg') no-repeat top right;
-	-webkit-background-size: cover;
-	-moz-background-size: cover;
-	-o-background-size: cover;
-	background-size: cover;
-}
-
 article h1, article h2, article h3 {
 	color: #7A592F;
 }
