@@ -381,7 +381,7 @@ everyone.now.save = function(id, data, callback) {
 	}
 
 	var saveFunction = function(repository) {
-		repository.commitFile('input.html', data, function (version) {
+		repository.commitFiles({'input.html': data}, function (version) {
 			logger.debug('Saved slideshow ' + id + ' at version ' + version);
 
 			callback(id, version);

@@ -16,7 +16,7 @@ git.createRepository = function(repositoryPath, callback) {
 			callback(new git.Repository(repositoryPath));
 		}
 	);
-}
+};
 
 git.Repository = function(repositoryPath) {
 	this.repositoryPath = repositoryPath;
@@ -98,36 +98,40 @@ git.Repository.prototype.getFile = function (filename, version, callback) {
 };
 
 // commits a single file to the repository
-git.Repository.prototype.commitFile = function(filename, content, callback) {
+git.Repository.prototype.commitFiles = function(files, callback) {
 	var repo = this;
 
-	fs.writeFile(path.join(repo.repositoryPath, filename), content, function(err) {
-		if (err) {
-			throw new Error(err);
-		}
+	var gitArgs = ['add'];
 
-		utils.exec('git', ['add', filename], {cwd: repo.repositoryPath}, null,
-			function(code, stdout, stderr) {
-				if (code != 0) {
-					throw new Error('Error saving file "' + filename + '" to repository ' + repo.repositoryPath + ':\n' + stderr);
-				}
+	for (var filename in files) {
+		var content = files[filename];
 
-				utils.exec('git', ['commit', '--allow-empty', '-m', 'slideshow', filename], {cwd: repo.repositoryPath}, null,
-					function(code, stdout, stderr) {
-						if (code != 0) {
-							throw new Error('Error saving file "' + filename + '" to repository ' + repo.repositoryPath + ':\n' + stderr);
-						}
+		fs.writeFileSync(path.join(repo.repositoryPath, filename), content);
 
-						// getting first line of stdout which contains the short sha1 of the commit
-						var firstLine = stdout.split('\n')[0];
+		gitArgs.push(filename);
+	}
 
-						// first line is of the form "[master 124bab4] commit_message]" where 124bab4 is the short hash
-						var sha1 = /\[.* ([a-z0-9]+)\]/.exec(firstLine)[1];
-
-						repo.commitNumber(sha1, callback);
-					}
-				);
+	utils.exec('git', gitArgs, {cwd: repo.repositoryPath}, null,
+		function(code, stdout, stderr) {
+			if (code != 0) {
+				throw new Error('Error saving file "' + filename + '" to repository ' + repo.repositoryPath + ':\n' + stderr);
 			}
-		);
-	});
+
+			utils.exec('git', ['commit', '--allow-empty', '-m', 'slideshow', filename], {cwd: repo.repositoryPath}, null,
+				function(code, stdout, stderr) {
+					if (code != 0) {
+						throw new Error('Error saving file "' + filename + '" to repository ' + repo.repositoryPath + ':\n' + stderr);
+					}
+
+					// getting first line of stdout which contains the short sha1 of the commit
+					var firstLine = stdout.split('\n')[0];
+
+					// first line is of the form "[master 124bab4] commit_message]" where 124bab4 is the short hash
+					var sha1 = /\[.* ([a-z0-9]+)\]/.exec(firstLine)[1];
+
+					repo.commitNumber(sha1, callback);
+				}
+			);
+		}
+	);
 };
