@@ -10,7 +10,7 @@ git.createRepository = function(repositoryPath, callback) {
 	utils.exec('git', ['init'], {cwd: repositoryPath}, null,
 		function(code, stdout, stderr) {
 			if (code != 0) {
-				throw new Error('Error initializing git repository ' + repo.repositoryPath + ':\n' + stderr);
+				throw new Error('Error initializing git repository ' + repositoryPath + ':\n' + stderr);
 			}
 
 			callback(new git.Repository(repositoryPath));
