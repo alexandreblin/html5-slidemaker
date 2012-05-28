@@ -45,8 +45,7 @@
 		var currentFont = 'Arial';
 
 		var fileName = "";
-		var isFileModified = false;
-		var onLoadFile = false;
+		var isFileModified = true;
 		var t;
 
 		for(t in slideTemplate){
@@ -226,8 +225,8 @@
 			if (slideshowID) {
 				$('#fullscreenGroup').removeClass('hide');
 				$('#fullscreen').attr('href', '/' + slideshowID + '/' + slideshowVersion + '/show#' + (selectedSlide+1));
-				$("#downloadTool").removeClass("disabled");
-				$("#cloneTool").removeClass("disabled");
+				$('#download').attr('href', '/' + slideshowID + '/' + slideshowVersion + '/slideshow.zip');
+				$('#saveButton button').removeClass('disabled');
 			}
 		}
 
@@ -292,16 +291,7 @@
 			onChange: function() {
 				clearTimeout(delay);
 				delay = setTimeout(updatePreview, 300);
-				if(!onLoadFile){
-					isFileModified = true;
-				}else{
-					onLoadFile = false;
-					isFileModified = false;
-				}
-
-				if (isFileModified) {
-					$('#saveButton button').removeClass("disabled");
-				}
+				isFileModified = true;
 			},
 			onCursorActivity: function() {
 				selectedSlide = getSlideInfoOnCursor();
@@ -879,6 +869,7 @@
 			else if(tool == "theme") {
 				currentTheme = $(this).data('theme');
 				updatePreview();
+				isFileModified = true;
 				return;
 
 			} else if (tool == "save" || tool == "clone") {
@@ -886,9 +877,9 @@
 				if (tool == "clone") {
 					// force a new ID if we clone the slideshow
 					id = null;
-					if($("#cloneTool").is('.disabled')){
-						return;
-					}
+				}
+				else if (!isFileModified) {
+					return; // don't save if there are no modifications
 				}
 
 				var options = {theme: currentTheme};
@@ -899,12 +890,10 @@
 					history.replaceState({}, '', '/' + slideshowID + '/' + slideshowVersion + window.location.hash);
 					updateShowFullscreenLink();
 					updatePreview();
+
+					isFileModified = false;
 				});
 				return;
-			} else if (tool == "download") {
-				if(!$("#downloadTool").is('.disabled')){
-					location.href= '/' + slideshowID + '/' + slideshowVersion + "/slideshow.zip";
-				}
 			} else if(tool == "prev") {
 				if(selectedSlide > 0){
 					previewFrame.contentWindow.prevSlide();

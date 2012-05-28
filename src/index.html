@@ -38,10 +38,10 @@
   <div class="btn-toolbar" id="toolbar">
     <div class="btn-group" id="saveButton">
       <button class="btn" data-tool="save" id="save"><i class="icon-16x16"></i> Save</button>
-      <button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-      <ul class="dropdown-menu" id="fullscreenMode2">
-        <li><a id="downloadTool"  class="disabled" data-tool="download" href="javascript:void(0)">Download</a></li>
-		<li><a id="cloneTool"  class="disabled" data-tool="clone" href="javascript:void(0)">Clone</a></li>
+      <button class="btn dropdown-toggle disabled" data-toggle="dropdown"><span class="caret"></span></button>
+      <ul class="dropdown-menu">
+        <li><a id="download" href="javascript:void(0)">Download</a></li>
+		    <li><a data-tool="clone" href="javascript:void(0)">Clone</a></li>
       </ul>
     </div>
 
@@ -49,7 +49,7 @@
       <a href="" target="_blank" class="btn" id="fullscreen" ><i class="icon-16x16"></i> Show fullscreen</a>
       <button id="fullscreenDropdown" class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
       <ul class="dropdown-menu" id="fullscreenMode">
-        <li><a id="createRoom" href="javascript:void(0)" >Within room</a></li>
+        <li><a id="createRoom" href="javascript:void(0)">Within room</a></li>
       </ul>
     </div>
     
