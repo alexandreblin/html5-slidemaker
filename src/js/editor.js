@@ -956,7 +956,7 @@
 		$('#colorpickertool > button:first').click(function() {
 			changeSelectionColor(currentColor);
 		});
-
+		
 		function updatePreview() {
 			now.transform(editor.getValue(), currentTheme, false, function(previewHTML) {
 				var content = previewFrame.contentDocument || previewFrame.contentWindow.document;
