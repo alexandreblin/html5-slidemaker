@@ -18,66 +18,9 @@
     <title><!-- {{TITLE}} --></title>
 
     <meta charset="utf-8">
-	<script src="/lib/jquery-1.7.2.min.js"></script>
-	<script src="/nowjs/now.js"></script>
-	<script src="/lib/theme.js"></script>
-	<script src="/lib/slides.js"></script>
-
-    <!--<link href="/lib/uulm/uulm.css" rel="stylesheet">-->
-
-	<script>
-		$(document).ready(function(){
-
-			var slideShow = "%slideShow%";
-			var synchro = true;
-		
-			if(parent !== window){
-
-				initNow = function(obj){
-					now = obj;
-				}
-				
-				parent.$(parent.document).trigger('initNow', [initNow]);
-			
-			}else{
-				$('#link_edit').removeClass('hidden');
-				$('#link_synchro').removeClass('hidden');
-			}
-			
-			now.ready(function() {
-				now.goTo = function(slide, event){
-				
-					if(event == 'swiperight'){
-						prevSlide();
-					}else if(event == 'swipeleft'){
-						nextSlide();
-					}else{
-						gotoSlide(slide);
-					}
-				}
-				
-				$('#link_edit').click(function(){
-					$('#link_edit').attr('href', '/' + slideShow + '#slide' + (parseInt(curSlide) +1));
-				});
-			
-				$('#link_synchro').click(function(){
-					if(synchro){
-						now.unsychronize(now.room);
-						$('#link_synchro').text('Sychronize');
-						synchro = false;
-					}else{
-						now.sychronize(now.room, function(slide){
-							gotoSlide(slide);
-						});
-						$('#link_synchro').text('Unsychronize');
-						synchro = true;
-					}
-				
-				});
-				
-			});
-		});
-	</script>
+	<script src="<!-- {{BASEPATH}} -->lib/jquery-1.7.2.min.js"></script>
+	<script src="<!-- {{BASEPATH}} -->lib/theme.js"></script>
+	<script src="<!-- {{BASEPATH}} -->lib/slides.js"></script>
   </head>
   
   <style>

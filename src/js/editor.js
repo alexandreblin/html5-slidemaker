@@ -88,10 +88,13 @@
 			}
 		});
 
+		//TODO change name function
 		function updateShowFullscreenLink() {
 			if (slideshowID) {
 				$('#fullscreenGroup').removeClass('hide');
 				$('#fullscreen').attr('href', '/' + slideshowID + '/' + slideshowVersion + '/show#' + (selectedSlide+1));
+				$("#downloadTool").removeClass("disabled");
+				$("#cloneTool").removeClass("disabled");
 			}
 		}
 
@@ -752,6 +755,9 @@
 				if (tool == "clone") {
 					// force a new ID if we clone the slideshow
 					id = null;
+					if($("#cloneTool").is('.disabled')){
+						return;
+					}
 				}
 
 				now.save(id, editor.getValue(), function(id, version) {
@@ -761,11 +767,12 @@
 					updateShowFullscreenLink();
 					updatePreview();
 				});
-				$('#saveButton button').addClass("disabled");
-
 				return;
-			}
-			else if(tool == "prev") {
+			} else if (tool == "download") {
+				if(!$("#downloadTool").is('.disabled')){
+					location.href= '/' + slideshowID + '/' + slideshowVersion + "/slideshow.zip";
+				}
+			} else if(tool == "prev") {
 				if(selectedSlide > 0){
 					previewFrame.contentWindow.prevSlide();
 				}
@@ -824,7 +831,7 @@
 		}
 
 		function updatePreview() {
-			now.transform(editor.getValue(), function(previewHTML) {
+			now.transform(editor.getValue(), false, function(previewHTML) {
 				var content = previewFrame.contentDocument || previewFrame.contentWindow.document;
 
 				// putting HTML into iframe

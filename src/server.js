@@ -46,15 +46,24 @@ function htmlencode(str) {
     return new String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function parse(input, callback, theme) {
+function parse(input, bDownload, callback, theme) {
 	fs.readFile('template/slideshow.html', function (err, data) {
 		if (err) throw err;
 
 		var result = new String(data).replace('<!-- {{TITLE}} -->', 'Presentation')
 									 .replace('<!-- {{SLIDES}} -->', input);
+		var basePath = "";
 
-		var js = "<script>curTheme = '" + theme + "'; </script>";
-		result = result.replace('</head>', js + '</head>');
+		if(!bDownload) {
+			var js = 	"<script src='/nowjs/now.js'></script>" +
+						"<script src='/js/remoteControl.js'></script>";
+			if(theme) {
+				js += "<script>curTheme = '" + theme + "'; </script>";
+			}
+			result = result.replace('</head>', js + '</head>');
+			basePath = "/";
+		}
+		result = result.replace(/<!-- {{BASEPATH}} -->/g, basePath);
 		callback(result);
 	});
 }
@@ -153,7 +162,7 @@ app.get('/:roomId/showRoom', function(req, res, next) {
 	});
 });
 
-app.get('/:id/:ver?/download', function(req, res, next) {
+app.get('/:id/:ver?/slideshow.zip*', function(req, res, next) {
 	var slideshowId = req.params.id;
 	var version = req.params.ver || 1;
 
@@ -162,7 +171,7 @@ app.get('/:id/:ver?/download', function(req, res, next) {
 			next();
 			return;
 		}
-		parse(source, function(html) {
+		parse(source, true, function(html) {
 			html = html.replace("%slideShow%",slideshowId);
 			var zip = zipstream.createZip({ level: 1 });
 
@@ -208,7 +217,7 @@ app.get('/:id/:ver?/show', function(req, res, next) {
 			return;
 		}
 
-		parse(source, function(html) {
+		parse(source, false, function(html) {
 			html = html.replace("%slideShow%",slideshowId);
 			res.send(html);
 			//req.session.roomIdToJoin = req.params.id;

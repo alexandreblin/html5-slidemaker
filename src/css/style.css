@@ -190,6 +190,10 @@ body {
     position: relative; /* need this to precisely position the color indicator */
 }
 
+a.disabled {
+	color: rgb(169,162,141);
+}
+
 #colorpickertool #colorindicator {
 	display: block;
 	background-color: black;
