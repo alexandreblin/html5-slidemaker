@@ -1,6 +1,7 @@
 var express = require('express');
 var path = require('path');
 var fs = require('fs');
+var zipstream = require('zipstream');
 var logger = require('./lib/logger');
 var git = require('./lib/gitwrapper');
 
@@ -151,6 +152,51 @@ app.get('/:roomId/showRoom', function(req, res, next) {
 		});
 	});
 });
+
+app.get('/:id/:ver?/download', function(req, res, next) {
+	var slideshowId = req.params.id;
+	var version = req.params.ver || 1;
+
+	getSlideshowSource(slideshowId, version, function(source) {
+		if (!source) {
+			next();
+			return;
+		}
+		parse(source, function(html) {
+			html = html.replace("%slideShow%",slideshowId);
+			var zip = zipstream.createZip({ level: 1 });
+
+			var buf = new Buffer(html);
+
+			/*zip.addFile(buf, { name: 'index.html' }, function() {
+			zip.addFile(fs.createReadStream('lib/slides.js'), { name: '/lib/slides.js' }, function() {
+			zip.addFile(fs.createReadStream('lib/jquery-1.7.2.min.js'), { name: '/lib/jquery-1.7.2.min.js' }, function() {
+			zip.finalize(function(written) { console.log(written + ' total bytes written'); });
+			});
+				});
+			});*/
+			var fileList = [];
+			fileList[0] = {source: buf, file: { name: 'index.html' }, isBuffer: true};
+			fileList[1] = {source: 'lib/slides.js', file: { name: '/lib/slides.js' }, isBuffer: false};
+			fileList[2] = {source: 'lib/theme.js', file: { name: '/lib/theme.js' }, isBuffer: false};
+			fileList[3] = {source: 'lib/jquery-1.7.2.min.js', file: { name: '/lib/jquery-1.7.2.min.js' }, isBuffer: false};
+			addFiles(fileList, 0);
+
+			zip.pipe(res);
+			function addFiles(objectList, ind) {
+				if(ind < objectList.length) {
+					var fObj = objectList[ind];
+					return zip.addFile(fObj.isBuffer ? fObj.source : fs.createReadStream(fObj.source), fObj.file, function() {
+						addFiles(objectList, parseInt(ind)+1);
+					});
+				} else {
+					return zip.finalize(function(written) { console.log(written + ' total bytes written'); });
+				}
+			}
+		});
+	});
+});
+
 
 app.get('/:id/:ver?/show', function(req, res, next) {
 	var slideshowId = req.params.id;

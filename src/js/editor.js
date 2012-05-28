@@ -729,6 +729,8 @@
 				return;
 			}
 			else if(tool == "iframe"){
+				downloadSlideshow();
+				return;
 				var src = prompt("Enter the URL of iframe content");
 				cleanSelection();
 				if (src) {
@@ -815,6 +817,11 @@
 		$('#colorpickertool > button:first').click(function() {
 			changeSelectionColor(currentColor);
 		});
+
+
+		function downloadSlideshow() {
+			now.downloadSlideshow();
+		}
 
 		function updatePreview() {
 			now.transform(editor.getValue(), function(previewHTML) {
