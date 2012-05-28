@@ -207,33 +207,33 @@ app.get('/:id/:ver?/slideshow.zip*', function(req, res, next) {
 			html = html.replace("%slideShow%",slideshowId);
 			var zip = zipstream.createZip({ level: 1 });
 
-			var buf = new Buffer(html);
-
-			/*zip.addFile(buf, { name: 'index.html' }, function() {
-			zip.addFile(fs.createReadStream('lib/slides.js'), { name: '/lib/slides.js' }, function() {
-			zip.addFile(fs.createReadStream('lib/jquery-1.7.2.min.js'), { name: '/lib/jquery-1.7.2.min.js' }, function() {
-			zip.finalize(function(written) { console.log(written + ' total bytes written'); });
-			});
-				});
-			});*/
-			var fileList = [];
-			fileList[0] = {source: buf, file: { name: 'index.html' }, isBuffer: true};
-			fileList[1] = {source: 'lib/slides.js', file: { name: '/lib/slides.js' }, isBuffer: false};
-			fileList[2] = {source: 'lib/theme.js', file: { name: '/lib/theme.js' }, isBuffer: false};
-			fileList[3] = {source: 'lib/jquery-1.7.2.min.js', file: { name: '/lib/jquery-1.7.2.min.js' }, isBuffer: false};
-			addFiles(fileList, 0);
-
+			// pipe the zip directly to the client
 			zip.pipe(res);
-			function addFiles(objectList, ind) {
-				if(ind < objectList.length) {
-					var fObj = objectList[ind];
-					return zip.addFile(fObj.isBuffer ? fObj.source : fs.createReadStream(fObj.source), fObj.file, function() {
-						addFiles(objectList, parseInt(ind)+1);
-					});
-				} else {
-					return zip.finalize(function(written) { console.log(written + ' total bytes written'); });
-				}
+
+			var files = [
+				{name: 'index.html', content: new Buffer(html)},
+				{name: '/lib/slides.js', content: 'lib/slides.js'},
+				{name: '/lib/theme.js', content: 'lib/theme.js'},
+				{name: '/lib/jquery-1.7.2.min.js', content: 'lib/jquery-1.7.2.min.js'}
+			];
+
+			function addFiles() {
+				if (files.length == 0) return zip.finalize();
+				
+				// get the first file
+				var f = files[0];
+
+				// no need to create a ReadStream for Buffers as zipstream handles them itself
+				var source = (f.content instanceof Buffer) ? f.content : fs.createReadStream(f.content);
+
+				// remove the first file from the array
+				files.shift();
+
+				// add the file and call this function again when done to add the next files
+				zip.addFile(source, {name: f.name}, addFiles);
 			}
+
+			addFiles();
 		});
 	});
 });
