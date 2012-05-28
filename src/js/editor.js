@@ -193,10 +193,18 @@
 
 		$('#dropbox').bind('dragenter', function(e) {
 			$(this).addClass('draghover');
+
+			return false;
+		});
+
+		$('#dropbox').bind('dragover', function(e) {
+			return false;
 		});
 
 		$('#dropbox').bind('dragleave', function(e) {
 			$(this).removeClass('draghover');
+
+			return false;
 		});
 
 		$('#dropbox').bind('drop', function(e) {
@@ -212,6 +220,8 @@
 			var files = (e.files || e.dataTransfer.files);
 
 			uploadPicture(files);
+
+			return false;
 		});
 
 		$('#imageInput').change(function() {
