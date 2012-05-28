@@ -101,24 +101,20 @@ git.Repository.prototype.getFile = function (filename, version, callback) {
 // commits a single file to the repository
 git.Repository.prototype.commitFiles = function(files, callback) {
 	var repo = this;
-
-	var gitArgs = ['add'];
-
+	
 	for (var filename in files) {
 		var content = files[filename];
 
 		fs.writeFileSync(path.join(repo.repositoryPath, filename), content);
-
-		gitArgs.push(filename);
 	}
 
-	utils.exec('git', gitArgs, {cwd: repo.repositoryPath}, null,
+	utils.exec('git', ['add', '-A'], {cwd: repo.repositoryPath}, null,
 		function(code, stdout, stderr) {
 			if (code != 0) {
-				throw new Error('Error saving file "' + filename + '" to repository ' + repo.repositoryPath + ':\n' + stderr);
+				throw new Error('Error adding files to repository ' + repo.repositoryPath + ':\n' + stderr);
 			}
 
-			utils.exec('git', ['commit', '--allow-empty', '-m', 'slideshow', filename], {cwd: repo.repositoryPath}, null,
+			utils.exec('git', ['commit', '--allow-empty', '-m', 'slideshow'], {cwd: repo.repositoryPath}, null,
 				function(code, stdout, stderr) {
 					if (code != 0) {
 						throw new Error('Error saving file "' + filename + '" to repository ' + repo.repositoryPath + ':\n' + stderr);
