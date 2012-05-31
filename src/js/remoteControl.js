@@ -1,6 +1,5 @@
 $(document).ready(function(){
-
-	var slideShow = "%slideShow%";
+	
 	var synchro = true;
 
 	if(parent !== window){
@@ -29,7 +28,7 @@ $(document).ready(function(){
 		}
 
 		$('#link_edit').click(function(){
-			$('#link_edit').attr('href', '/' + slideShow + '#slide' + (parseInt(curSlide) +1));
+			$('#link_edit').attr('href', '/' + slideShow + '/' + slideShowVersion + '#slide' + (parseInt(curSlide) +1));
 		});
 
 		$('#link_synchro').click(function(){

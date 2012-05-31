@@ -199,7 +199,7 @@ app.get('/:roomId/showRoom', function(req, res, next) {
 		}
 
 		parse(source, options.theme, false, function(html) {
-			html = html.replace("%slideShow%",slideshowId);
+			html = html.replace("%slideShow%",slideshowId).replace("%slideShowVersion%",version);
 			res.send(html);
 			
 			// Add the user to the room
@@ -221,6 +221,9 @@ app.get('/:id/:ver?/slideshow.zip*', function(req, res, next) {
 			html = html.replace("%slideShow%",slideshowId);
 
 			html = html.replace(new RegExp("src=\"/uploads/"+slideshowId, 'g'), 'src="img');
+
+			html = html.replace("%slideShow%",slideshowId).replace("%slideShowVersion%",version);
+
 			var zip = zipstream.createZip({ level: 1 });
 
 			// pipe the zip directly to the client
@@ -234,9 +237,14 @@ app.get('/:id/:ver?/slideshow.zip*', function(req, res, next) {
 			];
 			if(options.theme) {
 				var css = themeList[options.theme].css;
-				files.push({name: "/"+css, content: css});
+				if (css) {
+					files.push({name: "/"+css, content: css});
+				}
+
 				var img = themeList[options.theme].img;
-				files.push({name: "/"+img, content: img});
+				if (img) {
+					files.push({name: "/"+img, content: img});
+				}
 			}
 			if(path.existsSync("uploads/"+slideshowId)) {
 				fs.readdir("uploads/"+slideshowId, function (err, myFiles) {
@@ -280,7 +288,7 @@ app.get('/:id/:ver?/show', function(req, res, next) {
 		}
 
 		parse(source, options.theme, false, function(html) {
-			html = html.replace("%slideShow%",slideshowId);
+			html = html.replace("%slideShow%",slideshowId).replace("%slideShowVersion%",version);
 			res.send(html);
 			//req.session.roomIdToJoin = req.params.id;
 		});

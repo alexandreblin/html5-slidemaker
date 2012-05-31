@@ -235,7 +235,6 @@
 			if (slideshowID) {
 				$('#fullscreenGroup').removeClass('hide');
 				$('#fullscreen').attr('href', '/' + slideshowID + '/' + slideshowVersion + '/show#' + (selectedSlide+1));
-				$('#download').attr('href', '/' + slideshowID + '/' + slideshowVersion + '/slideshow.zip');
 				$('#saveButton button').removeClass('disabled');
 			}
 		}
@@ -882,13 +881,16 @@
 				isFileModified = true;
 				return;
 
-			} else if (tool == "save" || tool == "clone") {
+			} else if (tool == "save" || tool == "clone" || tool == "download") {
 				var id = slideshowID;
 				if (tool == "clone") {
 					// force a new ID if we clone the slideshow
 					id = null;
 				}
 				else if (!isFileModified) {
+					if (tool == "download") {
+						window.location.href = '/' + slideshowID + '/' + slideshowVersion + '/slideshow.zip';
+					}
 					return; // don't save if there are no modifications
 				}
 
@@ -900,6 +902,10 @@
 					history.replaceState({}, '', '/' + slideshowID + '/' + slideshowVersion + window.location.hash);
 					updateShowFullscreenLink();
 					updatePreview();
+
+					if (tool == 'download') {
+						window.location.href = '/' + slideshowID + '/' + slideshowVersion + '/slideshow.zip';
+					}
 
 					isFileModified = false;
 				});
