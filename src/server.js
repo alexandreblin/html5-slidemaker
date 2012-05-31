@@ -199,7 +199,7 @@ app.get('/:roomId/showRoom', function(req, res, next) {
 		}
 
 		parse(source, options.theme, false, function(html) {
-			html = html.replace("%slideShow%",slideshowId);
+			html = html.replace("%slideShow%",slideshowId).replace("%slideShowVersion%",version);
 			res.send(html);
 			
 			// Add the user to the room
@@ -218,7 +218,7 @@ app.get('/:id/:ver?/slideshow.zip*', function(req, res, next) {
 			return;
 		}
 		parse(source, options.theme, true, function(html) {
-			html = html.replace("%slideShow%",slideshowId);
+			html = html.replace("%slideShow%",slideshowId).replace("%slideShowVersion%",version);
 			var zip = zipstream.createZip({ level: 1 });
 
 			// pipe the zip directly to the client
@@ -271,7 +271,7 @@ app.get('/:id/:ver?/show', function(req, res, next) {
 		}
 
 		parse(source, options.theme, false, function(html) {
-			html = html.replace("%slideShow%",slideshowId);
+			html = html.replace("%slideShow%",slideshowId).replace("%slideShowVersion%",version);
 			res.send(html);
 			//req.session.roomIdToJoin = req.params.id;
 		});
