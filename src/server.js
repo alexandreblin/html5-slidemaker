@@ -233,9 +233,14 @@ app.get('/:id/:ver?/slideshow.zip*', function(req, res, next) {
 
 			if(options.theme) {
 				var css = themeList[options.theme].css;
-				files.push({name: "/"+css, content: css});
+				if (css) {
+					files.push({name: "/"+css, content: css});
+				}
+
 				var img = themeList[options.theme].img;
-				files.push({name: "/"+img, content: img});
+				if (img) {
+					files.push({name: "/"+img, content: img});
+				}
 			}
 
 			function addFiles() {
