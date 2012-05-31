@@ -1,55 +1,126 @@
 <article>
   <h1>
-    Title Goes Here Up
-    <br>
-    To Two Lines
+    HTML5 Slide Maker
   </h1>
   <p>
-    Sergey Brin
-    <br>
-    May 10, 2011
+    A live HTML5 slideshow editor using NodeJS
   </p>
 </article>
 
 <article>
+  <h3>
+    Getting started
+  </h3>
   <p>
-    This is a slide with just text. This is a slide with just text.
-    This is a slide with just text. This is a slide with just text.
-    This is a slide with just text. This is a slide with just text.
+    It's easy. Just change the code on the left and the preview will be updated instantly!
+  </p>
+  
+    <p>
+      Save your slideshow, then you can display it fullscreen or send the link to someone else.
+  </p>
+  
+    <p>
+        Each time you save, a new version is created. This way, you can freely share the link and no one can overwrite your work.
+  </p>
+    <p>
+      You can also download a ZIP archive containing all the required files by clicking the submenu next to Save.
+    </p>
+</article>
+
+<article>
+  <h3>
+    Add pictures
+  </h3>
+  <p>
+    You can add pictures directly from your desktop.
   </p>
   <p>
-    There is more text just underneath.
+      Just click on the Insert image button <img src="/img/image-add.png" alt="Insert image" /> and browse for the images you want to add, or simply drop them on the window!
+    </p>
+  
+    <img class="centered" src="http://img.madjawa.net/64zvs.png" alt="" />
+    
+    <p>
+        The uploaded images stay on the server, just click on the one you want to add it to the presentation.
   </p>
 </article>
 
 <article>
-  <h3>Code sample</h3>
+  <h3>
+    Synchronize a slideshow across multiple computers!
+  </h3>
+  <p>
+      You can do that in 3 easy steps :
+  </p>
+    <ul>
+      <li>Save your slideshow</li>
+      <li>Click the arrow next to Show fullscreen and choose "Within room"</li>
+      <li>Share the link to other computers</li>
+    </ul>
+  
+    <p>The person who choosed "Within room" becomes presenter and when slides are changes, they also do on the other computers.</p>
+</article>
 
-  <pre>&lt;script&gt;
-function handleTouchStart(event) {
-    event.preventDefault();
+<article>
+  <h3>
+    Smartphone remote control
+    </h3>
+  
+    <p>
+      When doing a synchronized slideshow, the presenter can go to the same URL on a smartphone, but append "/remote" at the end. The smartphone can then be used to change slides  
+    </p>
+  
+    <p>
+      In the future, we'll make a random unique URL to remote control the slideshow to prevent just anyone taking control.  
+  </p>
+</article>
 
-    if (event.touches.length == 1) {
-        touchDX = 0;
-        touchDY = 0;
+<article>
+  <h3>
+    Example of slide with iframe
+  </h3>
+    <iframe src="http://www.w3.org"></iframe>
+</article>
 
-        touchStartX = event.touches[0].pageX;
-        touchStartY = event.touches[0].pageY;
+<article>
+  <h3>
+    Example of embedded JSBin application
+  </h3>
+    <iframe src="http://jsbin.com/erofum/12"></iframe>
+</article>
 
-        document.body.addEventListener('touchmove', handleTouchMove, true);
-        document.body.addEventListener('touchend', handleTouchEnd, true);
-    }
-};
+<article>
+  <h3>
+    If you have any questions
+  </h3>
+  
+  <ul>
+    <li>Conceptors:</li>
+    <li> 
+      <a href="mailto:nom@contact@alexandreblin.fr">
+        Alexandre Blin
+      </a>
+    </li>
+    <li> 
+      <a href="mailto:antho.guerin@gmail.com">
+    Anthony Guérin
+      </a>
+    </li>
+    <li> 
+      <a href="mailto:mojo_milo@mail.ru">
+        Tatiana Kulish
+      </a>
+    </li>
+    <li> 
+      <a href="mailto:marc.ternisien@gmail.com">
+        Marc Ternisien
+      </a>
+    </li>
+  </ul>
+  
+  <ul>
+    <li>Supervisor:</li>
+    <li><a href="mailto:micbuffa@gmail.com">Michel Buffa</a></li>
+  </ul>
 
-function handleTouchMove(event) {
-    event.preventDefault();
-
-    if (event.touches.length &gt; 1) {
-        cancelTouch();
-    } else {
-        touchDX = event.touches[0].pageX - touchStartX;
-        touchDY = event.touches[0].pageY - touchStartY;
-    }
-};
-&lt;/script&gt;</pre>
 </article>
