@@ -219,6 +219,8 @@ app.get('/:id/:ver?/slideshow.zip*', function(req, res, next) {
 		}
 		parse(source, options.theme, true, function(html) {
 			html = html.replace("%slideShow%",slideshowId);
+
+			html = html.replace(new RegExp("src=\"/uploads/"+slideshowId, 'g'), 'src="img');
 			var zip = zipstream.createZip({ level: 1 });
 
 			// pipe the zip directly to the client
@@ -230,12 +232,19 @@ app.get('/:id/:ver?/slideshow.zip*', function(req, res, next) {
 				{name: '/lib/theme.js', content: 'lib/theme.js'},
 				{name: '/lib/jquery-1.7.2.min.js', content: 'lib/jquery-1.7.2.min.js'}
 			];
-
 			if(options.theme) {
 				var css = themeList[options.theme].css;
 				files.push({name: "/"+css, content: css});
 				var img = themeList[options.theme].img;
 				files.push({name: "/"+img, content: img});
+			}
+			if(path.existsSync("uploads/"+slideshowId)) {
+				fs.readdir("uploads/"+slideshowId, function (err, myFiles) {
+					if (err) throw err;
+					for(var iI = 0; iI < myFiles.length; ++iI) {
+						files.push({name: "/img/"+myFiles[iI], content: "uploads/"+slideshowId+"/"+myFiles[iI] });
+					}
+				});
 			}
 
 			function addFiles() {
