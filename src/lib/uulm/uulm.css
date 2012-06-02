@@ -188,3 +188,11 @@ article #sl_uulm-logo {
 a{
 	text-decoration: none;
 }
+
+body.loaded {
+	background: #6B2727;
+	background: -o-radial-gradient(#FDFDFD, #6B2727);
+	background: -moz-radial-gradient(#FDFDFD, #6B2727);
+	background: -webkit-radial-gradient(#FDFDFD, #6B2727);
+	background: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 500, from(#FDFDFD), to(#6B2727));
+}
