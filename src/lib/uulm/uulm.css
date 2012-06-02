@@ -190,9 +190,9 @@ a{
 }
 
 body.loaded {
-	background: #6B2727;
-	background: -o-radial-gradient(#FDFDFD, #6B2727);
-	background: -moz-radial-gradient(#FDFDFD, #6B2727);
-	background: -webkit-radial-gradient(#FDFDFD, #6B2727);
-	background: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 500, from(#FDFDFD), to(#6B2727));
+	background: #E6D1AD;
+	background: -o-radial-gradient(#FDFDFD, #E6D1AD);
+	background: -moz-radial-gradient(#FDFDFD, #E6D1AD);
+	background: -webkit-radial-gradient(#FDFDFD, #E6D1AD);
+	background: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 500, from(#FDFDFD), to(#E6D1AD));
 }
