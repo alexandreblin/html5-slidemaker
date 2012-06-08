@@ -354,7 +354,7 @@ nowjs.on('connect', function(){
 	var sid = unescape( this.user.cookie['connect.sid'] );
 	logger.debug('#on.connect# SID : ' + sid);
 	
-	if(roomManaged[this.user.cookie['connect.sid']['#timer#']] !== undefined){
+	if(sid && roomManaged[this.user.cookie['connect.sid']['#timer#']] !== undefined){
 		logger.debug('#on.connect# : Timer removed for this SID');
 		clearInterval(roomManaged[this.user.cookie['connect.sid']['#timer#']]);
 	}else{
