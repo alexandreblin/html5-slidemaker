@@ -366,7 +366,7 @@
 			var sPos = szText.indexOf(startTag);
 			var ePos = szText.indexOf(endTag);
 			while (sPos != -1 || ePos != -1) {
-				if(sPos != -1 && ePos !=1) {
+				if(sPos != -1 && ePos != -1) {
 					if(sPos < ePos){
 						tags[sPos] = true;
 						sPos = szText.indexOf(startTag, sPos+1);
