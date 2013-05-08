@@ -85,7 +85,7 @@ function parse(input, theme, bDownload, callback) {
 
 function getSlideshowSource(id, version, callback) {
 	try {
-		var repo = new git.Repository(path.join('slideshows', id));
+		var repo = new git.Repository(path.join(__dirname + '/slideshows', id));
 
 		if (repo) {
 			repo.getFile('input.html', version, function(err, source) {
