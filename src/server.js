@@ -49,7 +49,7 @@ function htmlencode(str) {
 }
 
 function parse(input, theme, bDownload, callback) {
-	fs.readFile('template/slideshow.html', function (err, data) {
+	fs.readFile(__dirname + '/template/slideshow.html', function (err, data) {
 		if (err) throw err;
 
 		var result = new String(data).replace('<!-- {{TITLE}} -->', 'Presentation')
@@ -246,7 +246,7 @@ app.get('/:id/:ver?/slideshow.zip*', function(req, res, next) {
 					files.push({name: "/"+img, content: img});
 				}
 			}
-			if(path.existsSync("uploads/"+slideshowId)) {
+			if(path.existsSync(__dirname + "/uploads/"+slideshowId)) {
 				fs.readdir("uploads/"+slideshowId, function (err, myFiles) {
 					if (err) throw err;
 					for(var iI = 0; iI < myFiles.length; ++iI) {
@@ -334,7 +334,7 @@ app.get('/:id?/:ver?', function(req, res, next){
 			id: null,
 			version: 1,
 			theme: null,
-			input: htmlencode(fs.readFileSync('template/defaultinput.html'))
+			input: htmlencode(fs.readFileSync(__dirname + '/template/defaultinput.html'))
 		});
 	}
 });
@@ -438,7 +438,7 @@ everyone.now.save = function(id, data, options, callback) {
 	if (!id) {
 		do {
 			id = randomString(6);
-		} while (path.existsSync('slideshows/' + id))
+		} while (path.existsSync(__dirname + '/slideshows/' + id))
 	}
 
 	var saveFunction = function(repository) {
