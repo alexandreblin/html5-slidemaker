@@ -150,9 +150,9 @@ app.post('/upload/:id', function(req, res, next) {
     // get the temporary location of the file
     var tmp_path = req.files.image.path;
 
-    var target_folder = 'uploads/' + slideshowId + '/';
+    var target_folder = __dirname + '/uploads/' + slideshowId + '/';
 
-    if (!path.existsSync(target_folder)) {
+    if (!fs.existsSync(target_folder)) {
     	fs.mkdirSync(target_folder);
     }
 
@@ -246,8 +246,8 @@ app.get('/:id/:ver?/slideshow.zip*', function(req, res, next) {
 					files.push({name: "/"+img, content: img});
 				}
 			}
-			if(path.existsSync(__dirname + "/uploads/"+slideshowId)) {
-				fs.readdir("uploads/"+slideshowId, function (err, myFiles) {
+			if(fs.existsSync(__dirname + "/uploads/"+slideshowId)) {
+				fs.readdir(__dirname + "/uploads/"+slideshowId, function (err, myFiles) {
 					if (err) throw err;
 					for(var iI = 0; iI < myFiles.length; ++iI) {
 						files.push({name: "/img/"+myFiles[iI], content: "uploads/"+slideshowId+"/"+myFiles[iI] });
@@ -438,7 +438,7 @@ everyone.now.save = function(id, data, options, callback) {
 	if (!id) {
 		do {
 			id = randomString(6);
-		} while (path.existsSync(__dirname + '/slideshows/' + id))
+		} while (fs.existsSync(__dirname + '/slideshows/' + id))
 	}
 
 	var saveFunction = function(repository) {
@@ -449,7 +449,7 @@ everyone.now.save = function(id, data, options, callback) {
 		});
 	}
 
-	var repositoryPath = path.join('slideshows', id);
+	var repositoryPath = path.join(__dirname + '/slideshows', id);
 
 	var repo;
 	try {
@@ -534,7 +534,7 @@ function isValidImage(imgPath) {
 everyone.now.availableImages = function(slideshowId, callback) {
 	var imagesPath = path.join('uploads', slideshowId);
 
-	if (!path.existsSync(imagesPath)) {
+	if (!fs.existsSync(imagesPath)) {
 		fs.mkdirSync(imagesPath);
 	}
 

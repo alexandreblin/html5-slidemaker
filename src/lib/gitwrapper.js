@@ -21,7 +21,7 @@ git.createRepository = function(repositoryPath, callback) {
 git.Repository = function(repositoryPath) {
 	this.repositoryPath = repositoryPath;
 
-	if (!path.existsSync(path.join(this.repositoryPath, '.git'))) {
+	if (!fs.existsSync(path.join(this.repositoryPath, '.git'))) {
 		throw new Error('Can\'t find git repository at "' + this.repositoryPath + '"');
 	}
 };
